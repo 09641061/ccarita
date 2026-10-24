@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { devRoutes } from './dev.routes';
 import { navigationFor } from './shared/presentation/components/shell/navigation-item';
 
 const pageNotFound = () =>
@@ -14,6 +15,7 @@ const navigation = navigationFor('owner');
  * (`loadChildren: () => import('./<context>/presentation/<context>.routes')`).
  */
 export const routes: Routes = [
+  ...devRoutes,
   {
     path: '',
     loadComponent: () =>
