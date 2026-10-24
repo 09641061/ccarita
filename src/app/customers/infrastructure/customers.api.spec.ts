@@ -76,4 +76,94 @@ describe('CustomersApi', () => {
     );
     await expect(result).rejects.toMatchObject({ code: 'CUSTOMER_CONFLICT' });
   });
+
+  it('reads the whole profile', async () => {
+    const result = firstValueFrom(api.get('c-1'));
+    backend.expectOne(`${API}/api/v1/customers/c-1`).flush({
+      id: 'c-1',
+      phone: '+51987654321',
+      displayName: 'Rosa Huamán',
+      name: 'Rosa Huamán',
+      whatsappProfileName: 'Rosita H.',
+      documentType: 'dni',
+      documentNumber: '45678912',
+      notes: 'Prefiere los sábados',
+    });
+    const profile = await result;
+    expect(profile.document).toEqual({ type: 'dni', number: '45678912' });
+    expect(profile.otherWhatsappName).toBe('Rosita H.');
+    expect(profile.notes).toBe('Prefiere los sábados');
+  });
+
+  it('registers with the optional details (C4)', () => {
+    api
+      .register(
+        {
+          phone: '987654321',
+          name: 'Rosa',
+          documentType: 'dni',
+          documentNumber: ' 45678912 ',
+          notes: ' Prefiere los sábados ',
+        },
+        'key-3',
+      )
+      .subscribe();
+    const request = backend.expectOne(`${API}/api/v1/customers`);
+    expect(request.request.body).toEqual({
+      phone: '987654321',
+      name: 'Rosa',
+      documentType: 'dni',
+      documentNumber: '45678912',
+      notes: 'Prefiere los sábados',
+    });
+    request.flush({ id: 'c-3', phone: '+51987654321' }, { status: 201, statusText: 'Created' });
+  });
+
+  it('updates with the whole form and leaves cleared fields out, without a key', async () => {
+    const result = firstValueFrom(
+      api.update('c-1', { name: '  ', documentType: null, documentNumber: '', notes: 'VIP' }),
+    );
+    const request = backend.expectOne(`${API}/api/v1/customers/c-1`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.headers.has('Idempotency-Key')).toBe(false);
+    expect(request.request.body).toEqual({ notes: 'VIP' });
+    request.flush({ id: 'c-1', phone: '+51987654321', displayName: '+51987654321', notes: 'VIP' });
+    const profile = await result;
+    expect(profile.name).toBeNull();
+    expect(profile.document).toBeNull();
+  });
+
+  it('sends a whole document on update', () => {
+    api
+      .update('c-1', {
+        name: 'Rosa',
+        documentType: 'ruc',
+        documentNumber: '10456789123',
+        notes: '',
+      })
+      .subscribe();
+    const request = backend.expectOne(`${API}/api/v1/customers/c-1`);
+    expect(request.request.body).toEqual({
+      name: 'Rosa',
+      documentType: 'ruc',
+      documentNumber: '10456789123',
+    });
+    request.flush({ id: 'c-1', phone: '+51987654321' });
+  });
+
+  it('deletes a customer (C5)', async () => {
+    const result = firstValueFrom(api.delete('c-1'), { defaultValue: undefined });
+    const request = backend.expectOne(`${API}/api/v1/customers/c-1`);
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null, { status: 204, statusText: 'No Content' });
+    await expect(result).resolves.toBeNull();
+  });
+
+  it('surfaces a staff member deleting', async () => {
+    const result = firstValueFrom(api.delete('c-1'));
+    backend
+      .expectOne(`${API}/api/v1/customers/c-1`)
+      .flush({ code: 'ACCESS_DENIED' }, { status: 403, statusText: 'Forbidden' });
+    await expect(result).rejects.toMatchObject({ code: 'ACCESS_DENIED' });
+  });
 });

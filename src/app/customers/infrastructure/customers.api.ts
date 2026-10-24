@@ -7,9 +7,16 @@ import type {
 } from '../../shared/infrastructure/api/pibble.schema';
 import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
 import { idempotent } from '../../shared/infrastructure/http/idempotency';
-import { Customer, RegisterCustomer } from '../domain/model/customer';
+import { RegisterCustomer } from '../domain/model/customer';
+import { CustomerDetails } from '../domain/model/customer-details';
 import { CustomerPage } from '../domain/model/customer-page';
-import { toCustomer, toCustomerPage, toRegisterCustomerRequest } from './customer.assembler';
+import { CustomerProfile } from '../domain/model/customer-profile';
+import {
+  toCustomerDetailsRequest,
+  toCustomerPage,
+  toCustomerProfile,
+  toRegisterCustomerRequest,
+} from './customer.assembler';
 
 /** `/api/v1/customers` of the selected organization. */
 @Injectable({ providedIn: 'root' })
@@ -18,10 +25,10 @@ export class CustomersApi {
   private readonly baseUrl = inject(API_BASE_URL);
 
   /** @throws ApiError `CUSTOMER_NOT_FOUND` when deleted (C5) or in another organization. */
-  get(customerId: string): Observable<Customer> {
+  get(customerId: string): Observable<CustomerProfile> {
     return this.http
       .get<CustomerResource>(`${this.baseUrl}/api/v1/customers/${customerId}`)
-      .pipe(map(toCustomer));
+      .pipe(map(toCustomerProfile));
   }
 
   /** Active customers by display name, a page at a time; digits in `query` also match the phone. */
@@ -34,13 +41,31 @@ export class CustomersApi {
   }
 
   /** C1, C3: any member, also on an inactive plan. @throws ApiError `CUSTOMER_CONFLICT`, `VALIDATION_ERROR`. */
-  register(command: RegisterCustomer, idempotencyKey: string): Observable<Customer> {
+  register(command: RegisterCustomer, idempotencyKey: string): Observable<CustomerProfile> {
     return this.http
       .post<CustomerResource>(
         `${this.baseUrl}/api/v1/customers`,
         toRegisterCustomerRequest(command),
         { context: idempotent(idempotencyKey) },
       )
-      .pipe(map(toCustomer));
+      .pipe(map(toCustomerProfile));
+  }
+
+  /**
+   * C4: replaces what staff typed; the phone never changes (C1). pibble clears what the body leaves out.
+   * @throws ApiError `VALIDATION_ERROR` (a document of the wrong format, or half a document), `CUSTOMER_NOT_FOUND`.
+   */
+  update(customerId: string, details: CustomerDetails): Observable<CustomerProfile> {
+    return this.http
+      .put<CustomerResource>(
+        `${this.baseUrl}/api/v1/customers/${customerId}`,
+        toCustomerDetailsRequest(details),
+      )
+      .pipe(map(toCustomerProfile));
+  }
+
+  /** C3, C5: owner or manager; a soft delete. @throws ApiError `ACCESS_DENIED`, `CUSTOMER_NOT_FOUND`. */
+  delete(customerId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/api/v1/customers/${customerId}`);
   }
 }

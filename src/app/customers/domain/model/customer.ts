@@ -1,3 +1,5 @@
+import { CustomerDetails } from './customer-details';
+
 /** A person the business serves, identified by their phone (C1). */
 export class Customer {
   constructor(
@@ -9,8 +11,11 @@ export class Customer {
   ) {}
 }
 
-/** C1, C3: only the phone is needed; a Peruvian mobile may leave out +51, and pibble stores it as E.164. */
-export interface RegisterCustomer {
+/**
+ * C1, C3: only the phone is needed; a Peruvian mobile may leave out +51, and pibble stores it as E.164. The rest
+ * is optional (C4).
+ */
+export interface RegisterCustomer extends Partial<Omit<CustomerDetails, 'name'>> {
   readonly phone: string;
   readonly name: string | null;
 }
