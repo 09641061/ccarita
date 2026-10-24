@@ -8,3 +8,9 @@ export class Customer {
     readonly displayName: string,
   ) {}
 }
+
+/** C1, C3: only the phone is needed; a Peruvian mobile may leave out +51, and pibble stores it as E.164. */
+export interface RegisterCustomer {
+  readonly phone: string;
+  readonly name: string | null;
+}
