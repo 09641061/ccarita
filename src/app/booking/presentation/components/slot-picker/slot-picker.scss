@@ -1,0 +1,60 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.group h3 {
+  margin: 0 0 8px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: 52px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  color: var(--mat-sys-on-surface);
+  background: var(--mat-sys-surface-container-lowest);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    border-color var(--tk-duration-short) var(--tk-motion-standard),
+    background-color var(--tk-duration-short) var(--tk-motion-standard);
+
+  span {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 11px;
+  }
+
+  &.on {
+    border-color: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
+    background: var(--mat-sys-primary);
+
+    span {
+      color: inherit;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--tk-ring);
+    outline-offset: 2px;
+  }
+}
+
+.more {
+  margin-top: 4px;
+}

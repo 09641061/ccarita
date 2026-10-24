@@ -285,7 +285,86 @@
       "back": "Volver"
     },
     "book": {
-      "title": "Reservar cita"
+      "title": "Nueva cita",
+      "rescheduleTitle": "Reprogramar cita",
+      "step": "Paso {{n}} de {{total}} · {{name}}",
+      "steps": {
+        "customer": "Cliente",
+        "service": "Servicio",
+        "time": "Fecha y hora"
+      },
+      "progress": "Progreso",
+      "back": "Volver",
+      "close": "Cerrar sin guardar",
+      "leave": "Volver al calendario",
+      "customer": "Cliente",
+      "service": "Servicio",
+      "change": "Cambiar",
+      "now": "Ahora",
+      "minutes": "{{count}} min",
+      "date": "Fecha",
+      "chooseDay": "Elegir fecha",
+      "today": "hoy",
+      "more": "más",
+      "earlierDays": "Días anteriores",
+      "laterDays": "Elegir otra fecha",
+      "time": "Hora",
+      "freeHint": "Personas libres en cada hora",
+      "morning": "Mañana",
+      "afternoon": "Tarde",
+      "free": "{{count}} libres",
+      "freeOne": "1 libre",
+      "seeAll": {
+        "morning": "Ver toda la mañana ({{count}} más)",
+        "afternoon": "Ver toda la tarde ({{count}} más)"
+      },
+      "who": "¿Con quién?",
+      "anyone": "Cualquiera",
+      "anyoneHint": "Quien tenga menos citas ese día",
+      "keep": "Mantener a {{name}}",
+      "busyThen": "Ocupado a esa hora",
+      "notice": "Si el local tiene WhatsApp conectado, el cliente recibe la confirmación por WhatsApp.",
+      "chooseTime": "Elige una hora",
+      "confirm": "Reservar · {{day}} {{from}} – {{to}}",
+      "confirmReschedule": "Reprogramar · {{day}} {{from}} – {{to}}",
+      "booking": "Reservando…",
+      "rescheduling": "Reprogramando…",
+      "planInactive": "Reservar y reprogramar vuelven cuando renueves el plan. Puedes atender las citas ya reservadas.",
+      "cannotReschedule": "Solo se reprograman las citas confirmadas que aún no empiezan.",
+      "noServices": {
+        "title": "Aún no hay servicios para reservar",
+        "message": "El dueño o un encargado los agrega en Ajustes del local, con quién los realiza."
+      },
+      "serviceGone": {
+        "title": "Este servicio ya no está disponible",
+        "message": "Elige otro servicio para reservar."
+      },
+      "noSlots": {
+        "title": "No hay horarios libres este día",
+        "message": "Prueba otro día u otra persona."
+      }
+    }
+  },
+  "customers": {
+    "search": {
+      "label": "Buscar por nombre o teléfono",
+      "register": "Registrar cliente nuevo",
+      "results": "Clientes",
+      "none": "No encontramos clientes con ese nombre o teléfono.",
+      "noCustomers": "Aún no hay clientes. Registra el primero con su teléfono.",
+      "more": "Hay más clientes: escribe parte del nombre o del teléfono."
+    },
+    "register": {
+      "title": "Cliente nuevo",
+      "lead": "Basta con el teléfono. Si es un celular de Perú, puedes omitir el +51.",
+      "phone": "Teléfono",
+      "phoneHint": "Por ejemplo: 987 654 321",
+      "phoneRequired": "Escribe el teléfono.",
+      "name": "Nombre (opcional)",
+      "back": "Volver a buscar",
+      "save": "Registrar",
+      "saving": "Registrando…",
+      "conflictHint": "Lo buscamos para que lo elijas."
     }
   },
   "pageNotFound": {
@@ -336,6 +415,9 @@
     "APPOINTMENT_CONFLICT": "La cita cambió mientras tanto. La volvimos a cargar; revisa y vuelve a intentarlo.",
     "APPOINTMENT_NOT_FOUND": "Esta cita no existe o es de otro local.",
     "REQUEST_CONFLICT": "Tu pedido anterior todavía está en curso. Reintenta en un momento.",
-    "TIME_BLOCK_NOT_FOUND": "Ese bloqueo ya no existe."
+    "TIME_BLOCK_NOT_FOUND": "Ese bloqueo ya no existe.",
+    "CUSTOMER_CONFLICT": "Ya hay un cliente con ese teléfono.",
+    "CUSTOMER_NOT_FOUND": "No encontramos a este cliente.",
+    "SERVICE_NOT_FOUND": "No encontramos este servicio."
   }
 }

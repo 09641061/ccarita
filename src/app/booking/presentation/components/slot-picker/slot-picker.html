@@ -1,0 +1,34 @@
+@let tz = timeZone();
+@for (group of groups(); track group.part) {
+  <div class="group">
+    <h3 class="tk-label" [id]="'slots-' + group.part">
+      {{ 'booking.book.' + group.part | translate }}
+    </h3>
+    <div class="grid" role="radiogroup" [attr.aria-labelledby]="'slots-' + group.part">
+      @for (slot of group.slots; track slot.start.getTime()) {
+        @let on = isSelected(slot);
+        <button
+          type="button"
+          class="slot"
+          role="radio"
+          [class.on]="on"
+          [attr.aria-checked]="on"
+          (click)="choose.emit(slot)"
+        >
+          {{ slot.start | zonedDate: tz : 'time' }}
+          @if (showFree()) {
+            <span>{{
+              (slot.freeMemberIds.length === 1 ? 'booking.book.freeOne' : 'booking.book.free')
+                | translate: { count: slot.freeMemberIds.length }
+            }}</span>
+          }
+        </button>
+      }
+    </div>
+    @if (group.hidden > 0) {
+      <button matButton type="button" class="more" (click)="expand(group.part)">
+        {{ 'booking.book.seeAll.' + group.part | translate: { count: group.hidden } }}
+      </button>
+    }
+  </div>
+}
