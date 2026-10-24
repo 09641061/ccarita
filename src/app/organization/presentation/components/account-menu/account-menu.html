@@ -1,0 +1,40 @@
+<button
+  type="button"
+  class="trigger"
+  [matMenuTriggerFor]="menu"
+  [attr.aria-label]="('organization.account.menu' | translate) + ': ' + name()"
+>
+  <app-avatar [name]="name()" [size]="compact() ? 32 : 36" />
+  @if (!compact()) {
+    <span class="text">
+      <span class="name">{{ name() }}</span>
+      <span class="tk-label"
+        >{{ 'organization.role.' + role() | translate }} · {{ organizationName() }}</span
+      >
+    </span>
+  }
+</button>
+<mat-menu #menu="matMenu">
+  @if (compact()) {
+    <div class="menu-header" aria-hidden="true">
+      <span class="name">{{ name() }}</span>
+      <span class="tk-label"
+        >{{ 'organization.role.' + role() | translate }} · {{ organizationName() }}</span
+      >
+    </div>
+  }
+  <a mat-menu-item routerLink="/cuenta">
+    <mat-icon aria-hidden="true">account_circle</mat-icon>
+    <span>{{ 'organization.account.account' | translate }}</span>
+  </a>
+  @if (canSwitch()) {
+    <a mat-menu-item routerLink="/organizaciones">
+      <mat-icon aria-hidden="true">swap_horiz</mat-icon>
+      <span>{{ 'organization.account.switchOrganization' | translate }}</span>
+    </a>
+  }
+  <button mat-menu-item type="button" (click)="signOut.emit()">
+    <mat-icon aria-hidden="true">logout</mat-icon>
+    <span>{{ 'organization.account.signOut' | translate }}</span>
+  </button>
+</mat-menu>

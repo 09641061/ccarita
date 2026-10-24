@@ -1,0 +1,51 @@
+<div class="page">
+  <span class="wordmark">{{ 'app.name' | translate }}</span>
+  @let organizations = store.organizations();
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" [attr.aria-label]="'shared.state.loading' | translate" />
+  } @else if (error(); as error) {
+    <app-state-view
+      [kind]="error.code === 'NETWORK_ERROR' ? 'offline' : 'error'"
+      (retry)="load()"
+    />
+  } @else if (organizations && organizations.length > 0) {
+    <div class="intro">
+      <h1>{{ 'organization.picker.title' | translate }}</h1>
+      <p class="tk-muted">{{ 'organization.picker.lead' | translate }}</p>
+    </div>
+    <mat-action-list>
+      @for (organization of organizations; track organization.id) {
+        <button mat-list-item type="button" (click)="choose(organization.id)">
+          <mat-icon matListItemIcon aria-hidden="true">storefront</mat-icon>
+          <span matListItemTitle>{{ organization.name }}</span>
+          <span matListItemLine>
+            {{ 'organization.role.' + organization.role | translate }}
+            @if (organization.id === store.selected()?.id) {
+              · {{ 'organization.picker.current' | translate }}
+            }
+          </span>
+        </button>
+      }
+    </mat-action-list>
+  } @else {
+    <app-state-view
+      kind="empty"
+      title="organization.picker.empty.title"
+      message="organization.picker.empty.message"
+    >
+      <a matButton="filled" routerLink="/primeros-pasos">{{
+        'organization.picker.create' | translate
+      }}</a>
+    </app-state-view>
+  }
+  <div class="end">
+    @if (session.user(); as user) {
+      <p class="tk-muted">
+        {{ 'organization.picker.signedInAs' | translate: { email: user.email } }}
+      </p>
+    }
+    <button matButton="text" type="button" (click)="signOut()">
+      {{ 'organization.account.signOut' | translate }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+@let current = organization.selected();
+@let user = session.user();
+@let timeZone = establishment.timeZone();
+@let until = organization.planActiveUntil();
+<app-shell [navigation]="navigation()">
+  <app-establishment-switcher
+    appShellEstablishment
+    [establishments]="establishment.establishments()"
+    [selected]="establishment.selected()"
+    (chosen)="establishment.select($event)"
+  />
+  @if (until && timeZone) {
+    <app-plan-card
+      appShellPlan
+      [plan]="plan()"
+      [until]="until"
+      [timeZone]="timeZone"
+      [active]="organization.planActive()"
+      [showLink]="organization.role() === 'owner'"
+    />
+  }
+  @if (current && user) {
+    <app-account-menu
+      appShellAccount
+      [name]="user.displayName"
+      [role]="current.role"
+      [organizationName]="current.name"
+      [canSwitch]="canSwitch()"
+      (signOut)="signOut()"
+    />
+  }
+  <div appShellTopBar class="top-bar">
+    <app-establishment-switcher
+      class="compact-switcher"
+      [compact]="true"
+      [establishments]="establishment.establishments()"
+      [selected]="establishment.selected()"
+      (chosen)="establishment.select($event)"
+    />
+    @if (current && user) {
+      <app-account-menu
+        [compact]="true"
+        [name]="user.displayName"
+        [role]="current.role"
+        [organizationName]="current.name"
+        [canSwitch]="canSwitch()"
+        (signOut)="signOut()"
+      />
+    }
+  </div>
+  @if (!organization.planActive() && until && timeZone) {
+    <app-plan-banner
+      class="plan-banner"
+      [endedOn]="until"
+      [timeZone]="timeZone"
+      [renewalContact]="renewalContact"
+    />
+  }
+  <router-outlet />
+</app-shell>
