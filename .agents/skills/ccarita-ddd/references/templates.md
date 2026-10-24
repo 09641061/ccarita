@@ -193,7 +193,7 @@ export const bookingRoutes: Routes = [
 ];
 ```
 
-Registered in `app.routes.ts` as `{ path: 'agenda', loadChildren: () => import('./booking/presentation/booking.routes').then((m) => m.bookingRoutes) }` under `Layout`.
+Registered in `app.routes.ts` as `{ path: 'agenda', loadChildren: () => import('./booking/presentation/booking.routes').then((m) => m.bookingRoutes) }` under `ShellPage`.
 
 ## `booking/public-api.ts`
 

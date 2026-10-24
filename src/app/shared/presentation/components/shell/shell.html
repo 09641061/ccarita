@@ -1,0 +1,66 @@
+<a class="skip-link" href="#main">{{ 'shared.nav.skip' | translate }}</a>
+
+<aside class="drawer" [attr.aria-label]="'shared.nav.main' | translate">
+  <span class="wordmark">{{ 'app.name' | translate }}</span>
+  <ng-content select="[appShellEstablishment]" />
+  <mat-nav-list>
+    @for (item of navigation(); track item.path) {
+      <a
+        mat-list-item
+        [routerLink]="item.path"
+        routerLinkActive
+        #active="routerLinkActive"
+        [activated]="active.isActive"
+        [attr.aria-current]="active.isActive ? 'page' : null"
+      >
+        @if (item.assistant) {
+          <app-brand-mark matListItemIcon [size]="22" />
+        } @else {
+          <mat-icon matListItemIcon aria-hidden="true">{{ item.icon }}</mat-icon>
+        }
+        <span matListItemTitle>{{ item.label | translate }}</span>
+      </a>
+    }
+  </mat-nav-list>
+  <div class="drawer-end">
+    <ng-content select="[appShellPlan]" />
+    <ng-content select="[appShellAccount]" />
+  </div>
+</aside>
+
+<main id="main" tabindex="-1">
+  <ng-content />
+</main>
+
+<nav class="bar" [attr.aria-label]="'shared.nav.main' | translate">
+  @for (item of barItems(); track item.path) {
+    <a
+      class="tab"
+      [routerLink]="item.path"
+      routerLinkActive="active"
+      #active="routerLinkActive"
+      [attr.aria-current]="active.isActive ? 'page' : null"
+    >
+      <span class="indicator">
+        @if (item.assistant) {
+          <app-brand-mark [size]="22" />
+        } @else {
+          <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+        }
+      </span>
+      <span class="label">{{ item.label | translate }}</span>
+    </a>
+  }
+  @if (hasMore()) {
+    <a
+      class="tab"
+      routerLink="/mas"
+      routerLinkActive="active"
+      #active="routerLinkActive"
+      [attr.aria-current]="active.isActive ? 'page' : null"
+    >
+      <span class="indicator"><mat-icon aria-hidden="true">menu</mat-icon></span>
+      <span class="label">{{ 'shared.nav.more' | translate }}</span>
+    </a>
+  }
+</nav>

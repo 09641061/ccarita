@@ -1,0 +1,153 @@
+@use '@angular/material' as mat;
+
+// M3 navigation drawer and navigation bar, colored with Takodu's roles.
+:host {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr auto;
+  min-height: 100dvh;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: 1fr;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 10;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: var(--mat-sys-on-primary);
+  background: var(--mat-sys-primary);
+
+  &:focus {
+    top: 8px;
+  }
+}
+
+.drawer {
+  display: none;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 12px;
+  overflow-y: auto;
+  background: var(--mat-sys-surface-container-low);
+  border-right: 1px solid var(--mat-sys-outline-variant);
+
+  @media (min-width: 1024px) {
+    display: flex;
+  }
+
+  @include mat.list-overrides(
+    (
+      list-item-one-line-container-height: 56px,
+      list-item-container-shape: 28px,
+      active-indicator-shape: 28px,
+      active-indicator-color: var(--mat-sys-secondary-container),
+      list-item-label-text-color: var(--mat-sys-on-surface-variant),
+      list-item-leading-icon-color: var(--mat-sys-on-surface-variant),
+      list-item-label-text-weight: 500,
+    )
+  );
+
+  mat-nav-list {
+    padding: 0;
+  }
+
+  .mdc-list-item--activated {
+    --mat-list-list-item-label-text-color: var(--mat-sys-on-secondary-container);
+    --mat-list-list-item-leading-icon-color: var(--mat-sys-on-secondary-container);
+  }
+}
+
+.wordmark {
+  padding: 4px 16px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.drawer-end {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+main {
+  min-width: 0;
+  padding: 16px;
+  outline: none;
+
+  @media (min-width: 1024px) {
+    padding: 24px 32px;
+  }
+}
+
+.bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  height: 80px;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--mat-sys-surface-container);
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.indicator {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 32px;
+  border-radius: 16px;
+  transition: background-color var(--tk-duration-short) var(--tk-motion-standard);
+}
+
+.tab:hover .indicator {
+  background: color-mix(in srgb, var(--mat-sys-on-surface) 8%, transparent);
+}
+
+.tab.active {
+  color: var(--mat-sys-on-surface);
+
+  .indicator {
+    color: var(--mat-sys-on-secondary-container);
+    background: var(--mat-sys-secondary-container);
+  }
+
+  mat-icon {
+    font-variation-settings:
+      'FILL' 1,
+      'wght' 400;
+  }
+}
+
+.label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
