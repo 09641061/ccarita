@@ -4,7 +4,7 @@ Ccarita is the Takodu web app: an Angular 22 single-page app with Angular Materi
 
 ## Product specification and API
 
-Business rules live outside this repository, in the Takodu product docs (`../docs` in the workspace): `03-business-domain.md` (rules with ids such as `B3` or `W6`, and the roles table in §5), `07-whatsapp-integration.md` and `08-ai-assistant.md`. The API contract is [api/openapi.json](api/openapi.json), copied from pibble; `pnpm api:sync` refreshes it and the generated types. **On business rules the product docs win; on endpoints and fields `api/openapi.json` wins; on code shape this repository wins.**
+Business rules live outside this repository, in the Takodu product docs (`../docs` in the workspace): `03-business-domain.md` (rules with ids such as `B3` or `W6`, and the roles table in §5), `07-whatsapp-integration.md` and `08-ai-assistant.md`. The API contract is [api/openapi.json](api/openapi.json), copied from pibble; `pnpm api:sync` refreshes it and the generated types. **On business rules the product docs win; on endpoints and fields `api/openapi.json` wins; on code shape this repository wins.** Screens follow the designs in `../ui-reference`, but **pibble's current API wins over a design**: build only what it serves and adapt or drop the rest, never fake it ([design reference](.agents/skills/ccarita-ui/SKILL.md#design-reference)).
 
 ## Required skills
 

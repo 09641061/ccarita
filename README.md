@@ -24,8 +24,38 @@ pnpm arch           # layers and context map (dependency-cruiser)
 pnpm lint           # ESLint with Angular and accessibility rules
 pnpm format:check   # Prettier
 pnpm check          # all of the above plus the production build, as CI runs it
+pnpm theme:check    # every M3 color role carries its Takodu token
 scripts/check-docs.sh
 ```
+
+`/dev/ui` (development builds only) shows the theme and every shared component. With `pnpm start` running, `pnpm screenshots` saves it and the shell at 390 × 844 and 1440 × 900, light and dark, in `screenshots/` (not committed); set `CHROMIUM_PATH` or run `pnpm exec playwright install chromium` first.
+
+## Roadmap
+
+One pull request into `develop` per step, built from the designs in `../ui-reference`:
+
+- **F1** design system and shell.
+- **F2** sign-in, session, organization picker, guards, roles, plan banner.
+- **F3** calendar day and week, appointment detail and actions, cancel sheet, time blocks.
+- **F4** booking flow.
+- **F5** customers.
+- **F6** inbox and chat.
+- **F7** onboarding and establishment settings.
+- **F8** assistant settings and usage.
+- **F9** team, invitations, ownership transfer, account sessions, plan.
+- **F10** Takodu team area.
+
+Where pibble's API serves less than a design shows, the design adapts:
+
+- The calendar loads customer names with `GET /api/v1/customers/{id}`, cached per customer.
+- The customer panel shows no appointments, and there is no "Próxima cita" column.
+- Appointments show no notification status.
+- The inbox shows a status line instead of a message preview, has no search and no "replying" state, and filters only loaded conversations.
+- The customers page has previous and next without a total.
+- Staff send text and templates only.
+- The navigation shows no unread count.
+
+Defaults for the designs' open questions: navigation says "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel sheet says "El cliente"; the renewal contact is `environment.renewalContact`, a placeholder; there is no floating assistant button.
 
 ## API contract
 

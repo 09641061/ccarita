@@ -38,7 +38,7 @@ A view calls a store method. The store calls its context's `*.api.ts` with an id
 
 ## Routes
 
-`app.routes.ts` lazy-loads one `<context>.routes.ts` per context under `ShellPage`, the routed `Shell`; guards from `iam` and `organization` protect them. `platform` has its own branch under `/platform`, guarded by the operator check.
+`app.routes.ts` lazy-loads one `<context>.routes.ts` per context under `ShellPage`, the routed `Shell`; guards from `iam` and `organization` protect them. `platform` has its own branch under `/platform`, guarded by the operator check. Development-only screens, such as the style guide at `/dev/ui`, are in `dev.routes.ts`, which production builds replace with an empty list.
 
 ## Live inbox
 
