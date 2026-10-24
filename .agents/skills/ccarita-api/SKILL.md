@@ -23,7 +23,7 @@ The contract is [api/openapi.json](../../../api/openapi.json) ([decision](../../
 
 Every POST in the contract with an `Idempotency-Key` parameter gets one, through `idempotent(key)` in the request `context`.
 
-- The **view** creates the key with `newIdempotencyKey()` when the user starts the action (a dialog opens, a reply is typed), passes it to the store on submit, passes the **same** key when the user taps retry after a timeout or `NETWORK_ERROR`, and creates a new one only after success or when the input changes.
+- The **view** creates the key with `newIdempotencyKey()` (`shared/domain/model/idempotency-key.ts`) when the user starts the action (a dialog opens, a reply is typed), passes it to the store on submit, passes the **same** key when the user taps retry after a timeout or `NETWORK_ERROR`, and creates a new one only after success or when the input changes.
 - Stores never retry POSTs on their own and never use RxJS `retry` on writes.
 
 ## Interceptors and errors
