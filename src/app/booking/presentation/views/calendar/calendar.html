@@ -1,0 +1,247 @@
+@let tz = store.timeZone();
+@let day = store.day();
+@let range = store.range();
+@let planActive = organization.planActive();
+<div class="calendar">
+  @if (establishment.list.hasValue() && establishment.establishments().length === 0) {
+    <app-state-view
+      kind="empty"
+      title="booking.calendar.noEstablishment.title"
+      message="booking.calendar.noEstablishment.message"
+    />
+  } @else if (tz && day && range) {
+    <header class="header">
+      <div class="titles">
+        @if (desktop()) {
+          <p class="tk-label">
+            {{ organization.selected()?.name }} · {{ establishment.selected()?.name }}
+          </p>
+        }
+        <h1>
+          @if (range.view === 'week') {
+            {{
+              'booking.calendar.weekOf'
+                | translate
+                  : {
+                      from: (range.days[0] | zonedDate: tz : 'dayMonth'),
+                      to: (range.days[6] | zonedDate: tz : 'dayMonth'),
+                    }
+            }}
+          } @else if (isToday(day)) {
+            {{
+              'booking.calendar.todayIs' | translate: { day: (day | zonedDate: tz : 'dayMonth') }
+            }}
+          } @else {
+            <span class="capitalize">{{ day | zonedDate: tz : 'longDay' }}</span>
+          }
+        </h1>
+      </div>
+      <div class="tools">
+        @if (desktop()) {
+          <mat-button-toggle-group
+            hideSingleSelectionIndicator
+            [attr.aria-label]="'booking.calendar.view' | translate"
+            [value]="range.view"
+            (change)="showView($event.value)"
+          >
+            <mat-button-toggle value="day">{{
+              'booking.calendar.day' | translate
+            }}</mat-button-toggle>
+            <mat-button-toggle value="week">{{
+              'booking.calendar.week' | translate
+            }}</mat-button-toggle>
+          </mat-button-toggle-group>
+          <span class="stepper">
+            <button
+              matIconButton
+              type="button"
+              [attr.aria-label]="
+                (range.view === 'day'
+                  ? 'booking.calendar.previousDay'
+                  : 'booking.calendar.previousWeek'
+                ) | translate
+              "
+              (click)="store.step(-1)"
+            >
+              <mat-icon aria-hidden="true">chevron_left</mat-icon>
+            </button>
+            <button matButton="outlined" type="button" (click)="store.showToday()">
+              {{ 'booking.calendar.today' | translate }}
+            </button>
+            <button
+              matIconButton
+              type="button"
+              [attr.aria-label]="
+                (range.view === 'day' ? 'booking.calendar.nextDay' : 'booking.calendar.nextWeek')
+                  | translate
+              "
+              (click)="store.step(1)"
+            >
+              <mat-icon aria-hidden="true">chevron_right</mat-icon>
+            </button>
+          </span>
+        } @else {
+          <button matButton type="button" (click)="showView(range.view === 'day' ? 'week' : 'day')">
+            {{
+              (range.view === 'day' ? 'booking.calendar.seeWeek' : 'booking.calendar.seeDay')
+                | translate
+            }}
+          </button>
+        }
+        <button
+          matIconButton
+          type="button"
+          [attr.aria-label]="'booking.calendar.blockTime' | translate"
+          (click)="blockTime()"
+        >
+          <mat-icon aria-hidden="true">event_busy</mat-icon>
+        </button>
+        @if (desktop()) {
+          <a matButton="filled" routerLink="/agenda/reservar" [disabled]="!planActive">
+            <mat-icon aria-hidden="true">add</mat-icon>
+            {{ 'booking.calendar.newAppointment' | translate }}
+          </a>
+        }
+      </div>
+    </header>
+
+    @if (!desktop()) {
+      <div class="strip" role="group" [attr.aria-label]="'booking.calendar.chooseDay' | translate">
+        <button
+          matIconButton
+          type="button"
+          [attr.aria-label]="'booking.calendar.previousWeek' | translate"
+          (click)="store.showDay(day.plusDays(-7))"
+        >
+          <mat-icon aria-hidden="true">chevron_left</mat-icon>
+        </button>
+        @for (stripDay of strip(); track stripDay.toString()) {
+          @let selected = range.view === 'day' && stripDay.equals(day);
+          <button
+            type="button"
+            class="day"
+            [class.on]="selected"
+            [class.today]="isToday(stripDay)"
+            [attr.aria-pressed]="selected"
+            (click)="store.showDay(stripDay); showView('day')"
+          >
+            <span>{{ stripDay | zonedDate: tz : 'weekday' }}</span>
+            <b>{{ stripDay.day }}</b>
+          </button>
+        }
+        <button
+          matIconButton
+          type="button"
+          [attr.aria-label]="'booking.calendar.nextWeek' | translate"
+          (click)="store.showDay(day.plusDays(7))"
+        >
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      </div>
+    }
+
+    <div class="filters">
+      @if (store.members().length > 1) {
+        <div class="chips" role="group" [attr.aria-label]="'booking.calendar.filter' | translate">
+          <button
+            type="button"
+            class="chip"
+            [class.on]="store.memberId() === null"
+            [attr.aria-pressed]="store.memberId() === null"
+            (click)="store.showMember(null)"
+          >
+            {{ 'booking.calendar.everyone' | translate }}
+          </button>
+          @for (member of store.members(); track member.id) {
+            <button
+              type="button"
+              class="chip"
+              [class.on]="store.memberId() === member.id"
+              [attr.aria-pressed]="store.memberId() === member.id"
+              (click)="store.showMember(member.id)"
+            >
+              {{ member.name }}
+            </button>
+          }
+        </div>
+      }
+      @if (desktop()) {
+        <ul class="legend" [attr.aria-label]="'booking.calendar.legend' | translate">
+          @for (
+            status of ['confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'];
+            track status
+          ) {
+            <li>
+              <span [class]="'swatch ' + status" aria-hidden="true"></span
+              >{{ 'shared.appointmentStatus.' + status | translate }}
+            </li>
+          }
+          <li><app-brand-mark [size]="14" />{{ 'booking.calendar.byAssistant' | translate }}</li>
+        </ul>
+      }
+    </div>
+
+    @if (!planActive) {
+      <p class="plan-note">
+        <mat-icon aria-hidden="true">info</mat-icon
+        >{{ 'booking.calendar.planInactive' | translate }}
+      </p>
+    }
+
+    <div class="content">
+      <section class="agenda" [attr.aria-label]="'booking.calendar.agenda' | translate">
+        @if (store.appointments.isLoading() || store.timeBlocks.isLoading()) {
+          <mat-progress-bar mode="indeterminate" class="progress" />
+        }
+        @if (loadError(); as error) {
+          <app-state-view [kind]="errorKind()" (retry)="retry()" />
+        } @else if (!store.appointments.hasValue() || !store.timeBlocks.hasValue()) {
+          <app-skeleton [rows]="4" />
+        } @else if (desktop()) {
+          <app-calendar-grid
+            [columns]="columns()"
+            [timeZone]="tz"
+            [now]="now()"
+            (removeBlock)="removeBlock($event)"
+          />
+        } @else if (isEmpty()) {
+          <app-state-view
+            kind="empty"
+            [title]="
+              range.view === 'day'
+                ? 'booking.calendar.empty.title'
+                : 'booking.calendar.emptyWeek.title'
+            "
+            [message]="
+              range.view === 'day'
+                ? 'booking.calendar.empty.message'
+                : 'booking.calendar.emptyWeek.message'
+            "
+          />
+        } @else {
+          <app-agenda-list
+            [days]="agenda()"
+            [timeZone]="tz"
+            [now]="now()"
+            [headings]="range.view === 'week'"
+            (removeBlock)="removeBlock($event)"
+          />
+        }
+      </section>
+      <aside class="detail">
+        <router-outlet (activate)="detailOpen.set(true)" (deactivate)="detailOpen.set(false)" />
+      </aside>
+    </div>
+
+    @if (!desktop()) {
+      <a matFab extended class="fab" routerLink="/agenda/reservar" [disabled]="!planActive">
+        <mat-icon aria-hidden="true">add</mat-icon>
+        {{ 'booking.calendar.newAppointment' | translate }}
+      </a>
+    }
+  } @else if (establishment.list.error()) {
+    <app-state-view kind="error" (retry)="establishment.list.reload()" />
+  } @else {
+    <app-skeleton [rows]="4" />
+  }
+</div>

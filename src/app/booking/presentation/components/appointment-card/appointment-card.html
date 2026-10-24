@@ -1,0 +1,48 @@
+@let e = entry();
+@let a = e.appointment;
+<div class="row">
+  <span class="name">
+    @if (e.customerDeleted) {
+      {{ 'booking.appointment.customerDeleted' | translate }}
+    } @else {
+      {{ e.customerName ?? ('booking.appointment.customerLoading' | translate) }}
+    }
+  </span>
+  @if (a.source === 'assistant') {
+    <app-brand-mark [size]="16" [label]="'booking.appointment.byAssistant' | translate" />
+  }
+  @if (!compact()) {
+    <app-status-badge [status]="a.status" />
+  }
+</div>
+@if (compact()) {
+  <div class="row muted">
+    <span
+      >{{ a.start | zonedDate: timeZone() : 'time' }} –
+      {{ a.end | zonedDate: timeZone() : 'time' }}</span
+    >
+  </div>
+}
+<div class="row muted">
+  <span class="what">
+    @if (compact()) {
+      {{ 'shared.appointmentStatus.' + a.status | translate }}
+    } @else {
+      {{ e.serviceName ?? ('booking.appointment.service' | translate) }} ·
+      {{ e.memberName ?? ('booking.appointment.member' | translate) }}
+    }
+  </span>
+  @if (!a.isFinal || a.status === 'completed') {
+    <span class="price">{{ a.price.format() }}</span>
+  }
+</div>
+@if (e.conflict; as conflict) {
+  <div class="row warning">
+    <mat-icon aria-hidden="true">warning</mat-icon>
+    <span>{{
+      conflict.whole || !conflict.name
+        ? ('booking.appointment.conflictWhole' | translate)
+        : ('booking.appointment.conflict' | translate: { name: conflict.name })
+    }}</span>
+  </div>
+}

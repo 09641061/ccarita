@@ -1,0 +1,186 @@
+@let tz = store.timeZone();
+<article class="detail" aria-labelledby="appointment-title">
+  <header class="bar">
+    <a matIconButton routerLink="/agenda" [attr.aria-label]="'booking.detail.back' | translate">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    </a>
+    <span class="bar-title">{{ 'booking.detail.title' | translate }}</span>
+  </header>
+
+  @if (loadError(); as error) {
+    <app-state-view
+      [kind]="errorKind()"
+      [title]="errorKind() === 'notFound' ? 'booking.detail.notFound.title' : undefined"
+      [message]="errorKind() === 'notFound' ? 'booking.detail.notFound.message' : undefined"
+      (retry)="store.opened.reload()"
+    />
+  } @else if (appointment(); as a) {
+    @if (tz) {
+      <section class="summary">
+        <app-status-badge [status]="a.status" />
+        <h1 id="appointment-title">{{ customerName() }}</h1>
+        @if (customer(); as c) {
+          @if (c !== 'deleted') {
+            <a
+              class="phone"
+              [href]="'tel:' + c.phone"
+              [attr.aria-label]="'booking.detail.call' | translate: { phone: c.phone }"
+              >{{ c.phone }}</a
+            >
+          }
+        }
+      </section>
+
+      <ul class="facts">
+        <li>
+          <mat-icon aria-hidden="true">schedule</mat-icon>
+          <span>
+            @if (isToday()) {
+              {{ 'booking.calendar.today' | translate }} ·
+            } @else {
+              <span class="capitalize">{{ a.start | zonedDate: tz : 'longDay' }}</span> ·
+            }
+            {{ a.start | zonedDate: tz : 'time' }} – {{ a.end | zonedDate: tz : 'time' }}
+          </span>
+        </li>
+        <li>
+          <mat-icon aria-hidden="true">content_cut</mat-icon>
+          <span class="grow">{{ serviceName() }}</span>
+          <span class="price">{{ a.price.format() }}</span>
+        </li>
+        <li>
+          <mat-icon aria-hidden="true">person</mat-icon>
+          <span>{{ 'booking.detail.with' | translate: { name: memberName() } }}</span>
+        </li>
+        @if (a.source === 'assistant') {
+          <li>
+            <app-brand-mark [size]="20" />
+            <span>{{ 'booking.appointment.byAssistant' | translate }}</span>
+          </li>
+        }
+        @if (a.status === 'cancelled') {
+          <li class="cancelled">
+            <mat-icon aria-hidden="true">event_busy</mat-icon>
+            <span>
+              {{
+                (a.cancelledBy === 'customer'
+                  ? 'booking.detail.cancelledByCustomer'
+                  : 'booking.detail.cancelledByStaff'
+                ) | translate
+              }}
+              @if (a.cancelReason) {
+                <br />{{ 'booking.detail.reason' | translate: { reason: a.cancelReason } }}
+              }
+            </span>
+          </li>
+        }
+        @if (conflict(); as block) {
+          <li class="warning">
+            <mat-icon aria-hidden="true">warning</mat-icon>
+            <span>{{
+              block.coversWholeEstablishment
+                ? ('booking.appointment.conflictWhole' | translate)
+                : ('booking.appointment.conflict' | translate: { name: memberName() })
+            }}</span>
+          </li>
+        }
+      </ul>
+
+      @if (!a.isFinal) {
+        <div class="actions" role="group" [attr.aria-label]="'booking.detail.actions' | translate">
+          @if (a.canStart) {
+            <app-busy-button
+              [busy]="running() === 'in_progress'"
+              [disabled]="running() !== null"
+              (pressed)="change('in_progress')"
+            >
+              <mat-icon aria-hidden="true">play_arrow</mat-icon>
+              {{
+                (running() === 'in_progress' ? 'booking.detail.starting' : 'booking.detail.start')
+                  | translate
+              }}
+            </app-busy-button>
+          }
+          @if (a.canComplete) {
+            <app-busy-button
+              [appearance]="a.canStart ? 'tonal' : 'filled'"
+              [busy]="running() === 'completed'"
+              [disabled]="running() !== null"
+              (pressed)="change('completed')"
+            >
+              <mat-icon aria-hidden="true">check_circle</mat-icon>
+              {{
+                (running() === 'completed'
+                  ? 'booking.detail.completing'
+                  : 'booking.detail.complete'
+                ) | translate
+              }}
+            </app-busy-button>
+          }
+          @if (a.status === 'confirmed') {
+            <span class="with-hint">
+              <app-busy-button
+                appearance="outlined"
+                [busy]="running() === 'no_show'"
+                [disabled]="running() !== null || !a.canMarkNoShow(now())"
+                (pressed)="change('no_show')"
+              >
+                <mat-icon aria-hidden="true">person_off</mat-icon>
+                {{
+                  (running() === 'no_show'
+                    ? 'booking.detail.markingNoShow'
+                    : 'booking.detail.noShow'
+                  ) | translate
+                }}
+              </app-busy-button>
+              @if (!a.canMarkNoShow(now())) {
+                <span class="hint">{{
+                  'booking.detail.noShowFrom'
+                    | translate: { time: (a.start | zonedDate: tz : 'time') }
+                }}</span>
+              }
+            </span>
+          }
+          @if (a.canReschedule) {
+            <a
+              matButton="outlined"
+              routerLink="/agenda/reservar"
+              [queryParams]="{ reprogramar: a.id }"
+              [disabled]="!organization.planActive()"
+            >
+              <mat-icon aria-hidden="true">event_repeat</mat-icon>
+              {{ 'booking.detail.reschedule' | translate }}
+            </a>
+          }
+          @if (a.canCancel) {
+            <button
+              matButton
+              class="cancel"
+              type="button"
+              [disabled]="running() !== null"
+              (click)="cancel()"
+            >
+              <mat-icon aria-hidden="true">close</mat-icon>
+              {{ 'booking.detail.cancel' | translate }}
+            </button>
+          }
+        </div>
+        @if (a.canReschedule && !organization.planActive()) {
+          <p class="hint">{{ 'booking.detail.planInactive' | translate }}</p>
+        }
+        @if (failure(); as f) {
+          <p class="error" role="alert">
+            {{ f.error | errorMessage }}
+            @if (f.error.retryable) {
+              <button matButton type="button" (click)="change(f.action)">
+                {{ 'shared.state.retry' | translate }}
+              </button>
+            }
+          </p>
+        }
+      }
+    }
+  } @else {
+    <app-skeleton [rows]="3" />
+  }
+</article>

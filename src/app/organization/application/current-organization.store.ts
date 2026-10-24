@@ -36,6 +36,8 @@ export class CurrentOrganization {
     () => this.organizations()?.find((o) => o.id === this.tenant.organizationId()) ?? null,
   );
   readonly role = computed<MemberRole | null>(() => this.selected()?.role ?? null);
+  /** The signed-in user's member id in the selected organization, for "my" appointments and time blocks. */
+  readonly memberId = computed(() => this.selected()?.memberId ?? null);
 
   /** `GET /organization`: the plan and its end as pibble has them now. */
   readonly details = rxResource({

@@ -166,6 +166,128 @@
       "title": "Primeros pasos"
     }
   },
+  "booking": {
+    "calendar": {
+      "title": "Calendario",
+      "today": "Hoy",
+      "todayIs": "Hoy, {{day}}",
+      "weekOf": "Semana del {{from}} al {{to}}",
+      "view": "Vista",
+      "day": "Día",
+      "week": "Semana",
+      "seeWeek": "Ver semana",
+      "seeDay": "Ver día",
+      "previousDay": "Día anterior",
+      "nextDay": "Día siguiente",
+      "previousWeek": "Semana anterior",
+      "nextWeek": "Semana siguiente",
+      "chooseDay": "Elegir día",
+      "filter": "Filtrar por persona",
+      "everyone": "Todo el equipo",
+      "newAppointment": "Nueva cita",
+      "blockTime": "Bloquear horario",
+      "legend": "Leyenda",
+      "byAssistant": "Por el asistente",
+      "count": "{{count}} citas",
+      "countOne": "1 cita",
+      "now": "Hora actual {{time}}",
+      "agenda": "Agenda",
+      "formerMember": "Ya no está en el equipo",
+      "planInactive": "Reservar vuelve cuando renueves el plan. Puedes atender, cancelar y bloquear horarios.",
+      "empty": {
+        "title": "No hay citas este día",
+        "message": "Las citas que reserves tú o el asistente aparecerán aquí."
+      },
+      "emptyWeek": {
+        "title": "No hay citas esta semana",
+        "message": "Las citas que reserves tú o el asistente aparecerán aquí."
+      },
+      "noEstablishment": {
+        "title": "Aún no hay un local",
+        "message": "Cuando tu negocio tenga un local, verás aquí su calendario."
+      }
+    },
+    "appointment": {
+      "byAssistant": "Reservada por el asistente",
+      "conflict": "Choca con un bloqueo de {{name}}",
+      "conflictWhole": "Choca con un bloqueo del local",
+      "customerDeleted": "Cliente eliminado",
+      "customerLoading": "Cliente",
+      "service": "Servicio",
+      "member": "Ya no está en el equipo",
+      "open": "Ver cita de {{name}}, {{time}}"
+    },
+    "block": {
+      "title": "Bloqueado",
+      "whole": "Todo el local",
+      "remove": "Quitar bloqueo",
+      "removing": "Quitando…",
+      "removeTitle": "¿Quitar este bloqueo?",
+      "removeMessage": "{{when}}. Se podrá volver a reservar en ese horario.",
+      "keep": "Mantener",
+      "options": "Opciones del bloqueo"
+    },
+    "detail": {
+      "title": "Cita",
+      "back": "Volver al calendario",
+      "close": "Cerrar",
+      "with": "Con {{name}}",
+      "call": "Llamar a {{phone}}",
+      "start": "Iniciar",
+      "complete": "Completar",
+      "noShow": "No asistió",
+      "noShowFrom": "Disponible desde las {{time}}",
+      "reschedule": "Reprogramar",
+      "cancel": "Cancelar cita",
+      "starting": "Iniciando…",
+      "completing": "Completando…",
+      "markingNoShow": "Marcando…",
+      "cancelledByStaff": "Cancelada por el negocio",
+      "cancelledByCustomer": "Cancelada a pedido del cliente",
+      "reason": "Motivo: {{reason}}",
+      "planInactive": "Reprogramar vuelve cuando renueves el plan.",
+      "actions": "Acciones de la cita",
+      "notFound": {
+        "title": "No encontramos esta cita",
+        "message": "Puede que el enlace esté mal o que sea de otro local."
+      }
+    },
+    "cancel": {
+      "title": "Cancelar la cita de {{name}}",
+      "who": "¿Quién pidió cancelar?",
+      "business": "El negocio",
+      "customer": "El cliente",
+      "hint": "¿Lo pidió en persona o por teléfono? Elige “El cliente”.",
+      "reason": "Motivo",
+      "reasonRequired": "Escribe el motivo.",
+      "count": "{{count}} / 500",
+      "noticeBusiness": "Si el local tiene WhatsApp conectado, el cliente recibirá un mensaje con este motivo.",
+      "noticeCustomer": "No le enviaremos un mensaje: ya sabe que se canceló.",
+      "back": "Volver",
+      "confirm": "Cancelar cita",
+      "busy": "Cancelando…"
+    },
+    "timeBlock": {
+      "title": "Bloquear horario",
+      "lead": "Nadie podrá reservar en ese horario. Las citas que ya están reservadas no se cancelan.",
+      "who": "¿Quién?",
+      "whole": "Todo el local",
+      "from": "Desde",
+      "to": "Hasta",
+      "date": "Fecha",
+      "time": "Hora",
+      "reason": "Motivo (opcional)",
+      "reasonHint": "Por ejemplo: almuerzo, vacaciones",
+      "endBeforeStart": "El final debe ser después del inicio.",
+      "required": "Completa la fecha y la hora.",
+      "save": "Bloquear",
+      "saving": "Bloqueando…",
+      "back": "Volver"
+    },
+    "book": {
+      "title": "Reservar cita"
+    }
+  },
   "pageNotFound": {
     "title": "Página no encontrada",
     "back": "Ir al inicio"
@@ -210,6 +332,10 @@
     "NOT_FOUND": "No encontramos lo que buscas.",
     "CONFLICT": "Alguien cambió esto al mismo tiempo. Recarga e inténtalo de nuevo.",
     "NETWORK_ERROR": "Sin conexión. Revisa tu internet e inténtalo de nuevo.",
-    "UNEXPECTED_ERROR": "Algo salió mal. Inténtalo de nuevo."
+    "UNEXPECTED_ERROR": "Algo salió mal. Inténtalo de nuevo.",
+    "APPOINTMENT_CONFLICT": "La cita cambió mientras tanto. La volvimos a cargar; revisa y vuelve a intentarlo.",
+    "APPOINTMENT_NOT_FOUND": "Esta cita no existe o es de otro local.",
+    "REQUEST_CONFLICT": "Tu pedido anterior todavía está en curso. Reintenta en un momento.",
+    "TIME_BLOCK_NOT_FOUND": "Ese bloqueo ya no existe."
   }
 }

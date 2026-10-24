@@ -1,0 +1,128 @@
+:host {
+  display: block;
+  overflow: auto;
+  border-radius: 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-lowest);
+}
+
+.grid {
+  min-width: calc(56px + var(--columns) * 140px);
+}
+
+.head,
+.body {
+  display: grid;
+  grid-template-columns: 56px repeat(var(--columns), minmax(140px, 1fr));
+}
+
+.head {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-lowest);
+}
+
+.column-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border-left: 1px solid var(--mat-sys-outline-variant);
+}
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  .label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
+}
+
+.body {
+  position: relative;
+  box-sizing: content-box;
+  padding-bottom: 8px;
+}
+
+.gutter {
+  position: relative;
+}
+
+.hour {
+  position: absolute;
+  right: 8px;
+  transform: translateY(-50%);
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+
+  &:first-child {
+    transform: none;
+  }
+}
+
+.column {
+  position: relative;
+  border-left: 1px solid var(--mat-sys-outline-variant);
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--mat-sys-outline-variant) 0 1px,
+    transparent 1px var(--hour)
+  );
+}
+
+.item {
+  position: absolute;
+  left: 0;
+  width: calc(100% - 4px);
+  margin-left: 2px;
+  box-sizing: border-box;
+  z-index: 1;
+  border-radius: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.item:hover app-appointment-card,
+a.item.opened app-appointment-card {
+  background: var(--mat-sys-surface-container-high);
+}
+
+a.item:focus-visible {
+  outline: 2px solid var(--tk-ring);
+  outline-offset: 1px;
+  z-index: 2;
+}
+
+.now {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: 2px;
+  background: var(--mat-sys-error);
+  pointer-events: none;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: -4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--mat-sys-error);
+  }
+}

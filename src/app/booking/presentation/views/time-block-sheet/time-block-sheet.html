@@ -1,0 +1,72 @@
+<form class="sheet" (submit)="save($event)" novalidate>
+  <header>
+    <h2 id="time-block-title">{{ 'booking.timeBlock.title' | translate }}</h2>
+    <p class="muted">{{ 'booking.timeBlock.lead' | translate }}</p>
+  </header>
+
+  @if (data.managesEveryone) {
+    <mat-form-field>
+      <mat-label>{{ 'booking.timeBlock.who' | translate }}</mat-label>
+      <mat-select [formField]="blockForm.who">
+        <mat-option [value]="whole">{{ 'booking.timeBlock.whole' | translate }}</mat-option>
+        @for (member of data.members; track member.id) {
+          <mat-option [value]="member.id">{{ member.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+
+  <fieldset>
+    <legend>{{ 'booking.timeBlock.from' | translate }}</legend>
+    <mat-form-field>
+      <mat-label>{{ 'booking.timeBlock.date' | translate }}</mat-label>
+      <input matInput type="date" [formField]="blockForm.startDate" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>{{ 'booking.timeBlock.time' | translate }}</mat-label>
+      <input matInput type="time" step="900" [formField]="blockForm.startTime" />
+    </mat-form-field>
+  </fieldset>
+
+  <fieldset>
+    <legend>{{ 'booking.timeBlock.to' | translate }}</legend>
+    <mat-form-field>
+      <mat-label>{{ 'booking.timeBlock.date' | translate }}</mat-label>
+      <input matInput type="date" [formField]="blockForm.endDate" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>{{ 'booking.timeBlock.time' | translate }}</mat-label>
+      <input matInput type="time" step="900" [formField]="blockForm.endTime" />
+    </mat-form-field>
+  </fieldset>
+  @if (
+    blockForm().touched() &&
+    (blockForm.startDate().invalid() ||
+      blockForm.startTime().invalid() ||
+      blockForm.endDate().invalid() ||
+      blockForm.endTime().invalid())
+  ) {
+    <p class="field-error" role="alert">{{ 'booking.timeBlock.required' | translate }}</p>
+  } @else if (endBeforeStart()) {
+    <p class="field-error" role="alert">{{ 'booking.timeBlock.endBeforeStart' | translate }}</p>
+  }
+
+  <mat-form-field>
+    <mat-label>{{ 'booking.timeBlock.reason' | translate }}</mat-label>
+    <input matInput [formField]="blockForm.reason" />
+    <mat-hint>{{ 'booking.timeBlock.reasonHint' | translate }}</mat-hint>
+  </mat-form-field>
+
+  @if (error(); as e) {
+    <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+  }
+
+  <div class="actions">
+    <button matButton type="button" (click)="close()">
+      {{ 'booking.timeBlock.back' | translate }}
+    </button>
+    <app-busy-button type="submit" [busy]="busy()">
+      {{ (busy() ? 'booking.timeBlock.saving' : 'booking.timeBlock.save') | translate }}
+    </app-busy-button>
+  </div>
+</form>
