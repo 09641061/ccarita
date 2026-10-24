@@ -58,7 +58,7 @@ Visual design comes from the designs made for Takodu; this skill fixes how they 
 ## Texts, dates and money
 
 - Every visible text goes through `| translate` with a key in `public/i18n/es.json`, grouped by context and screen (`booking.calendar.title`). Spanish (Peru), short, using "tú".
-- Dates and times: `DatePipe` with the establishment's `timeZone` (`{{ a.start | date: 'EEE d MMM, HH:mm' : tz }}`), never the device's. The app locale is `es-PE`.
+- Dates and times: the shared `zonedDate` pipe with the establishment's IANA `timeZone` (`{{ a.start | zonedDate: tz : 'dayTime' }}`), never the device's. `DatePipe` ignores IANA names, and tests run in UTC to catch it. The app locale is `es-PE`.
 - Money: `money.format()` (`S/ 35.00`).
 - Phone numbers are shown as stored (E.164); never log them, message bodies or tokens to the console.
 

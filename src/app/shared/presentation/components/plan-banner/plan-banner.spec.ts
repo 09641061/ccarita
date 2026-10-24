@@ -1,17 +1,9 @@
-import { registerLocaleData } from '@angular/common';
-import localeEsPe from '@angular/common/locales/es-PE';
-import { LOCALE_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { PlanBanner } from './plan-banner';
 
 describe('PlanBanner', () => {
-  beforeEach(() => {
-    registerLocaleData(localeEsPe);
-    TestBed.configureTestingModule({
-      providers: [provideSpanish(), { provide: LOCALE_ID, useValue: 'es-PE' }],
-    });
-  });
+  beforeEach(() => TestBed.configureTestingModule({ providers: [provideSpanish()] }));
 
   it('says when the plan ended, in the establishment time zone, and how to renew', async () => {
     const fixture = TestBed.createComponent(PlanBanner);

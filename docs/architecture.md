@@ -19,7 +19,7 @@ Each context is a folder under `src/app`; `shared` is the kernel and imports no 
 
 `CONTEXT_MAP` in `.dependency-cruiser.cjs` mirrors the "May import" column, which follows pibble's context map; `platform` is the frontend home of pibble's internal API, which serves one audience. Change the table and the map in the same commit, and a new context needs a decision record.
 
-The shared kernel holds what every context uses: `ApiError` and `Money` (domain); `API_BASE_URL`, the HTTP interceptors, `TenantContext` and the generated `pibble.schema.ts` (infrastructure); `Shell`, the shared components (`StatusBadge`, `StateView`, `BusyButton`, …), `PageNotFound` and `ErrorMessagePipe` (presentation).
+The shared kernel holds what every context uses: `ApiError` and `Money` (domain); `API_BASE_URL`, the HTTP interceptors, `TenantContext` and the generated `pibble.schema.ts` (infrastructure); `Shell`, the shared components (`StatusBadge`, `StateView`, `BusyButton`, …), `PageNotFound`, `ErrorMessagePipe` and `ZonedDatePipe` (presentation).
 
 ## Layers inside a context
 

@@ -1,7 +1,7 @@
-import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ZonedDatePipe } from '../../pipes/zoned-date.pipe';
 
 /**
  * The fixed notice of an inactive plan (O6, PLAN_INACTIVE). Inputs only: the session shows it on
@@ -10,12 +10,12 @@ import { TranslatePipe } from '@ngx-translate/core';
  */
 @Component({
   selector: 'app-plan-banner',
-  imports: [DatePipe, MatIconModule, TranslatePipe],
+  imports: [MatIconModule, TranslatePipe, ZonedDatePipe],
   template: `
     <mat-icon aria-hidden="true">event_busy</mat-icon>
     <div>
       <h2>
-        {{ 'shared.plan.ended' | translate: { date: endedOn() | date: 'd MMM y' : timeZone() } }}
+        {{ 'shared.plan.ended' | translate: { date: endedOn() | zonedDate: timeZone() } }}
       </h2>
       <p>{{ 'shared.plan.consequences' | translate }}</p>
       <p>{{ 'shared.plan.renew' | translate: { contact: renewalContact() } }}</p>
