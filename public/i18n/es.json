@@ -70,7 +70,100 @@
       "organization": "Organización",
       "account": "Cuenta",
       "more": "Más",
-      "comingSoon": "Esta sección todavía no está lista."
+      "comingSoon": "Esta sección todavía no está lista.",
+      "backToCalendar": "Ir al calendario"
+    }
+  },
+  "iam": {
+    "signIn": {
+      "title": "Ingresa a Takodu",
+      "lead": "Te enviaremos un código de 6 dígitos a tu correo.",
+      "email": "Correo",
+      "emailRequired": "Escribe tu correo.",
+      "emailInvalid": "Revisa el correo: parece incompleto.",
+      "sendCode": "Enviar código",
+      "sending": "Enviando…",
+      "changeEmail": "Cambiar correo",
+      "codeTitle": "Revisa tu correo",
+      "codeSent": "Te enviamos un código de 6 dígitos a",
+      "codeExpires": "Vence en 10 minutos.",
+      "code": "Código",
+      "enter": "Ingresar",
+      "entering": "Ingresando…",
+      "resend": "¿No llegó? Reenviar código",
+      "resent": "Te enviamos un código nuevo.",
+      "anyCode": "Cualquier código vigente funciona.",
+      "devHint": "En desarrollo, pibble escribe el código en su consola.",
+      "resuming": "Recuperando tu sesión",
+      "resumeFailed": {
+        "title": "No pudimos recuperar tu sesión",
+        "message": "Revisa tu conexión e inténtalo otra vez. Tu sesión sigue guardada."
+      },
+      "useAnotherEmail": "Ingresar con otro correo"
+    }
+  },
+  "organization": {
+    "role": {
+      "owner": "Dueño",
+      "manager": "Encargado",
+      "staff": "Personal"
+    },
+    "plan": {
+      "standard": "Plan Standard",
+      "max": "Plan Max",
+      "current": "Plan",
+      "activeUntil": "Activo hasta el {{date}}",
+      "endedOn": "Terminó el {{date}}",
+      "see": "Ver plan"
+    },
+    "establishment": {
+      "label": "Local",
+      "change": "Cambiar de local",
+      "current": "Local actual"
+    },
+    "account": {
+      "menu": "Cuenta y organización",
+      "account": "Cuenta",
+      "switchOrganization": "Cambiar de organización",
+      "signOut": "Salir"
+    },
+    "picker": {
+      "title": "Elige una organización",
+      "lead": "Trabajas en más de un negocio. Puedes cambiar después desde tu cuenta.",
+      "signedInAs": "Entraste como {{email}}.",
+      "current": "Actual",
+      "empty": {
+        "title": "Aún no tienes un negocio en Takodu",
+        "message": "Si te invitaron a un equipo, abre el enlace del correo con este mismo correo. Si eres dueño, crea tu negocio."
+      },
+      "create": "Crear mi negocio"
+    },
+    "invitation": {
+      "title": "Te invitaron a un equipo en Takodu",
+      "lead": "Entraste como {{email}}. Acepta para unirte y ver el calendario de tus locales.",
+      "accept": "Aceptar invitación",
+      "accepting": "Aceptando…",
+      "expired": {
+        "title": "Esta invitación venció",
+        "message": "Pídele a quien te invitó que te envíe una nueva."
+      },
+      "otherEmail": {
+        "title": "La invitación es para otro correo",
+        "message": "Sal e ingresa con el correo al que llegó la invitación.",
+        "signedInAs": "Entraste como {{email}}."
+      },
+      "invalid": {
+        "title": "Esta invitación ya no es válida",
+        "message": "Puede que la hayan anulado o renovado. Pide un enlace nuevo."
+      },
+      "taken": {
+        "title": "Otra persona ya aceptó esta invitación",
+        "message": "Si era para ti, pide una nueva."
+      },
+      "signOut": "Salir e ingresar con otro correo"
+    },
+    "onboarding": {
+      "title": "Primeros pasos"
     }
   },
   "pageNotFound": {
@@ -84,10 +177,12 @@
     "CUSTOMER_DELETED": "Este cliente fue eliminado.",
     "ESTABLISHMENT_ARCHIVED": "Este local está archivado.",
     "INVALID_TRANSITION": "La cita no puede pasar a ese estado.",
+    "INVITATION_CONFLICT": "Otra persona ya aceptó esta invitación.",
     "INVITATION_EXPIRED": "La invitación venció. Pide una nueva.",
+    "INVITATION_NOT_FOUND": "Esta invitación ya no es válida.",
     "INVITATION_NOT_PENDING": "Esta invitación ya no es válida.",
     "LINE_DISCONNECTED": "La línea de WhatsApp está desconectada.",
-    "LOGIN_CODE_INVALID": "El código es incorrecto o venció.",
+    "LOGIN_CODE_INVALID": "Ese código no es correcto o ya venció. Revísalo o pide uno nuevo.",
     "LOGIN_CODE_LIMIT": "Pediste demasiados códigos. Intenta de nuevo en una hora.",
     "MEDIA_DOWNLOAD_FAILED": "No se pudo descargar este archivo.",
     "MEDIA_NOT_READY": "El archivo todavía se está descargando.",

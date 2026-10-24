@@ -1,0 +1,56 @@
+// The same single column as sign-in: full width on phones, a card from 600 px.
+:host {
+  display: grid;
+  min-height: 100dvh;
+  place-items: start center;
+
+  @media (min-width: 600px) {
+    place-items: center;
+    padding: 24px;
+  }
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 480px;
+  min-height: 100dvh;
+  padding: 24px 20px 28px;
+
+  @media (min-width: 600px) {
+    min-height: 0;
+    padding: 32px;
+    border-radius: 28px;
+    background: var(--mat-sys-surface);
+    border: 1px solid var(--mat-sys-outline-variant);
+  }
+}
+
+.wordmark {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+mat-action-list {
+  padding: 0;
+}
+
+.end {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}

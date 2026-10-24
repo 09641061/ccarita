@@ -1,0 +1,48 @@
+:host {
+  display: grid;
+  min-height: 100dvh;
+  place-items: start center;
+
+  @media (min-width: 600px) {
+    place-items: center;
+    padding: 24px;
+  }
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 480px;
+  padding: 24px 20px 28px;
+
+  @media (min-width: 600px) {
+    padding: 32px;
+    border-radius: 28px;
+    background: var(--mat-sys-surface);
+    border: 1px solid var(--mat-sys-outline-variant);
+  }
+}
+
+.wordmark {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+
+.signed-in {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.other {
+  align-self: center;
+}

@@ -1,0 +1,43 @@
+@let current = selected();
+@if (current) {
+  @if (establishments().length > 1) {
+    <button
+      type="button"
+      class="trigger"
+      [matMenuTriggerFor]="menu"
+      [attr.aria-label]="('organization.establishment.change' | translate) + ': ' + current.name"
+    >
+      <span class="text">
+        @if (!compact()) {
+          <span class="tk-label">{{ 'organization.establishment.label' | translate }}</span>
+        }
+        <span class="name">{{ current.name }}</span>
+      </span>
+      <mat-icon aria-hidden="true">unfold_more</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      @for (establishment of establishments(); track establishment.id) {
+        <button
+          mat-menu-item
+          type="button"
+          [attr.aria-current]="establishment.id === current.id ? 'true' : null"
+          (click)="chosen.emit(establishment.id)"
+        >
+          <mat-icon aria-hidden="true">{{
+            establishment.id === current.id ? 'check' : 'storefront'
+          }}</mat-icon>
+          <span>{{ establishment.name }}</span>
+        </button>
+      }
+    </mat-menu>
+  } @else {
+    <div class="trigger static">
+      <span class="text">
+        @if (!compact()) {
+          <span class="tk-label">{{ 'organization.establishment.label' | translate }}</span>
+        }
+        <span class="name">{{ current.name }}</span>
+      </span>
+    </div>
+  }
+}

@@ -4,12 +4,34 @@
 :host {
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: auto 1fr auto;
   min-height: 100dvh;
 
   @media (min-width: 1024px) {
     grid-template-columns: 280px 1fr;
     grid-template-rows: 1fr;
+  }
+}
+
+// Below 1024 px the drawer is gone; the session's establishment and account go in a top bar.
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 64px;
+  padding: 8px 8px 8px 4px;
+  background: var(--mat-sys-surface-container-low);
+
+  &:empty {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    display: none;
   }
 }
 

@@ -193,7 +193,7 @@ export const bookingRoutes: Routes = [
 ];
 ```
 
-Registered in `app.routes.ts` as `{ path: 'agenda', loadChildren: () => import('./booking/presentation/booking.routes').then((m) => m.bookingRoutes) }` under `ShellPage`.
+Registered in `app.routes.ts` as `{ path: 'agenda', loadChildren: () => import('./booking/presentation/booking.routes').then((m) => m.bookingRoutes) }` among the children of `Workspace`, the signed-in frame, with `canActivate: [roleGuard(roles)]` when only some roles see it.
 
 ## `booking/public-api.ts`
 

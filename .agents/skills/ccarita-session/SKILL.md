@@ -1,48 +1,52 @@
 ---
 name: ccarita-session
-description: How a ccarita user signs in and works inside one organization and establishment — passwordless email codes, access and refresh tokens, the iam interceptor and guards, TenantContext and X-Organization-Id, the organization and establishment pickers, what each role (owner, manager, staff, Takodu operator) sees, and the inactive plan (O6). Use when building sign-in, navigation, guards, role-dependent UI, the plan banner, or any screen whose content depends on who is signed in.
+description: How a ccarita user signs in and works inside one organization and establishment — passwordless email codes, access and refresh tokens, the iam interceptor and guards, TenantContext and X-Organization-Id, the organization picker and establishment switcher, invitations, what each role (owner, manager, staff, Takodu operator) sees, and the inactive plan (O6). Use when building sign-in, navigation, guards, role-dependent UI, the plan banner, or any screen whose content depends on who is signed in.
 ---
 
 # Session, tenant and roles in ccarita
 
-Product rules: I1–I6 (sign-in), O9 and O13 (roles and visibility), O5 and O6 (plan), and the roles table in `../docs/03-business-domain.md` §5. The token storage decision is [proposed](../../../docs/decisions/proposed/2026-10-23-session-tokens-in-the-browser.md) until `iam` is built; build it as written there and move the record to `implemented/`.
+Product rules: I1–I6 (sign-in), O9, O10 and O13 (roles, invitations, visibility), O5 and O6 (plan), and the roles table in `../docs/03-business-domain.md` §5. Token storage is a [decision](../../../docs/decisions/implemented/2026-10-23-session-tokens-in-the-browser.md).
 
 ## Sign-in (`iam`)
 
-1. `POST /api/v1/auth/login-codes` with the email; pibble emails a 6-digit code (dev mode prints it in pibble's console). `LOGIN_CODE_LIMIT` means five codes this hour.
-2. `POST /api/v1/auth/sessions` with email and code returns `SessionTokens`: `sessionId`, `accessToken` (15 min), `refreshToken` (30 days), `user`.
-3. `SessionStore` keeps the access token and user in signals, the refresh token in storage, and exposes `isSignedIn`, `user` and `signOut()`.
-4. `authInterceptor` (in `iam/infrastructure`) adds `Authorization: Bearer …` to calls to `API_BASE_URL`, and on a 401 runs one shared `POST /api/v1/auth/session-refreshes` with the refresh token, then replays the request once. A failed refresh signs out.
-5. `GET` and `DELETE /api/v1/auth/sessions` list and end sessions on other devices.
+1. `/ingresar` (`SignIn`): the email, then the 6-digit code (`CodeInput`: one input with `one-time-code`, shown as six boxes). The sixth digit submits. pibble's dev mode prints the code in its console; development builds say so.
+2. `SessionStore` (`requestCode`, `signIn`, `restore`, `signOut`, `user`, `isSignedIn`) is what other contexts use. Requesting a code, signing in, refreshing and accepting an invitation send no `Idempotency-Key`: pibble marks them `@WithoutIdempotencyKey`.
+3. `SessionHolder` keeps the access token in memory and the refresh token in `localStorage`. `authInterceptor` (first in `app.config.ts`) adds `Bearer` only to `API_BASE_URL`, refreshes an expiring token before sending, and on a 401 refreshes once (shared by concurrent calls) and replays. Calls marked `anonymous()` get no token.
+4. A refused refresh clears tokens and `TenantContext`; `Workspace` then returns to `/ingresar?volver=…`. Sign-out deletes the session in pibble and clears both, even offline.
+5. After sign-in, `volver` passes through `safeReturnUrl`, so only paths inside the app are followed.
 
-`iam` is below `organization`, so the interceptor is registered in `app.config.ts` before `tenantInterceptor`, and signing out also calls `TenantContext.clear()`.
+The account sessions list (`GET`/`DELETE /api/v1/auth/sessions`) belongs to the account screen (F9).
 
 ## Organization and establishment (`organization`)
 
-- `GET /api/v1/organizations` lists the caller's organizations as `JoinedOrganization` (`id`, `name`, `planActiveUntil`, `memberId`, `role`). None → onboarding (`POST /api/v1/organizations`) or an invitation (`POST /api/v1/invitation-acceptances`). One → select it. Several → the picker.
-- Selecting calls `TenantContext.selectOrganization(id)`, which every later `/api/v1` call sends as `X-Organization-Id`.
-- `GET /api/v1/establishments` returns the establishments the caller sees: all for owners and managers, assigned ones for staff (O13). `organization` exposes a `CurrentEstablishment` store through `public-api.ts` (`id`, `timeZone`, `establishments`, `select`), backed by `TenantContext.selectEstablishment`; other contexts key their reads on it.
-- A stored selection that is no longer valid (membership removed, establishment archived) is replaced by the first valid one, or the picker.
+- `CurrentOrganization.load()` reads `GET /api/v1/organizations` once per user. It drops a stored selection that is not a membership and selects the only organization when there is one. `selected()`, `role()`, `can(action)`, `planActiveUntil()` and `planActive()` come from pibble; `details` is `GET /api/v1/organization` (plan and fresh end date).
+- `/organizaciones` (`OrganizationPicker`) lists several organizations; with one it goes straight on, and with none it explains how to get one and links to `/primeros-pasos` (onboarding, F7).
+- `CurrentEstablishment` lists `GET /api/v1/establishments` without archived ones (pibble returns the assigned ones for staff, O13) and exposes `id()`, `timeZone()` and `select()`. `TenantContext` remembers one establishment per organization; a missing one falls back to the first. Other contexts key their reads on it.
+- `/invitations/:token` is the link pibble emails. Signed out, `authGuard` brings the user back after sign-in. Accepting selects the organization and opens `/agenda`. `INVITATION_EXPIRED`, `INVITATION_NOT_FOUND`, `INVITATION_CONFLICT` and `ACCESS_DENIED` (another email; pibble does not say which) each have a state.
+
+## The frame
+
+`Workspace` fills `Shell`: `navigationFor(role)`, the establishment switcher, the plan card, and the account menu (Cuenta, Cambiar de organización with several, Salir). Below 1024 px the switcher and account go in the top bar. While `planActive()` is false, `PlanBanner` sits above every screen with `environment.renewalContact`.
 
 ## Roles in the UI
 
-`CurrentMember` (in `organization`, exported) holds the role of the selected organization and answers `can(action)` for the actions in §5: `editOrganization`, `manageEstablishments`, `connectWhatsapp`, `editSettings`, `manageTeam`, `seeAllEstablishments`, `manageEveryonesCalendar`, `deleteCustomers`.
+`MAIN_NAVIGATION` lists the roles of each destination; `canPerform(role, action)` holds the actions of §5.
 
-- Hide navigation and actions the role cannot use; deep links still render the no-permission state when pibble answers `ACCESS_DENIED`.
+- Hide navigation and actions the role cannot use; a deep link a role cannot use shows `/sin-permiso`, and pibble's `ACCESS_DENIED` shows the same state.
 - **pibble is the authority.** A hidden button is convenience, not security: never skip a request because the UI believes it would fail, and never send a role or organization in a body.
 
 ## Guards
 
-Functional guards in `infrastructure` returning `true` or a `UrlTree` (never calling `router.navigate` themselves):
+Functional guards in `presentation/guards`, since they read stores; each returns `true` or a `UrlTree`:
 
-- `signedInGuard` (`iam`): signed in, else `/ingresar` with the return URL.
-- `organizationSelectedGuard` (`organization`): an organization is selected, else the picker or onboarding.
-- `roleGuard(action)` (`organization`): `CurrentMember.can(action)`, else the no-permission view.
-- `operatorGuard` (`platform`): `GET /internal/v1/operator` answers 200, else no-permission. `/platform` routes need no organization.
+- `authGuard` (`iam`): signed in or restored, else `/ingresar?volver=…`.
+- `organizationGuard` (`organization`): an organization is selected, else `/organizaciones?volver=…`. It leaves signed-out users to `authGuard`.
+- `roleGuard(roles)` (`organization`): the selected role is one of `roles`, else `/sin-permiso`.
+- `/platform` will add an operator guard on `GET /internal/v1/operator` (F10).
 
 ## Inactive plan (O6)
 
-`JoinedOrganization.planActiveUntil` in the past, or any `PLAN_INACTIVE` answer, sets `CurrentOrganization.planActive` to false. The layout shows a persistent banner explaining renewal by transfer, Yape or Plin through the Takodu team. Disable booking, rescheduling, sending messages and changing settings. Keep reading, team management, archiving, finishing booked appointments, time blocks, assigning and reading conversations, pausing the assistant, customers and usage enabled. pibble still rejects what O6 forbids, so a stale flag only costs one error message.
+`planActive()` is false once `planActiveUntil` has passed. Disable booking, rescheduling, sending messages and changing settings. Keep reading, team management, archiving, finishing booked appointments, time blocks, assigning and reading conversations, pausing the assistant, customers and usage enabled. pibble still rejects what O6 forbids with `PLAN_INACTIVE`, which the screen shows as its message.
 
 ## Checklist
 

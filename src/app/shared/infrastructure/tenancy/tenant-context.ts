@@ -4,31 +4,44 @@ const STORAGE_KEY = 'ccarita.tenant';
 
 interface Selection {
   readonly organizationId: string | null;
-  readonly establishmentId: string | null;
+  /** The last establishment chosen in each organization, by organization id. */
+  readonly establishments: Readonly<Record<string, string>>;
 }
+
+const EMPTY: Selection = { organizationId: null, establishments: {} };
 
 /**
  * The organization and establishment the user works in. `tenantInterceptor` sends the organization as
- * `X-Organization-Id`; screens read the establishment. Kept in local storage so a reload stays in place.
+ * `X-Organization-Id`; screens read the establishment. Kept in local storage so a reload stays in place, and each
+ * organization remembers its own establishment.
  */
 @Injectable({ providedIn: 'root' })
 export class TenantContext {
   private readonly selection = signal<Selection>(restore());
 
   readonly organizationId = computed(() => this.selection().organizationId);
-  readonly establishmentId = computed(() => this.selection().establishmentId);
+  readonly establishmentId = computed(() => {
+    const { organizationId, establishments } = this.selection();
+    return organizationId ? (establishments[organizationId] ?? null) : null;
+  });
 
   selectOrganization(organizationId: string): void {
     if (organizationId === this.organizationId()) return;
-    this.save({ organizationId, establishmentId: null });
+    this.save({ ...this.selection(), organizationId });
   }
 
+  /** Remembers the establishment for the selected organization; ignored when none is selected. */
   selectEstablishment(establishmentId: string): void {
-    this.save({ ...this.selection(), establishmentId });
+    const { organizationId, establishments } = this.selection();
+    if (!organizationId) return;
+    this.save({
+      organizationId,
+      establishments: { ...establishments, [organizationId]: establishmentId },
+    });
   }
 
   clear(): void {
-    this.save({ organizationId: null, establishmentId: null });
+    this.save(EMPTY);
   }
 
   private save(selection: Selection): void {
@@ -46,11 +59,12 @@ function restore(): Selection {
     const stored = JSON.parse(
       localStorage.getItem(STORAGE_KEY) ?? 'null',
     ) as Partial<Selection> | null;
+    const establishments = stored?.establishments;
     return {
-      organizationId: stored?.organizationId ?? null,
-      establishmentId: stored?.establishmentId ?? null,
+      organizationId: typeof stored?.organizationId === 'string' ? stored.organizationId : null,
+      establishments: establishments && typeof establishments === 'object' ? establishments : {},
     };
   } catch {
-    return { organizationId: null, establishmentId: null };
+    return EMPTY;
   }
 }

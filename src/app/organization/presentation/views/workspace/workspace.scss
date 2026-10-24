@@ -1,0 +1,16 @@
+.top-bar {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.compact-switcher {
+  flex: 0 1 auto;
+}
+
+.plan-banner {
+  margin-bottom: 16px;
+}

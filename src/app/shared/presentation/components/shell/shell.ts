@@ -8,8 +8,8 @@ import { NavigationItem } from './navigation-item';
 
 /**
  * The signed-in frame: a navigation drawer from 1024 px, and below that a bottom bar with the
- * daily destinations plus "Más". The session fills the establishment, plan and account slots;
- * the screen goes in the default slot. No unread count: pibble serves no total.
+ * daily destinations plus "Más". The session fills the establishment, plan and account slots of
+ * the drawer and, on phones, the top bar slot; the screen goes in the default slot. No unread count: pibble serves no total.
  */
 @Component({
   selector: 'app-shell',

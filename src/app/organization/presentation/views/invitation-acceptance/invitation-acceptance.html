@@ -1,0 +1,42 @@
+<div class="page">
+  <span class="wordmark">{{ 'app.name' | translate }}</span>
+  @let email = session.user()?.email;
+  @if (failure(); as failure) {
+    @if (failure.texts; as texts) {
+      <app-state-view
+        [kind]="failure.kind"
+        [title]="'organization.invitation.' + texts + '.title'"
+        [message]="'organization.invitation.' + texts + '.message'"
+      >
+        @if (texts === 'otherEmail' && email) {
+          <p class="signed-in">
+            {{ 'organization.invitation.otherEmail.signedInAs' | translate: { email } }}
+          </p>
+        }
+        <button matButton="tonal" type="button" (click)="switchAccount()">
+          {{ 'organization.invitation.signOut' | translate }}
+        </button>
+      </app-state-view>
+    } @else {
+      <app-state-view [kind]="failure.kind" (retry)="accept()">
+        @if (failure.kind === 'error') {
+          <p class="tk-muted">{{ error() | errorMessage }}</p>
+        }
+      </app-state-view>
+    }
+  } @else {
+    <div class="intro">
+      <h1>{{ 'organization.invitation.title' | translate }}</h1>
+      <p class="tk-muted">{{ 'organization.invitation.lead' | translate: { email } }}</p>
+    </div>
+    <app-busy-button [busy]="busy()" (pressed)="accept()">
+      {{
+        (busy() ? 'organization.invitation.accepting' : 'organization.invitation.accept')
+          | translate
+      }}
+    </app-busy-button>
+    <button matButton="text" type="button" class="other" (click)="switchAccount()">
+      {{ 'organization.invitation.signOut' | translate }}
+    </button>
+  }
+</div>

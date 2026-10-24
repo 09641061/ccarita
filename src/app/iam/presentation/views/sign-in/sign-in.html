@@ -1,0 +1,92 @@
+<div class="page">
+  @if (resuming()) {
+    <mat-progress-bar mode="indeterminate" [attr.aria-label]="'iam.signIn.resuming' | translate" />
+  } @else if (resumeFailed()) {
+    <app-state-view
+      kind="offline"
+      title="iam.signIn.resumeFailed.title"
+      message="iam.signIn.resumeFailed.message"
+      (retry)="resume()"
+    >
+      <button matButton="text" type="button" (click)="useAnotherEmail()">
+        {{ 'iam.signIn.useAnotherEmail' | translate }}
+      </button>
+    </app-state-view>
+  } @else if (step() === 'email') {
+    <span class="wordmark">{{ 'app.name' | translate }}</span>
+    <div class="intro">
+      <h1>{{ 'iam.signIn.title' | translate }}</h1>
+      <p class="tk-muted">{{ 'iam.signIn.lead' | translate }}</p>
+    </div>
+    <form novalidate (submit)="sendCode($event)">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'iam.signIn.email' | translate }}</mat-label>
+        <input
+          matInput
+          type="email"
+          autocomplete="email"
+          inputmode="email"
+          [formField]="accountForm.email"
+        />
+        @if (accountForm.email().touched() && accountForm.email().invalid()) {
+          <mat-error>{{
+            (account().email.trim() ? 'iam.signIn.emailInvalid' : 'iam.signIn.emailRequired')
+              | translate
+          }}</mat-error>
+        }
+      </mat-form-field>
+      @if (error(); as error) {
+        <p class="error" role="alert">
+          <mat-icon aria-hidden="true">error</mat-icon><span>{{ error | errorMessage }}</span>
+        </p>
+      }
+      <app-busy-button type="submit" [busy]="busy()">
+        {{ (busy() ? 'iam.signIn.sending' : 'iam.signIn.sendCode') | translate }}
+      </app-busy-button>
+    </form>
+  } @else {
+    <div class="back">
+      <button matButton="text" type="button" (click)="changeEmail()">
+        <mat-icon aria-hidden="true">chevron_left</mat-icon>
+        {{ 'iam.signIn.changeEmail' | translate }}
+      </button>
+    </div>
+    <div class="intro">
+      <h1>{{ 'iam.signIn.codeTitle' | translate }}</h1>
+      <p class="tk-muted">
+        {{ 'iam.signIn.codeSent' | translate }} <strong>{{ normalizedEmail() }}</strong
+        >. {{ 'iam.signIn.codeExpires' | translate }}
+      </p>
+    </div>
+    <form novalidate (submit)="enter($event)">
+      <label class="tk-label" for="sign-in-code">{{ 'iam.signIn.code' | translate }}</label>
+      <app-code-input
+        inputId="sign-in-code"
+        describedBy="sign-in-error"
+        [(value)]="code"
+        [invalid]="error()?.code === 'LOGIN_CODE_INVALID'"
+        (completed)="enter()"
+      />
+      @if (error(); as error) {
+        <p id="sign-in-error" class="error" role="alert">
+          <mat-icon aria-hidden="true">error</mat-icon><span>{{ error | errorMessage }}</span>
+        </p>
+      }
+      <app-busy-button type="submit" [busy]="busy()" [disabled]="code().length !== 6">
+        {{ (busy() ? 'iam.signIn.entering' : 'iam.signIn.enter') | translate }}
+      </app-busy-button>
+    </form>
+    <div class="end">
+      @if (resent()) {
+        <p role="status">{{ 'iam.signIn.resent' | translate }}</p>
+      }
+      <button matButton="text" type="button" [disabled]="busy()" (click)="resend()">
+        {{ 'iam.signIn.resend' | translate }}
+      </button>
+      <p class="tk-muted small">{{ 'iam.signIn.anyCode' | translate }}</p>
+      @if (devHint) {
+        <p class="tk-muted small">{{ 'iam.signIn.devHint' | translate }}</p>
+      }
+    </div>
+  }
+</div>
