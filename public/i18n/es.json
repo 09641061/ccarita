@@ -2,6 +2,63 @@
   "app": {
     "name": "Takodu"
   },
+  "shared": {
+    "brand": {
+      "assistant": "Tako, el asistente de Takodu"
+    },
+    "appointmentStatus": {
+      "confirmed": "Confirmada",
+      "in_progress": "En curso",
+      "completed": "Completada",
+      "cancelled": "Cancelada",
+      "no_show": "No asistió"
+    },
+    "messageOrigin": {
+      "customer": "Cliente",
+      "assistant": "Tako",
+      "staff": "Equipo",
+      "business_app": "Desde WhatsApp Business",
+      "system": "Mensaje automático",
+      "history": "Historial importado"
+    },
+    "deliveryStatus": {
+      "pending": "Pendiente",
+      "sent": "Enviado",
+      "delivered": "Entregado",
+      "read": "Leído",
+      "failed": "No se envió"
+    },
+    "state": {
+      "empty": {
+        "title": "Aún no hay nada aquí",
+        "message": "Cuando haya datos aparecerán aquí."
+      },
+      "error": {
+        "title": "Algo salió mal",
+        "message": "No pudimos cargar esta sección. Inténtalo otra vez en un momento."
+      },
+      "offline": {
+        "title": "No hay conexión",
+        "message": "Ves lo último que cargó. Si tocaste un botón, puedes reintentar sin miedo: no se duplicará."
+      },
+      "forbidden": {
+        "title": "Esta sección no está disponible para tu rol",
+        "message": "Pídele al dueño o a un encargado que lo haga por ti."
+      },
+      "notFound": {
+        "title": "No encontramos lo que buscas",
+        "message": "Puede que el enlace esté mal o que sea de otro local."
+      },
+      "retry": "Reintentar",
+      "loading": "Cargando"
+    },
+    "plan": {
+      "ended": "Tu plan terminó el {{date}}",
+      "consequences": "Asistente y recordatorios detenidos. Puedes ver todo y atender las citas ya reservadas.",
+      "renew": "Renueva pagando por transferencia, Yape o Plin. Escríbenos a {{contact}}.",
+      "writesDisabled": "Reservar, reprogramar, enviar mensajes y cambiar ajustes vuelve cuando renueves."
+    }
+  },
   "pageNotFound": {
     "title": "Página no encontrada",
     "back": "Ir al inicio"
