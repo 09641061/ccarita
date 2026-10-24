@@ -1,39 +1,217 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// Takodu on Angular Material 3: Material gives the shape, motion and structure of components;
+// every color role is a Takodu token, never a palette generated from the brand green
+// (docs/decisions/implemented/2026-10-23-takodu-tokens-on-m3-roles.md).
+// The role table is shown at /dev/ui; `scripts/check-theme.mjs` checks it against this file.
 @use '@angular/material' as mat;
 
+// `light-dark()` picks a value from `color-scheme`: the system preference by default,
+// or the `light` / `dark` class on <html>. Keep in sync with THEME_ROLES (theme-roles.ts).
+$roles: (
+  primary: light-dark(#33c19a, #33c19a),
+  on-primary: light-dark(#04261c, #04261c),
+  primary-container: light-dark(#d6f5ec, #0f3a2f),
+  on-primary-container: light-dark(#0e7a5e, #5ee0ba),
+  inverse-primary: light-dark(#5ee0ba, #0e7a5e),
+  surface-tint: light-dark(#33c19a, #33c19a),
+  secondary: light-dark(#0e7a5e, #5ee0ba),
+  on-secondary: light-dark(#ffffff, #04261c),
+  secondary-container: light-dark(#d6f5ec, #0f3a2f),
+  on-secondary-container: light-dark(#0e7a5e, #5ee0ba),
+  tertiary: light-dark(#3b4f7a, #a9bdf0),
+  on-tertiary: light-dark(#ffffff, #0b1120),
+  tertiary-container: light-dark(#e6ecf7, #1b2741),
+  on-tertiary-container: light-dark(#3b4f7a, #a9bdf0),
+  error: light-dark(#b42318, #f4877c),
+  on-error: light-dark(#ffffff, #3a1714),
+  error-container: light-dark(#fde8e6, #3a1714),
+  on-error-container: light-dark(#b42318, #f4877c),
+  background: light-dark(#f8fafc, #0b1120),
+  on-background: light-dark(#0f172a, #e8edf5),
+  surface: light-dark(#ffffff, #111827),
+  on-surface: light-dark(#0f172a, #e8edf5),
+  surface-variant: light-dark(#f1f5f9, #1a2333),
+  on-surface-variant: light-dark(#526077, #9aa7bb),
+  surface-dim: light-dark(#f1f5f9, #0b1120),
+  surface-bright: light-dark(#ffffff, #1a2333),
+  surface-container-lowest: light-dark(#ffffff, #0b1120),
+  surface-container-low: light-dark(#f8fafc, #0b1120),
+  surface-container: light-dark(#f1f5f9, #1a2333),
+  surface-container-high: light-dark(#f1f5f9, #1a2333),
+  surface-container-highest: light-dark(#e2e8f0, #243044),
+  inverse-surface: light-dark(#0f172a, #e8edf5),
+  inverse-on-surface: light-dark(#f8fafc, #0b1120),
+  outline: light-dark(#cbd5e1, #34435c),
+  outline-variant: light-dark(#e2e8f0, #243044),
+);
+
 html {
-  height: 100%;
+  color-scheme: light dark;
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: mat.$green-palette,
+        theme-type: color-scheme,
       ),
-      typography: Roboto,
+      typography: (
+        plain-family: Geist,
+        brand-family: Geist,
+        bold-weight: 600,
+        medium-weight: 500,
+        regular-weight: 400,
+      ),
       density: 0,
     )
   );
+  @include mat.theme-overrides($roles);
+
+  // Takodu tokens with no M3 role (Sistema visual): appointment states, warnings, member colors,
+  // the chat background, the assistant's gradient, focus ring, type and motion.
+  --tk-status-confirmed: light-dark(#0e7a5e, #5ee0ba);
+  --tk-status-confirmed-bg: light-dark(#d6f5ec, #0f3a2f);
+  --tk-status-in-progress: light-dark(#8a5300, #f2c46b);
+  --tk-status-in-progress-bg: light-dark(#fdf1d8, #33260d);
+  --tk-status-completed: light-dark(#334155, #cbd5e1);
+  --tk-status-completed-bg: light-dark(#f1f5f9, #1a2333);
+  --tk-status-cancelled: light-dark(#b42318, #f4877c);
+  --tk-status-no-show: light-dark(#6b3fa0, #c9a8f0);
+  --tk-warning: light-dark(#8a5300, #f2c46b);
+  --tk-warning-bg: light-dark(#fdf1d8, #33260d);
+  --tk-member-1: light-dark(#e3f7f0, #0f3a2f);
+  --tk-member-1-fg: light-dark(#0e7a5e, #5ee0ba);
+  --tk-member-2: light-dark(#ebeff8, #1b2741);
+  --tk-member-2-fg: light-dark(#3b4f7a, #a9bdf0);
+  --tk-member-3: light-dark(#fceee2, #3a2410);
+  --tk-member-3-fg: light-dark(#8a4b12, #f2b98a);
+  --tk-member-4: light-dark(#f3edfb, #2a1c40);
+  --tk-member-4-fg: light-dark(#6b3fa0, #c9a8f0);
+  --tk-chat-bg: light-dark(#eef4f1, #0e1726);
+  --tk-assistant-gradient: linear-gradient(135deg, #33c19a 0%, #4fc9c0 45%, #a6e9d5 100%);
+  --tk-ring: light-dark(#0e7a5e, #5ee0ba);
+
+  --tk-font: Geist, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --tk-font-mono: 'Geist Mono', ui-monospace, monospace;
+
+  // M3 motion: standard easing for small changes, emphasized for things that enter.
+  --tk-motion-standard: cubic-bezier(0.2, 0, 0, 1);
+  --tk-motion-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --tk-duration-short: 160ms;
+  --tk-duration-medium: 300ms;
+
+  height: 100%;
+
+  &.light {
+    color-scheme: light;
+  }
+
+  &.dark {
+    color-scheme: dark;
+  }
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
   height: 100%;
+  background-color: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface);
+  font: 400 15px/1.5 var(--tk-font);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+
+  @media (max-width: 599.98px) {
+    font-size: 16px;
+  }
 }
-/* You can add global styles to this file, and also import other style files */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// Type scale from Sistema visual: 28/600 page titles, 18/600 section titles, 13/500 labels.
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+h2,
+h3 {
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.tk-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.tk-muted {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+:focus-visible {
+  outline: 2px solid var(--tk-ring);
+  outline-offset: 2px;
+}
+
+// Material Symbols at the light weight of the design's line icons.
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+// Page changes (withViewTransitions) fade with the M3 tokens.
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--tk-duration-short);
+  animation-timing-function: var(--tk-motion-standard);
+}
+
+// Shared enter and leave animations for `animate.enter` / `animate.leave` in templates.
+.tk-enter {
+  animation: tk-enter var(--tk-duration-medium) var(--tk-motion-emphasized);
+}
+
+.tk-leave {
+  animation: tk-leave var(--tk-duration-short) var(--tk-motion-standard) forwards;
+}
+
+@keyframes tk-enter {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+@keyframes tk-leave {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+    transition: none !important;
+  }
+}

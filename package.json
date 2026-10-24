@@ -9,10 +9,11 @@
     "test:watch": "ng test",
     "lint": "ng lint",
     "arch": "depcruise src --config .dependency-cruiser.cjs",
+    "theme:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-theme.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "api:sync": "scripts/sync-api.sh",
-    "check": "pnpm format:check && pnpm lint && pnpm arch && pnpm test && pnpm build",
+    "check": "pnpm format:check && pnpm lint && pnpm arch && pnpm theme:check && pnpm test && pnpm build",
     "ng": "ng"
   },
   "private": true,
@@ -43,6 +44,7 @@
     "jsdom": "^30.0.0",
     "openapi-typescript": "7.13.0",
     "prettier": "^3.8.1",
+    "sass": "1.104.1",
     "typescript": "~6.0.2",
     "typescript-eslint": "8.71.0",
     "vitest": "^5.0.0"

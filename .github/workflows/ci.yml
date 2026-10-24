@@ -1,5 +1,5 @@
 # Same evidence as the local hooks: commit messages, documentation, the API contract, format, lint, architecture,
-# tests and a production build. Actions are pinned to a commit; the comment names its release.
+# theme roles, tests and a production build. Actions are pinned to a commit; the comment names its release.
 name: ci
 
 on:
@@ -39,6 +39,8 @@ jobs:
         run: pnpm lint
       - name: Architecture
         run: pnpm arch
+      - name: Theme roles
+        run: pnpm theme:check
       - name: Test
         run: pnpm test
       - name: Build
