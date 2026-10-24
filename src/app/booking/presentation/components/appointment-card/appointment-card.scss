@@ -1,0 +1,105 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-left: 4px solid var(--status-color);
+  background: var(--mat-sys-surface-container-lowest);
+  color: var(--mat-sys-on-surface);
+  --status-color: var(--tk-status-confirmed);
+}
+
+:host(.in_progress) {
+  --status-color: var(--tk-status-in-progress);
+}
+
+:host(.completed) {
+  --status-color: var(--tk-status-completed);
+}
+
+// Final states that did not happen read as absent: dashed and without fill.
+:host(.cancelled),
+:host(.no_show) {
+  border-style: dashed;
+  background: transparent;
+  --status-color: var(--tk-status-cancelled);
+
+  .name {
+    text-decoration: line-through;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+:host(.no_show) {
+  --status-color: var(--tk-status-no-show);
+}
+
+:host(.conflict) {
+  border-color: var(--tk-warning);
+}
+
+:host(.compact) {
+  gap: 2px;
+  height: 100%;
+  padding: 6px 8px;
+  overflow: hidden;
+  border-radius: 8px;
+  font-size: 12px;
+
+  .name {
+    font-size: 13px;
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.muted {
+  justify-content: space-between;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 14px;
+
+  :host(.compact) & {
+    font-size: 12px;
+  }
+}
+
+.what {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.price {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.warning {
+  color: var(--tk-warning);
+  font-size: 13px;
+  font-weight: 500;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}

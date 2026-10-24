@@ -1,0 +1,60 @@
+@let tz = timeZone();
+@for (agenda of days(); track agenda.day.toString(); let d = $index) {
+  <section [attr.aria-labelledby]="headings() ? 'day-' + agenda.day : null">
+    @if (headings()) {
+      <h2 class="day" [id]="'day-' + agenda.day">{{ agenda.day | zonedDate: tz : 'longDay' }}</h2>
+    }
+    <ol>
+      @for (entry of agenda.entries; track entry.kind + entry.id; let i = $index) {
+        @if (i === nowIndex()[d]) {
+          <ng-container *ngTemplateOutlet="nowLine" />
+        }
+        <li class="item">
+          <span class="times">
+            <span>{{ entry.start | zonedDate: tz : 'time' }}</span>
+            <span class="end">{{ entry.end | zonedDate: tz : 'time' }}</span>
+          </span>
+          @if (entry.kind === 'appointment') {
+            <a
+              class="link"
+              [routerLink]="['/agenda/citas', entry.id]"
+              [attr.aria-label]="
+                'booking.appointment.open'
+                  | translate
+                    : {
+                        name: entry.customerName ?? '',
+                        time: (entry.start | zonedDate: tz : 'time'),
+                      }
+              "
+            >
+              <app-appointment-card [entry]="entry" [timeZone]="tz" />
+            </a>
+          } @else {
+            <app-block-card
+              class="link"
+              [entry]="entry"
+              [timeZone]="tz"
+              (remove)="removeBlock.emit($event)"
+            />
+          }
+        </li>
+      }
+      @if (nowIndex()[d] === agenda.entries.length && agenda.entries.length > 0) {
+        <ng-container *ngTemplateOutlet="nowLine" />
+      }
+    </ol>
+  </section>
+}
+
+<ng-template #nowLine>
+  <li
+    class="now"
+    [attr.aria-label]="
+      'booking.calendar.now' | translate: { time: (now() | zonedDate: tz : 'time') }
+    "
+  >
+    <span class="now-time" aria-hidden="true">{{ now() | zonedDate: tz : 'time' }}</span>
+    <span class="now-dot" aria-hidden="true"></span>
+    <span class="now-rule" aria-hidden="true"></span>
+  </li>
+</ng-template>

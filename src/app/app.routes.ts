@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { ResolveFn, Routes } from '@angular/router';
+import { ResolveFn, Route, Routes } from '@angular/router';
 import { devRoutes } from './dev.routes';
 import { authGuard } from './iam/public-api';
 import {
@@ -18,6 +18,14 @@ const pageNotFound = () =>
   import('./shared/presentation/views/page-not-found/page-not-found').then((m) => m.PageNotFound);
 const placeholder = () =>
   import('./shared/presentation/views/placeholder/placeholder').then((m) => m.Placeholder);
+
+/** The destinations a context already serves; the others show a placeholder until their phase. */
+const CONTEXT_ROUTES: Record<string, Route> = {
+  '/agenda': {
+    loadChildren: () =>
+      import('./booking/presentation/booking.routes').then((m) => m.bookingRoutes),
+  },
+};
 
 /** The destinations of the signed-in member's role, for the phone's "Más". */
 const roleNavigation: ResolveFn<readonly NavigationItem[]> = async () => {
@@ -56,9 +64,11 @@ export const routes: Routes = [
       ...MAIN_NAVIGATION.map((item) => ({
         path: item.path.slice(1),
         canActivate: [roleGuard(item.roles)],
-        loadComponent: placeholder,
-        data: { label: item.label },
-        title: 'Takodu',
+        ...(CONTEXT_ROUTES[item.path] ?? {
+          loadComponent: placeholder,
+          data: { label: item.label },
+          title: 'Takodu',
+        }),
       })),
       {
         path: 'mas',

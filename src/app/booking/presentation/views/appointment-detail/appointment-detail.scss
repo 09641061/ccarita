@@ -1,0 +1,145 @@
+:host {
+  display: block;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  :host-context(.desktop) & {
+    padding: 16px 20px 20px;
+    border-radius: 16px;
+    border: 1px solid var(--mat-sys-outline-variant);
+    background: var(--mat-sys-surface-container-lowest);
+  }
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -8px 0 0 -8px;
+}
+
+.bar-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+
+  h1 {
+    margin: 4px 0 0;
+    font-size: 24px;
+    font-weight: 600;
+  }
+}
+
+.phone {
+  color: var(--mat-sys-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 16px;
+  background: var(--mat-sys-surface-container-low);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 8px 16px;
+
+    & + li {
+      border-top: 1px solid var(--mat-sys-outline-variant);
+    }
+  }
+
+  mat-icon {
+    flex: none;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .grow {
+    flex: 1;
+  }
+
+  .price {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .warning {
+    color: var(--tk-warning);
+
+    mat-icon {
+      color: inherit;
+    }
+  }
+}
+
+.capitalize {
+  display: inline-block;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+// Icons projected into BusyButton sit inside its button like Material's own.
+app-busy-button mat-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  font-size: 18px;
+  vertical-align: middle;
+}
+
+.with-hint {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 12px;
+}
+
+.cancel {
+  --mat-button-text-label-text-color: var(--mat-sys-error);
+}
+
+.error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--mat-sys-error);
+  font-size: 14px;
+}

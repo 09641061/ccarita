@@ -1,0 +1,64 @@
+@let a = data.appointment;
+@let tz = data.timeZone;
+<form class="sheet" (submit)="confirm($event)" novalidate>
+  <header>
+    <h2 id="cancel-title">{{ 'booking.cancel.title' | translate: { name: data.customerName } }}</h2>
+    <p class="muted">
+      {{ a.start | zonedDate: tz : 'dayTime' }} – {{ a.end | zonedDate: tz : 'time' }} ·
+      {{ data.serviceName }} ·
+      {{ data.memberName }}
+    </p>
+  </header>
+
+  <div class="who">
+    <span class="label" id="cancel-who">{{ 'booking.cancel.who' | translate }}</span>
+    <mat-button-toggle-group
+      hideSingleSelectionIndicator
+      aria-labelledby="cancel-who"
+      [value]="model().cancelledBy"
+      (change)="chooseWho($event.value)"
+    >
+      <mat-button-toggle value="staff">{{
+        'booking.cancel.business' | translate
+      }}</mat-button-toggle>
+      <mat-button-toggle value="customer">{{
+        'booking.cancel.customer' | translate
+      }}</mat-button-toggle>
+    </mat-button-toggle-group>
+    <p class="muted">{{ 'booking.cancel.hint' | translate }}</p>
+  </div>
+
+  <mat-form-field>
+    <mat-label>{{ 'booking.cancel.reason' | translate }}</mat-label>
+    <textarea matInput rows="3" [formField]="cancelForm.reason"></textarea>
+    <mat-hint align="end">{{
+      'booking.cancel.count' | translate: { count: model().reason.length }
+    }}</mat-hint>
+    @if (cancelForm.reason().touched() && !model().reason.trim()) {
+      <mat-error>{{ 'booking.cancel.reasonRequired' | translate }}</mat-error>
+    }
+  </mat-form-field>
+
+  <p class="notice">
+    <mat-icon aria-hidden="true">chat</mat-icon>
+    <span>{{
+      (model().cancelledBy === 'staff'
+        ? 'booking.cancel.noticeBusiness'
+        : 'booking.cancel.noticeCustomer'
+      ) | translate
+    }}</span>
+  </p>
+
+  @if (error(); as e) {
+    <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+  }
+
+  <div class="actions">
+    <button matButton type="button" (click)="back()">
+      {{ 'booking.cancel.back' | translate }}
+    </button>
+    <app-busy-button type="submit" class="danger" [busy]="busy()">
+      {{ (busy() ? 'booking.cancel.busy' : 'booking.cancel.confirm') | translate }}
+    </app-busy-button>
+  </div>
+</form>

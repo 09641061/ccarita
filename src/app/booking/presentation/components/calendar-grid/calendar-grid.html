@@ -1,0 +1,84 @@
+@let tz = timeZone();
+<div
+  class="grid"
+  [style.--columns]="columns().length"
+  role="region"
+  [attr.aria-label]="'booking.calendar.agenda' | translate"
+>
+  <div class="head">
+    <span class="corner"></span>
+    @for (column of columns(); track column.key) {
+      <div class="column-head">
+        @if (column.avatar; as avatar) {
+          <app-avatar [name]="avatar.name" [colorIndex]="avatar.index" [size]="32" />
+        }
+        <span class="titles">
+          <span class="label">{{
+            column.count === null
+              ? (column.day | zonedDate: tz : 'weekday')
+              : (column.label ?? ('booking.calendar.formerMember' | translate))
+          }}</span>
+          <span class="tk-label">
+            @if (column.count === null) {
+              {{ column.day | zonedDate: tz : 'dayMonth' }}
+            } @else if (column.count === 1) {
+              {{ 'booking.calendar.countOne' | translate }}
+            } @else {
+              {{ 'booking.calendar.count' | translate: { count: column.count } }}
+            }
+          </span>
+        </span>
+      </div>
+    }
+  </div>
+  <div class="body" [style.height.px]="height()">
+    <div class="gutter" aria-hidden="true">
+      @for (hour of hours().labels; track hour) {
+        <span class="hour" [style.top.px]="$index * hourHeight">{{ hourLabel(hour) }}</span>
+      }
+    </div>
+    @for (col of layout(); track col.column.key) {
+      <div class="column" [style.--hour]="hourHeight + 'px'">
+        @for (item of col.items; track item.entry.kind + item.entry.id) {
+          @let entry = item.entry;
+          @if (entry.kind === 'block') {
+            <app-block-card
+              class="item block"
+              [compact]="true"
+              [entry]="entry"
+              [timeZone]="tz"
+              [style.top.px]="item.top"
+              [style.height.px]="item.height"
+              [style.left.%]="item.left"
+              [style.width]="'calc(' + item.width + '% - 4px)'"
+              (remove)="removeBlock.emit($event)"
+            />
+          } @else {
+            <a
+              class="item"
+              [routerLink]="['/agenda/citas', entry.id]"
+              routerLinkActive="opened"
+              [style.top.px]="item.top"
+              [style.height.px]="item.height"
+              [style.left.%]="item.left"
+              [style.width]="'calc(' + item.width + '% - 4px)'"
+              [attr.aria-label]="
+                'booking.appointment.open'
+                  | translate
+                    : {
+                        name: entry.customerName ?? '',
+                        time: (entry.start | zonedDate: tz : 'time'),
+                      }
+              "
+            >
+              <app-appointment-card [compact]="true" [entry]="entry" [timeZone]="tz" />
+            </a>
+          }
+        }
+        @if (col.now !== null) {
+          <div class="now" [style.top.px]="col.now" aria-hidden="true"></div>
+        }
+      </div>
+    }
+  </div>
+</div>

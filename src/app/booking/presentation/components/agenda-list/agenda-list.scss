@@ -1,0 +1,90 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.day {
+  margin: 8px 0;
+  font-size: 15px;
+  font-weight: 600;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+
+ol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+.times {
+  display: flex;
+  flex-direction: column;
+  padding-top: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+
+  .end {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 12px;
+    font-weight: 400;
+  }
+}
+
+.link {
+  display: block;
+  min-width: 0;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.block {
+  min-width: 0;
+}
+
+a.link:hover app-appointment-card {
+  background: var(--mat-sys-surface-container-low);
+}
+
+a.link:focus-visible {
+  outline: 2px solid var(--tk-ring);
+  outline-offset: 2px;
+}
+
+.now {
+  display: grid;
+  grid-template-columns: 48px 8px 1fr;
+  gap: 0;
+  align-items: center;
+  color: var(--mat-sys-error);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.now-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.now-rule {
+  height: 2px;
+  background: currentColor;
+}
