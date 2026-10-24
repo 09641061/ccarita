@@ -21,7 +21,7 @@ Visual design comes from the designs made for Takodu; this skill fixes how they 
 - Inputs and outputs with `input()`, `input.required()`, `output()` and `model()`; derived values with `computed()`; never `@Input`, `@Output` or manual subscriptions in components.
 - Templates use `@if`, `@for (…; track item.id)` with `@empty`, `@switch`, `@let`. No `*ngIf` or `*ngFor`.
 - Views read stores; components receive data. A component that needs a store is a view or belongs in one.
-- Template and style files sit next to the class; inline templates only for a few lines.
+- Template and style files sit next to the class; inline templates only when short.
 
 ## Forms
 
@@ -36,10 +36,11 @@ Visual design comes from the designs made for Takodu; this skill fixes how they 
 - Reuse the shared components before writing one: `StatusBadge`, `Avatar`, `StateView`, `Skeleton`, `BusyButton`, `PlanBanner`, `MessageOrigin`, `DeliveryStatus`, `BrandMark`.
 - Icons are Material Symbols (`<mat-icon>`), loaded in `index.html` ([decision](../../../docs/decisions/implemented/2026-10-23-material-symbols-for-icons.md)).
 - Phone first: design for 360 px wide, then add a breakpoint with `BreakpointObserver` or CSS for tablet and desktop. Dialogs become bottom sheets or full screens on phones.
+- A footer stuck to the bottom uses `bottom: var(--shell-bottom-inset, 0px)`, above the navigation bar.
 
 ## Motion
 
-- Material components already animate (ripples, dialogs, menus, sheets, tabs); do not add motion on top of them.
+- Material components already animate; add no motion on top of them.
 - Custom motion is CSS transitions, or `animate.enter="tk-enter"` / `animate.leave="tk-leave"` in templates. Never `@angular/animations`; it is legacy.
 - Durations and easing come only from `--tk-duration-short` (160 ms: hover, press), `--tk-duration-medium` (300 ms: panels, sheets), `--tk-motion-standard` and `--tk-motion-emphasized` (things entering).
 - Page changes use the router's view transitions. `prefers-reduced-motion: reduce` turns animations, transitions and ripples off; never override it.
@@ -60,7 +61,7 @@ Visual design comes from the designs made for Takodu; this skill fixes how they 
 - Every visible text goes through `| translate` with a key in `public/i18n/es.json`, grouped by context and screen (`booking.calendar.title`). Spanish (Peru), short, using "tú".
 - Dates and times: the shared `zonedDate` pipe with the establishment's IANA `timeZone` (`{{ a.start | zonedDate: tz : 'dayTime' }}`), never the device's; it also names a `LocalDate`. A typed day and time become an instant with `LocalDate.parse(day).atTime(time, tz)`. `DatePipe` ignores IANA names, and tests run in UTC to catch it. The app locale is `es-PE`.
 - Money: `money.format()` (`S/ 35.00`).
-- Phone numbers are shown as stored (E.164); never log them, message bodies or tokens to the console.
+- Phone numbers show as stored (E.164); never log them, message bodies or tokens.
 
 ## Accessibility
 

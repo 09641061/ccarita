@@ -38,7 +38,7 @@ A view calls a store method. The store calls its context's `*.api.ts` with an id
 
 ## Routes
 
-`/ingresar` (`iam`), `/organizaciones` and `/invitations/:token` (`organization`) stand alone. Everything else is a child of `Workspace`, the signed-in frame in `organization`, behind `authGuard` and `organizationGuard`; destinations only some roles see add `roleGuard(roles)`, which sends others to `/sin-permiso`. `app.routes.ts` lazy-loads one `<context>.routes.ts` per context among those children: `/agenda` is `bookingRoutes`, with an appointment's detail as its child `citas/:appointmentId`. `platform` has its own branch under `/platform`, guarded by the operator check. Development-only screens, such as the style guide at `/dev/ui`, are in `dev.routes.ts`, which production builds replace with an empty list.
+`/ingresar` (`iam`), `/organizaciones` and `/invitations/:token` (`organization`) stand alone. Everything else is a child of `Workspace`, the signed-in frame in `organization`, behind `authGuard` and `organizationGuard`; destinations only some roles see add `roleGuard(roles)`, which sends others to `/sin-permiso`. `app.routes.ts` lazy-loads one `<context>.routes.ts` per context among those children: `/agenda` is `bookingRoutes`, with an appointment's detail as its child `citas/:appointmentId` and booking beside them at `reservar` (`?reprogramar=<id>` reschedules). `platform` has its own branch under `/platform`, guarded by the operator check. Development-only screens, such as the style guide at `/dev/ui`, are in `dev.routes.ts`, which production builds replace with an empty list.
 
 ## Live inbox
 
