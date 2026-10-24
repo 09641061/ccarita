@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Screenshots the style guide, sign-in and the signed-in frame at phone and desktop sizes, light
+// Screenshots the style guide, sign-in, the calendar and an appointment at phone and desktop sizes, light
 // and dark, for the pull request's Proof block. Needs `pnpm start`; screenshots are not committed.
 // Usage: pnpm screenshots [base-url]   (default http://localhost:5173, output in screenshots/)
 // Signed-in pages need pibble in dev mode and a user with an organization:
@@ -12,7 +12,20 @@ import { chromium } from 'playwright';
 const baseUrl = process.argv[2] ?? 'http://localhost:5173';
 const { CCARITA_EMAIL: email, PIBBLE_LOG: pibbleLog } = process.env;
 const signedOut = { 'style-guide': '/dev/ui', 'sign-in': '/ingresar' };
-const signedIn = { frame: '/agenda', more: '/mas' };
+// A page is a path, or a path and the click that reaches it (the week view, the first appointment).
+const signedIn = {
+  calendar: '/agenda',
+  'calendar-week': [
+    '/agenda',
+    (page) =>
+      page
+        .getByRole('radio', { name: 'Semana' })
+        .or(page.getByRole('button', { name: 'Ver semana' }))
+        .click(),
+  ],
+  appointment: ['/agenda', (page) => page.locator('a[href^="/agenda/citas/"]').first().click()],
+  more: '/mas',
+};
 const viewports = { phone: { width: 390, height: 844 }, desktop: { width: 1440, height: 900 } };
 
 await mkdir('screenshots', { recursive: true });
@@ -26,9 +39,16 @@ async function capture(pages) {
     await page.emulateMedia({ colorScheme, reducedMotion: 'reduce' });
     for (const [device, viewport] of Object.entries(viewports)) {
       await page.setViewportSize(viewport);
-      for (const [name, path] of Object.entries(pages)) {
+      for (const [name, target] of Object.entries(pages)) {
         if (name === 'more' && device === 'desktop') continue;
+        const [path, step] = Array.isArray(target) ? target : [target];
         await page.goto(baseUrl + path, { waitUntil: 'networkidle' });
+        if (step) {
+          await step(page);
+          await page.waitForLoadState('networkidle');
+          // In-app navigation runs a view transition; let it finish.
+          await page.waitForTimeout(600);
+        }
         await page.evaluate(() => document.fonts.ready);
         const file = `screenshots/${name}-${device}-${colorScheme}.png`;
         await page.screenshot({ path: file, fullPage: name === 'style-guide' });
