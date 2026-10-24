@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { LocalDate } from '../../domain/model/local-date';
 
-export type ZonedDateFormat = 'date' | 'time' | 'dayTime' | 'weekday' | 'dayMonth' | 'longDay';
+export type ZonedDateFormat =
+  'date' | 'time' | 'dayTime' | 'weekday' | 'dayMonth' | 'longDay' | 'monthYear';
 
 const FORMATS: Record<ZonedDateFormat, Intl.DateTimeFormatOptions> = {
   date: { day: 'numeric', month: 'short', year: 'numeric' },
@@ -17,6 +18,7 @@ const FORMATS: Record<ZonedDateFormat, Intl.DateTimeFormatOptions> = {
   weekday: { weekday: 'short' },
   dayMonth: { day: 'numeric', month: 'short' },
   longDay: { weekday: 'long', day: 'numeric', month: 'long' },
+  monthYear: { month: 'long', year: 'numeric' },
 };
 
 /**

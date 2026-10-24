@@ -23,5 +23,6 @@ describe('ZonedDatePipe with a local date', () => {
     const day = LocalDate.parse('2026-10-23');
     expect(pipe.transform(day, 'America/Lima', 'longDay')).toBe('viernes, 23 de octubre');
     expect(pipe.transform(day, 'Asia/Tokyo', 'weekday')).toBe('vie');
+    expect(pipe.transform(day, 'America/Lima', 'monthYear')).toBe('octubre de 2026');
   });
 });

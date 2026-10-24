@@ -28,6 +28,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     :host {
       display: inline-flex;
     }
+    :host(.wide) {
+      display: flex;
+    }
+    :host(.wide) button {
+      flex: 1;
+    }
     mat-progress-spinner {
       display: inline-block;
       margin-right: 8px;
