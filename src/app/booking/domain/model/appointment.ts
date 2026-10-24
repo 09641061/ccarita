@@ -70,3 +70,17 @@ export interface CancelAppointment {
   readonly reason: string;
   readonly cancelledBy: CancelledBy;
 }
+
+/** B1–B9: `staffMemberId` null lets pibble choose the least busy performer that day (B17). */
+export interface BookAppointment {
+  readonly customerId: string;
+  readonly serviceId: string;
+  readonly staffMemberId: string | null;
+  readonly start: Date;
+}
+
+/** B13: a new start, and a new member or null to keep the current one; the length stays. */
+export interface RescheduleAppointment {
+  readonly start: Date;
+  readonly staffMemberId: string | null;
+}
