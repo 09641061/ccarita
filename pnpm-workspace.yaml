@@ -1,0 +1,6 @@
+# Install scripts the Angular toolchain needs (native builds and binaries); pnpm skips any other package's scripts.
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true
