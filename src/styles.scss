@@ -64,6 +64,22 @@ html {
   );
   @include mat.theme-overrides($roles);
 
+  // The brand green is a fill: as text on a light surface it falls below 3:1. Where Material
+  // writes text in `primary`, use the strong accent instead, as the base design does.
+  @include mat.button-overrides(
+    (
+      text-label-text-color: var(--mat-sys-on-primary-container),
+      outlined-label-text-color: var(--mat-sys-on-primary-container),
+      protected-label-text-color: var(--mat-sys-on-primary-container),
+    )
+  );
+  @include mat.form-field-overrides(
+    (
+      outlined-focus-label-text-color: var(--mat-sys-on-primary-container),
+      filled-focus-label-text-color: var(--mat-sys-on-primary-container),
+    )
+  );
+
   // Takodu tokens with no M3 role (Sistema visual): appointment states, warnings, member colors,
   // the chat background, the assistant's gradient, focus ring, type and motion.
   --tk-status-confirmed: light-dark(#0e7a5e, #5ee0ba);

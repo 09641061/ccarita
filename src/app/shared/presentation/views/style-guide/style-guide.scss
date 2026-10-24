@@ -151,3 +151,12 @@ code {
   border-radius: 12px;
   background: var(--mat-sys-surface-container-low);
 }
+
+.segmented {
+  align-self: flex-start;
+}
+
+:host > *,
+.grid > * {
+  min-width: 0;
+}
