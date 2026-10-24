@@ -1,4 +1,5 @@
 import { ZonedDatePipe } from './zoned-date.pipe';
+import { LocalDate } from '../../domain/model/local-date';
 
 describe('ZonedDatePipe', () => {
   const pipe = new ZonedDatePipe();
@@ -12,5 +13,15 @@ describe('ZonedDatePipe', () => {
 
   it('shows 24-hour times', () => {
     expect(pipe.transform(instant, 'America/Lima', 'time')).toBe('22:30');
+  });
+});
+
+describe('ZonedDatePipe with a local date', () => {
+  const pipe = new ZonedDatePipe();
+
+  it('names the day itself, whatever the zone', () => {
+    const day = LocalDate.parse('2026-10-23');
+    expect(pipe.transform(day, 'America/Lima', 'longDay')).toBe('viernes, 23 de octubre');
+    expect(pipe.transform(day, 'Asia/Tokyo', 'weekday')).toBe('vie');
   });
 });
