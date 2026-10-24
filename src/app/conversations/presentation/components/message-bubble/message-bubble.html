@@ -1,0 +1,45 @@
+@let m = message();
+@if (signed()) {
+  <app-message-origin class="who" [origin]="m.origin" [memberName]="memberName()" />
+}
+@if (m.kind === 'template') {
+  <span class="tag"
+    ><mat-icon aria-hidden="true">verified</mat-icon
+    >{{ 'conversations.chat.template' | translate }}</span
+  >
+}
+<ng-content />
+@if (m.body) {
+  <p class="body">{{ m.body }}</p>
+} @else if (placeholder(); as kind) {
+  <p class="body muted">{{ 'conversations.chat.kind.' + kind | translate }}</p>
+}
+@if (m.choices; as choices) {
+  <div
+    class="choices"
+    [class.list]="choices.style === 'list'"
+    role="group"
+    [attr.aria-label]="'conversations.chat.choices' | translate"
+  >
+    @if (choices.style === 'list') {
+      <span class="list-button">
+        <mat-icon aria-hidden="true">list</mat-icon
+        >{{ 'conversations.chat.listButton' | translate }}
+      </span>
+    }
+    @for (title of choices.titles; track $index) {
+      <span class="choice">{{ title }}</span>
+    }
+  </div>
+}
+@if (m.failed) {
+  <p class="failure">
+    <mat-icon aria-hidden="true">error</mat-icon>{{ 'conversations.chat.failed' | translate }}
+  </p>
+}
+<span class="meta">
+  {{ m.occurredAt | zonedDate: timeZone() : 'time' }}
+  @if (m.outbound) {
+    <app-delivery-status [status]="m.status" />
+  }
+</span>

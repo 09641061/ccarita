@@ -1,0 +1,70 @@
+@let v = view();
+@switch (v.state) {
+  @case ('shown') {
+    @switch (kind()) {
+      @case ('audio') {
+        <audio
+          controls
+          preload="metadata"
+          [src]="v.url"
+          [attr.aria-label]="'conversations.media.audio' | translate"
+        ></audio>
+      }
+      @case ('video') {
+        <video
+          controls
+          preload="metadata"
+          [src]="v.url"
+          [attr.aria-label]="'conversations.media.video' | translate"
+        ></video>
+      }
+      @default {
+        <img
+          [class.sticker]="kind() === 'sticker'"
+          [src]="v.url"
+          [alt]="'conversations.media.' + kind() | translate"
+          (error)="unshown()"
+        />
+      }
+    }
+  }
+  @case ('document') {
+    <button matButton="outlined" type="button" (click)="download()">
+      <mat-icon aria-hidden="true">description</mat-icon>
+      {{ 'conversations.media.download' | translate }}
+    </button>
+  }
+  @case ('loading') {
+    <span class="state" role="status">
+      <mat-progress-spinner mode="indeterminate" [diameter]="20" aria-hidden="true" />
+      {{ 'conversations.media.loading' | translate }}
+    </span>
+  }
+  @case ('pending') {
+    <span class="state" role="status">
+      <mat-icon aria-hidden="true">downloading</mat-icon>
+      {{ 'conversations.media.pending' | translate }}
+      <button matButton type="button" (click)="retry()">
+        {{ 'shared.state.retry' | translate }}
+      </button>
+    </span>
+  }
+  @case ('removed') {
+    <span class="state">
+      <mat-icon aria-hidden="true">folder_off</mat-icon>
+      {{ 'conversations.media.removed' | translate }}
+    </span>
+  }
+  @case ('unshown') {
+    <span class="state">
+      <mat-icon aria-hidden="true">broken_image</mat-icon>
+      {{ 'conversations.media.unshown' | translate }}
+    </span>
+  }
+  @default {
+    <span class="state failed">
+      <mat-icon aria-hidden="true">error</mat-icon>
+      {{ 'conversations.media.failed' | translate }}
+    </span>
+  }
+}

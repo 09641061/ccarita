@@ -1,0 +1,116 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-self: flex-start;
+  box-sizing: border-box;
+  max-width: min(80%, 520px);
+  padding: 10px 12px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 14px 14px 14px 4px;
+  color: var(--mat-sys-on-surface);
+  background: var(--mat-sys-surface-container-lowest);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+:host(.out) {
+  align-self: flex-end;
+  border-radius: 14px 14px 4px 14px;
+  background: var(--mat-sys-surface-container-high);
+}
+
+:host(.assistant) {
+  border-color: transparent;
+  color: var(--mat-sys-on-primary-container);
+  background: var(--mat-sys-primary-container);
+}
+
+:host(.failed) {
+  border-color: var(--mat-sys-error);
+}
+
+.who {
+  font-size: 12px;
+}
+
+.tag,
+.failure,
+.list-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+
+  mat-icon {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.tag {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.failure {
+  color: var(--mat-sys-error);
+}
+
+.body {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+
+  &.muted {
+    color: var(--mat-sys-on-surface-variant);
+    font-style: italic;
+  }
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 6px;
+
+  &.list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.choice,
+.list-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 10px;
+  background: var(--mat-sys-surface-container-lowest);
+  color: var(--mat-sys-on-surface);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.list .choice {
+  justify-content: flex-start;
+  border-style: dashed;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+
+  :host(.assistant) & {
+    color: inherit;
+  }
+}

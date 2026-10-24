@@ -435,6 +435,120 @@
       "busy": "Eliminando…"
     }
   },
+  "conversations": {
+    "inbox": {
+      "title": "Bandeja",
+      "list": "Conversaciones",
+      "live": "En vivo",
+      "offline": "Reconectando… puede que no esté al día",
+      "deletedCustomer": "Cliente eliminado",
+      "yesterday": "ayer",
+      "unread": "{{count}} sin leer",
+      "loadMore": "Cargar más",
+      "lineDisconnected": "La línea {{phone}} está desconectada: ves el historial, pero no puedes responder hasta que el dueño la vuelva a conectar.",
+      "filters": {
+        "label": "Filtros",
+        "needsSomeone": "Necesitan a alguien · {{count}}",
+        "all": "Todas",
+        "unread": "Sin leer",
+        "mine": "Mías"
+      },
+      "empty": {
+        "title": "Aún no hay conversaciones",
+        "message": "Cuando un cliente escriba al WhatsApp del local, aparecerá aquí."
+      },
+      "none": {
+        "title": "Nada con este filtro",
+        "message": "El filtro mira las conversaciones cargadas; carga más para buscar en las anteriores."
+      },
+      "noLine": {
+        "title": "Este local aún no tiene WhatsApp",
+        "message": "Cuando el dueño conecte el número del local, las conversaciones llegarán aquí.",
+        "owner": "Conecta el número del local en Ajustes para recibir aquí los mensajes de tus clientes.",
+        "settings": "Ir a Ajustes"
+      },
+      "noEstablishment": {
+        "title": "Aún no hay locales",
+        "message": "Cuando la organización tenga un local, su bandeja aparecerá aquí."
+      },
+      "pick": {
+        "title": "Elige una conversación",
+        "message": "Sus mensajes aparecerán aquí."
+      }
+    },
+    "status": {
+      "mediaRemoved": "Archivos borrados al eliminar al cliente",
+      "handedOff": "Necesita a una persona",
+      "pausedBy": "Asistente pausado por {{name}}",
+      "pausedManually": "Asistente pausado",
+      "pausedForHuman": "Asistente pausado hasta las {{time}}",
+      "windowClosed": "Ventana de 24 h cerrada",
+      "windowOpen": "Puedes escribirle hasta el {{time}}"
+    },
+    "chat": {
+      "back": "Volver a la bandeja",
+      "profile": "Ver perfil del cliente",
+      "book": "Reservar cita",
+      "assignedTo": "Asignada a {{name}}",
+      "handedOff": "Traspasada a una persona",
+      "handedOffWaiting": "El asistente espera a que alguien responda.",
+      "messages": "Mensajes",
+      "older": "Ver mensajes anteriores",
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "noMessages": "Aún no hay mensajes",
+      "template": "Mensaje aprobado",
+      "choices": "Opciones enviadas",
+      "listButton": "Ver opciones",
+      "failed": "No se entregó: WhatsApp rechazó el mensaje.",
+      "kind": {
+        "location": "Compartió una ubicación",
+        "reaction": "Reaccionó a un mensaje",
+        "unsupported": "Un mensaje que Takodu aún no puede mostrar"
+      },
+      "reply": "Respuesta",
+      "placeholder": "Escribe tu respuesta…",
+      "send": "Enviar",
+      "sending": "Enviando…",
+      "tooLong": "Escribe hasta {{max}} caracteres.",
+      "pausesAssistant": "Al responder, el asistente se pausa 12 horas en este chat.",
+      "notFound": {
+        "title": "No encontramos esta conversación",
+        "message": "Puede que sea de otro local o que el enlace esté mal."
+      },
+      "blocked": {
+        "customerDeleted": {
+          "title": "El cliente fue eliminado",
+          "message": "Ya no puedes escribirle y sus archivos se borraron."
+        },
+        "planInactive": {
+          "title": "Responder vuelve cuando renueves el plan",
+          "message": "Mientras tanto puedes leer la conversación y ver sus archivos."
+        },
+        "lineDisconnected": {
+          "title": "La línea de WhatsApp está desconectada",
+          "message": "Podrás responder cuando el dueño la vuelva a conectar en Ajustes."
+        },
+        "windowClosed": {
+          "title": "Solo puedes enviar un mensaje aprobado",
+          "message": "El cliente aún no ha escrito. Si escribe, podrás responderle libremente durante 24 h.",
+          "since": "La ventana de 24 h se cerró el {{time}}. Si el cliente responde, vuelves a escribir libre."
+        }
+      }
+    },
+    "media": {
+      "image": "Foto que envió el cliente",
+      "sticker": "Sticker que envió el cliente",
+      "audio": "Nota de voz",
+      "video": "Video que envió el cliente",
+      "download": "Descargar documento",
+      "loading": "Cargando archivo…",
+      "pending": "Descargando archivo de WhatsApp…",
+      "failed": "No se pudo descargar el archivo",
+      "removed": "Archivo eliminado",
+      "unshown": "No se pudo mostrar el archivo"
+    }
+  },
   "pageNotFound": {
     "title": "Página no encontrada",
     "back": "Ir al inicio"
@@ -486,6 +600,9 @@
     "TIME_BLOCK_NOT_FOUND": "Ese bloqueo ya no existe.",
     "CUSTOMER_CONFLICT": "Ya hay un cliente con ese teléfono.",
     "CUSTOMER_NOT_FOUND": "No encontramos a este cliente.",
-    "SERVICE_NOT_FOUND": "No encontramos este servicio."
+    "SERVICE_NOT_FOUND": "No encontramos este servicio.",
+    "CONVERSATION_NOT_FOUND": "No encontramos esta conversación.",
+    "MESSAGE_NOT_FOUND": "No encontramos este mensaje.",
+    "WHATSAPP_LINE_NOT_FOUND": "Este local aún no tiene una línea de WhatsApp."
   }
 }

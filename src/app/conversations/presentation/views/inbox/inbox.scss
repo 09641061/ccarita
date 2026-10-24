@@ -1,0 +1,209 @@
+// Full-bleed panes: the list and the chat scroll on their own, like a messaging app.
+:host {
+  display: block;
+  margin: -16px;
+
+  &.desktop {
+    margin: -24px -32px;
+  }
+}
+
+.inbox {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  height: calc(100dvh - var(--inbox-top, 0px) - var(--shell-bottom-inset, 0px));
+
+  :host(.desktop) & {
+    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--mat-sys-surface);
+
+  :host(.desktop) & {
+    border-right: 1px solid var(--mat-sys-outline-variant);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 16px 8px;
+
+  :host(.desktop) & {
+    padding: 24px 16px 8px;
+  }
+
+  h1 {
+    flex: 1;
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+  }
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 12px;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mat-sys-primary);
+  }
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 16px 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+
+  &.warning {
+    color: var(--tk-warning);
+    background: var(--tk-warning-bg);
+  }
+
+  mat-icon {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  padding: 4px 16px 12px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  scrollbar-width: none;
+
+  :host(.desktop) & {
+    flex-wrap: wrap;
+  }
+}
+
+.chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  color: var(--mat-sys-on-surface-variant);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &.on {
+    border-color: transparent;
+    color: var(--mat-sys-on-secondary-container);
+    background: var(--mat-sys-secondary-container);
+  }
+
+  &.hot {
+    border-color: var(--tk-warning);
+    color: var(--tk-warning);
+    background: var(--tk-warning-bg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--tk-ring);
+  }
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.results {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.progress {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.empty {
+  padding: 24px 16px;
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+app-skeleton,
+app-state-view:not(.pick) {
+  margin: 16px;
+}
+
+.pane {
+  display: none;
+  min-width: 0;
+  min-height: 0;
+
+  :host(.desktop) & {
+    display: flex;
+    flex-direction: column;
+    background: var(--tk-chat-bg);
+  }
+
+  :host(.chat-open) & {
+    display: flex;
+    flex-direction: column;
+  }
+
+  > :not(router-outlet) {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+.pick {
+  margin: auto;
+  align-self: center;
+}
+
+// On phones the chat takes the list's place.
+:host(.chat-open:not(.desktop)) .list {
+  display: none;
+}

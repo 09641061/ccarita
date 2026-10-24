@@ -1,0 +1,83 @@
+@let c = conversation();
+@let s = status();
+@let tz = timeZone();
+<a
+  class="row"
+  [routerLink]="['/bandeja', c.id]"
+  [class.selected]="selected()"
+  [class.unread]="c.unreadCount > 0"
+  [attr.aria-current]="selected() ? 'page' : null"
+>
+  @if (named()) {
+    <app-avatar [name]="name()!" [size]="40" />
+  } @else {
+    <span class="no-avatar" [class.deleted]="c.customerDeleted" aria-hidden="true">
+      <mat-icon>{{ c.customerDeleted ? 'person_off' : 'person' }}</mat-icon>
+    </span>
+  }
+  <span class="text">
+    <span class="line">
+      @if (name(); as n) {
+        <span class="name">{{ n }}</span>
+      } @else {
+        <span class="name muted">{{ 'conversations.inbox.deletedCustomer' | translate }}</span>
+      }
+      <span class="when">
+        @switch (when()) {
+          @case ('time') {
+            {{ c.lastMessageAt | zonedDate: tz : 'time' }}
+          }
+          @case ('yesterday') {
+            {{ 'conversations.inbox.yesterday' | translate }}
+          }
+          @default {
+            {{ c.lastMessageAt | zonedDate: tz : 'dayMonth' }}
+          }
+        }
+      </span>
+    </span>
+    <span class="line">
+      <span class="status" [class.warning]="s.warning">
+        <mat-icon aria-hidden="true">{{ s.icon }}</mat-icon>
+        <span class="status-text">
+          @switch (s.key) {
+            @case ('pausedManually') {
+              {{
+                (pausedBy()
+                  ? 'conversations.status.pausedBy'
+                  : 'conversations.status.pausedManually'
+                ) | translate: { name: pausedBy() }
+              }}
+            }
+            @case ('pausedForHuman') {
+              {{
+                'conversations.status.pausedForHuman'
+                  | translate: { time: (s.until! | zonedDate: tz : 'time') }
+              }}
+            }
+            @case ('windowOpen') {
+              {{
+                'conversations.status.windowOpen'
+                  | translate: { time: (s.until! | zonedDate: tz : 'dayTime') }
+              }}
+            }
+            @default {
+              {{ 'conversations.status.' + s.key | translate }}
+            }
+          }
+          @if (assignee(); as a) {
+            · {{ a }}
+          }
+        </span>
+      </span>
+      @if (c.unreadCount > 0) {
+        <span class="badge">
+          <span aria-hidden="true">{{ c.unreadCount }}</span>
+          <span class="tk-visually-hidden">{{
+            'conversations.inbox.unread' | translate: { count: c.unreadCount }
+          }}</span>
+        </span>
+      }
+    </span>
+  </span>
+</a>

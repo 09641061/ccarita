@@ -1,0 +1,154 @@
+@let tz = establishment.timeZone();
+@let conversations = store.conversations();
+@let filter = store.filter();
+<div class="inbox">
+  <section class="list" aria-labelledby="inbox-title">
+    <header class="header">
+      <h1 id="inbox-title">{{ 'conversations.inbox.title' | translate }}</h1>
+      @switch (store.streamState()) {
+        @case ('live') {
+          <span class="live" role="status">
+            <span class="dot" aria-hidden="true"></span>{{ 'conversations.inbox.live' | translate }}
+          </span>
+        }
+        @case ('offline') {
+          <span class="live offline" role="status">
+            <mat-icon aria-hidden="true">wifi_off</mat-icon
+            >{{ 'conversations.inbox.offline' | translate }}
+          </span>
+        }
+      }
+    </header>
+
+    @if (lineDisconnected(); as line) {
+      <p class="notice warning">
+        <mat-icon aria-hidden="true">link_off</mat-icon>
+        <span>{{
+          'conversations.inbox.lineDisconnected' | translate: { phone: line.displayPhone }
+        }}</span>
+      </p>
+    }
+
+    @if (conversations && conversations.length > 0) {
+      <div
+        class="chips"
+        role="group"
+        [attr.aria-label]="'conversations.inbox.filters.label' | translate"
+      >
+        @if (store.needingSomeone() > 0 || filter === 'needsSomeone') {
+          <button
+            type="button"
+            class="chip hot"
+            [class.on]="filter === 'needsSomeone'"
+            [attr.aria-pressed]="filter === 'needsSomeone'"
+            (click)="choose('needsSomeone')"
+          >
+            <mat-icon aria-hidden="true">support_agent</mat-icon>
+            {{
+              'conversations.inbox.filters.needsSomeone'
+                | translate: { count: store.needingSomeone() }
+            }}
+          </button>
+        }
+        @for (f of filters; track f) {
+          <button
+            type="button"
+            class="chip"
+            [class.on]="filter === f"
+            [attr.aria-pressed]="filter === f"
+            (click)="choose(f)"
+          >
+            {{ 'conversations.inbox.filters.' + f | translate }}
+          </button>
+        }
+      </div>
+    }
+
+    <div class="results">
+      @if (store.firstPage.isLoading() && conversations) {
+        <mat-progress-bar mode="indeterminate" class="progress" />
+      }
+      @if (establishment.list.hasValue() && establishment.establishments().length === 0) {
+        <app-state-view
+          kind="empty"
+          title="conversations.inbox.noEstablishment.title"
+          message="conversations.inbox.noEstablishment.message"
+        />
+      } @else if (loadError()) {
+        <app-state-view [kind]="errorKind()" (retry)="retry()" />
+      } @else if (conversations && tz) {
+        <ul [attr.aria-label]="'conversations.inbox.list' | translate">
+          @for (conversation of store.visible(); track conversation.id) {
+            <li>
+              <app-conversation-row
+                [conversation]="conversation"
+                [timeZone]="tz"
+                [now]="now()"
+                [selected]="chat.openedId() === conversation.id"
+                [memberNames]="names()"
+              />
+            </li>
+          } @empty {
+            <li class="empty">
+              @if (conversations.length > 0) {
+                <app-state-view
+                  kind="notFound"
+                  title="conversations.inbox.none.title"
+                  message="conversations.inbox.none.message"
+                />
+              } @else if (noLine()) {
+                <app-state-view
+                  kind="empty"
+                  title="conversations.inbox.noLine.title"
+                  [message]="
+                    canConnect()
+                      ? 'conversations.inbox.noLine.owner'
+                      : 'conversations.inbox.noLine.message'
+                  "
+                >
+                  @if (canConnect()) {
+                    <a matButton="tonal" routerLink="/ajustes">{{
+                      'conversations.inbox.noLine.settings' | translate
+                    }}</a>
+                  }
+                </app-state-view>
+              } @else {
+                <app-state-view
+                  kind="empty"
+                  title="conversations.inbox.empty.title"
+                  message="conversations.inbox.empty.message"
+                />
+              }
+            </li>
+          }
+        </ul>
+        @if (store.hasMore()) {
+          <div class="more">
+            <button
+              matButton="outlined"
+              type="button"
+              [disabled]="store.loadingMore()"
+              (click)="store.loadMore()"
+            >
+              {{ 'conversations.inbox.loadMore' | translate }}
+            </button>
+          </div>
+        }
+      } @else {
+        <app-skeleton [rows]="6" />
+      }
+    </div>
+  </section>
+
+  <section class="pane">
+    <router-outlet (activate)="chatOpen.set(true)" (deactivate)="chatOpen.set(false)" />
+    @if (!chatOpen()) {
+      <app-state-view
+        class="pick"
+        kind="empty"
+        title="conversations.inbox.pick.title"
+        message="conversations.inbox.pick.message"
+      />
+    }
+  </section>
+</div>
