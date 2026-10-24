@@ -8,7 +8,7 @@ Each context is a folder under `src/app`; `shared` is the kernel and imports no 
 
 | Context         | Screens                                                                                           | pibble endpoints                                                                                                                        | May import                                              |
 | --------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `shared`        | Layout, not found                                                                                 | —                                                                                                                                       | —                                                       |
+| `shared`        | Shell, "Más", not found                                                                           | —                                                                                                                                       | —                                                       |
 | `iam`           | Sign-in, sessions                                                                                 | `/api/v1/auth/**`                                                                                                                       | —                                                       |
 | `organization`  | Onboarding, organization picker, establishments, opening hours, services, team, invitations, plan | `/api/v1/organizations`, `/organization`, `/establishments`, `/members`, `/services`, `/invitation-acceptances`, `/ownership-transfers` | `iam`                                                   |
 | `customers`     | Customer search, detail and form                                                                  | `/api/v1/customers`                                                                                                                     | —                                                       |
@@ -19,7 +19,7 @@ Each context is a folder under `src/app`; `shared` is the kernel and imports no 
 
 `CONTEXT_MAP` in `.dependency-cruiser.cjs` mirrors the "May import" column, which follows pibble's context map; `platform` is the frontend home of pibble's internal API, which serves one audience. Change the table and the map in the same commit, and a new context needs a decision record.
 
-The shared kernel holds what every context uses: `ApiError` and `Money` (domain); `API_BASE_URL`, the HTTP interceptors, `TenantContext` and the generated `pibble.schema.ts` (infrastructure); `Layout`, `PageNotFound` and `ErrorMessagePipe` (presentation).
+The shared kernel holds what every context uses: `ApiError` and `Money` (domain); `API_BASE_URL`, the HTTP interceptors, `TenantContext` and the generated `pibble.schema.ts` (infrastructure); `Shell`, the shared components (`StatusBadge`, `StateView`, `BusyButton`, …), `PageNotFound`, `ErrorMessagePipe` and `ZonedDatePipe` (presentation).
 
 ## Layers inside a context
 
@@ -38,7 +38,7 @@ A view calls a store method. The store calls its context's `*.api.ts` with an id
 
 ## Routes
 
-`app.routes.ts` lazy-loads one `<context>.routes.ts` per context under `Layout`; guards from `iam` and `organization` protect them. `platform` has its own branch under `/platform`, guarded by the operator check.
+`app.routes.ts` lazy-loads one `<context>.routes.ts` per context under `ShellPage`, the routed `Shell`; guards from `iam` and `organization` protect them. `platform` has its own branch under `/platform`, guarded by the operator check. Development-only screens, such as the style guide at `/dev/ui`, are in `dev.routes.ts`, which production builds replace with an empty list.
 
 ## Live inbox
 

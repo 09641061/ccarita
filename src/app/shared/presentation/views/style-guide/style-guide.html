@@ -1,0 +1,235 @@
+<header class="head">
+  <div>
+    <h1>Guía de estilo M3 · Takodu</h1>
+    <p class="tk-muted">
+      Forma de Material 3, colores y tipografía de Takodu. Compárala con ../ui-reference (Sistema
+      visual, Estados del sistema).
+    </p>
+  </div>
+  <mat-button-toggle-group
+    aria-label="Esquema de color"
+    [value]="scheme()"
+    (change)="setScheme($event.value)"
+  >
+    <mat-button-toggle value="system">Sistema</mat-button-toggle>
+    <mat-button-toggle value="light">Claro</mat-button-toggle>
+    <mat-button-toggle value="dark">Oscuro</mat-button-toggle>
+  </mat-button-toggle-group>
+</header>
+
+<section class="card" aria-labelledby="roles">
+  <h2 id="roles">Roles M3 → tokens Takodu</h2>
+  <p class="tk-muted">
+    Fuente: <code>$roles</code> en src/styles.scss y THEME_ROLES; <code>pnpm theme:check</code>
+    verifica que coincidan.
+  </p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Rol M3</th>
+          <th scope="col">Token Takodu</th>
+          <th scope="col">Claro</th>
+          <th scope="col">Oscuro</th>
+          <th scope="col">En vivo</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (role of roles; track role.role) {
+          <tr>
+            <td>
+              <code>{{ role.role }}</code>
+            </td>
+            <td>{{ role.token }}</td>
+            <td>
+              <span class="swatch" [style.background]="role.light"></span
+              ><code>{{ role.light }}</code>
+            </td>
+            <td>
+              <span class="swatch" [style.background]="role.dark"></span
+              ><code>{{ role.dark }}</code>
+            </td>
+            <td>
+              <span class="swatch" [style.background]="'var(--mat-sys-' + role.role + ')'"></span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="grid">
+  <section class="card" aria-labelledby="tk">
+    <h2 id="tk">Tokens propios (--tk-*)</h2>
+    <div class="tokens">
+      @for (token of takoduTokens; track token) {
+        <div class="token">
+          <span class="swatch wide" [style.background]="'var(--tk-' + token + ')'"></span>
+          <code>--tk-{{ token }}</code>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="type">
+    <h2 id="type">Tipografía · Geist, números tabulares</h2>
+    <p class="sample-h1">Viernes 23 de octubre</p>
+    <p class="sample-h2">Información del negocio</p>
+    <p>Texto base de la interfaz (16 en celular)</p>
+    <p class="tk-label">Etiqueta de campo</p>
+    <p class="numbers">S/ 45.00 · 12:00 – 12:45 · S/ 135.00</p>
+  </section>
+
+  <section class="card" aria-labelledby="motion">
+    <h2 id="motion">Movimiento</h2>
+    <div class="table-scroll">
+      <table>
+        <tbody>
+          @for (token of motionTokens; track token[0]) {
+            <tr>
+              <td>
+                <code>{{ token[0] }}</code>
+              </td>
+              <td>
+                <code>{{ token[1] }}</code>
+              </td>
+              <td class="tk-muted">{{ token[2] }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="row">
+      <button matButton="outlined" type="button" (click)="showMotion.set(!showMotion())">
+        {{ showMotion() ? 'Ocultar' : 'Mostrar' }}
+      </button>
+      @if (showMotion()) {
+        <span class="motion-demo" animate.enter="tk-enter" animate.leave="tk-leave">
+          animate.enter / animate.leave
+        </span>
+      }
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="brand">
+    <h2 id="brand">La marca · solo para el asistente</h2>
+    <div class="row">
+      <app-brand-mark [size]="96" label="Tako" />
+      <app-brand-mark [size]="22" />
+      <app-brand-mark [size]="16" />
+    </div>
+    <p class="tk-muted">
+      Ítem de navegación, firma de sus mensajes y citas que reservó. Nunca recoloreada.
+    </p>
+  </section>
+
+  <section class="card" aria-labelledby="controls">
+    <h2 id="controls">Controles Material</h2>
+    <div class="row">
+      <button matButton="filled" type="button"><mat-icon>add</mat-icon>Nueva cita</button>
+      <button matButton="tonal" type="button">Retomar</button>
+      <button matButton="outlined" type="button">Hoy</button>
+      <button matButton type="button">Hacerlo después</button>
+      <button matIconButton type="button" aria-label="Reprogramar">
+        <mat-icon>update</mat-icon>
+      </button>
+    </div>
+    <div class="row">
+      <app-busy-button [busy]="busy()" (pressed)="simulateCommand()">
+        {{ busy() ? 'Reservando…' : 'Reservar' }}
+      </app-busy-button>
+      <app-busy-button [busy]="true" appearance="tonal">Enviando…</app-busy-button>
+      <app-busy-button [disabled]="true">Nueva cita</app-busy-button>
+    </div>
+    <mat-chip-listbox aria-label="Equipo">
+      <mat-chip-option selected>Todo el equipo</mat-chip-option>
+      <mat-chip-option>Luis</mat-chip-option>
+      <mat-chip-option>Kevin</mat-chip-option>
+    </mat-chip-listbox>
+    <mat-button-toggle-group class="segmented" aria-label="Vista" value="day">
+      <mat-button-toggle value="day">Día</mat-button-toggle>
+      <mat-button-toggle value="week">Semana</mat-button-toggle>
+    </mat-button-toggle-group>
+    <div class="row">
+      <button matButton="outlined" type="button" (click)="openDialog()">Abrir diálogo</button>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="statuses">
+    <h2 id="statuses">Estados de cita · ícono + texto</h2>
+    <div class="row">
+      @for (status of statuses; track status) {
+        <app-status-badge [status]="status" />
+      }
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="people">
+    <h2 id="people">Personas</h2>
+    <div class="row">
+      <app-avatar name="Luis Ramírez" [colorIndex]="0" />
+      <app-avatar name="Kevin Quispe" [colorIndex]="1" />
+      <app-avatar name="Rosa Huamán" [colorIndex]="2" />
+      <app-avatar name="Diego Salazar" [colorIndex]="3" />
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="messages">
+    <h2 id="messages">Origen y entrega de mensajes</h2>
+    <div class="column">
+      @for (origin of origins; track origin) {
+        <app-message-origin
+          [origin]="origin"
+          [memberName]="origin === 'staff' ? 'Kevin' : undefined"
+        />
+      }
+    </div>
+    <div class="row">
+      @for (delivery of deliveries; track delivery) {
+        <span class="delivery"><app-delivery-status [status]="delivery" />{{ delivery }}</span>
+      }
+    </div>
+  </section>
+</div>
+
+<section class="card" aria-labelledby="plan">
+  <h2 id="plan">Plan inactivo</h2>
+  <app-plan-banner
+    [endedOn]="planEndedOn"
+    timeZone="America/Lima"
+    [renewalContact]="renewalContact"
+  />
+</section>
+
+<section class="card" aria-labelledby="states">
+  <h2 id="states">Estados de pantalla</h2>
+  <div class="states">
+    <div class="state">
+      <span class="tk-label">Cargando</span>
+      <app-skeleton />
+    </div>
+    @for (state of states; track state) {
+      <div class="state">
+        <span class="tk-label">{{ state }}</span>
+        <app-state-view [kind]="state">
+          @if (state === 'empty') {
+            <button matButton="filled" type="button"><mat-icon>add</mat-icon>Nueva cita</button>
+          }
+          @if (state === 'forbidden' || state === 'notFound') {
+            <a matButton="outlined" href="/agenda">Ir al calendario</a>
+          }
+        </app-state-view>
+      </div>
+    }
+  </div>
+</section>
+
+<ng-template #dialog>
+  <h2 mat-dialog-title>Cancelar cita</h2>
+  <mat-dialog-content>El cliente recibirá un aviso por WhatsApp.</mat-dialog-content>
+  <mat-dialog-actions>
+    <button matButton mat-dialog-close type="button">Volver</button>
+    <button matButton="filled" mat-dialog-close type="button">Cancelar cita</button>
+  </mat-dialog-actions>
+</ng-template>

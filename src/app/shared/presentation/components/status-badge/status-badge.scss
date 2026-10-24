@@ -1,0 +1,44 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 10px 0 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+:host(.confirmed) {
+  color: var(--tk-status-confirmed);
+  background: var(--tk-status-confirmed-bg);
+}
+
+:host(.in_progress) {
+  color: var(--tk-status-in-progress);
+  background: var(--tk-status-in-progress-bg);
+}
+
+:host(.completed) {
+  color: var(--tk-status-completed);
+  background: var(--tk-status-completed-bg);
+}
+
+// Final states that did not happen: outlined and dashed, so they read as absent.
+:host(.cancelled) {
+  color: var(--tk-status-cancelled);
+  border: 1px dashed currentColor;
+}
+
+:host(.no_show) {
+  color: var(--tk-status-no-show);
+  border: 1px dashed currentColor;
+}

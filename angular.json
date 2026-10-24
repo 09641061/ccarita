@@ -46,7 +46,13 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/app/dev.routes.ts",
+                  "with": "src/app/dev.routes.production.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
