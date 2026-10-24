@@ -24,6 +24,15 @@ const signedIn = {
         .click(),
   ],
   appointment: ['/agenda', (page) => page.locator('a[href^="/agenda/citas/"]').first().click()],
+  book: '/agenda/reservar',
+  'book-time': [
+    '/agenda/reservar',
+    async (page) => {
+      await page.locator('app-customer-step .customer').first().click();
+      await page.locator('.option').first().click();
+      await page.locator('app-slot-picker .slot').first().click();
+    },
+  ],
   more: '/mas',
 };
 const viewports = { phone: { width: 390, height: 844 }, desktop: { width: 1440, height: 900 } };

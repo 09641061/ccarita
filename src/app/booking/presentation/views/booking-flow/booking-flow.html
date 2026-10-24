@@ -1,0 +1,380 @@
+@let tz = store.timeZone();
+@let rescheduling = store.isRescheduling();
+@let original = store.original();
+@let planActive = organization.planActive();
+<article class="flow" aria-labelledby="booking-title">
+  <header class="bar">
+    <button
+      matIconButton
+      type="button"
+      [attr.aria-label]="'booking.book.back' | translate"
+      (click)="back()"
+    >
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    </button>
+    <div class="titles">
+      <h1 id="booking-title">
+        {{ (rescheduling ? 'booking.book.rescheduleTitle' : 'booking.book.title') | translate }}
+      </h1>
+      @if (!rescheduling) {
+        <span class="tk-label">{{
+          'booking.book.step'
+            | translate
+              : {
+                  n: stepNumber(),
+                  total: stepCount,
+                  name: ('booking.book.steps.' + step() | translate),
+                }
+        }}</span>
+      }
+    </div>
+    <a
+      matIconButton
+      [routerLink]="leaveLink()"
+      [attr.aria-label]="'booking.book.close' | translate"
+    >
+      <mat-icon aria-hidden="true">close</mat-icon>
+    </a>
+  </header>
+  @if (!rescheduling) {
+    <mat-progress-bar
+      mode="determinate"
+      [value]="(stepNumber() / stepCount) * 100"
+      [attr.aria-label]="'booking.book.progress' | translate"
+    />
+  }
+
+  <div class="body">
+    @if (!planActive) {
+      <div class="blocked" role="status">
+        <mat-icon aria-hidden="true">lock_clock</mat-icon>
+        <p>{{ 'booking.book.planInactive' | translate }}</p>
+        <a matButton="outlined" [routerLink]="leaveLink()">{{
+          'booking.book.leave' | translate
+        }}</a>
+      </div>
+    } @else if (!tz) {
+      <app-skeleton [rows]="4" />
+    } @else if (originalError(); as e) {
+      <app-state-view
+        [kind]="originalErrorKind()"
+        [title]="originalErrorKind() === 'notFound' ? 'booking.detail.notFound.title' : undefined"
+        [message]="
+          originalErrorKind() === 'notFound' ? 'booking.detail.notFound.message' : undefined
+        "
+        (retry)="store.rescheduling.reload()"
+      />
+    } @else if (rescheduling && !original) {
+      <app-skeleton [rows]="4" />
+    } @else if (original && !original.canReschedule) {
+      <div class="blocked" role="status">
+        <mat-icon aria-hidden="true">event_busy</mat-icon>
+        <p>{{ 'booking.book.cannotReschedule' | translate }}</p>
+        <a matButton="outlined" [routerLink]="leaveLink()">{{
+          'booking.book.leave' | translate
+        }}</a>
+      </div>
+    } @else {
+      @switch (step()) {
+        @case ('customer') {
+          <app-customer-step (chosen)="chooseCustomer($event)" />
+        }
+        @case ('service') {
+          @if (store.customer(); as c) {
+            <div class="summary">
+              <app-avatar [name]="c.displayName" [size]="32" />
+              <span class="text">
+                <span class="tk-label">{{ 'booking.book.customer' | translate }}</span>
+                <span>{{ c.displayName }}</span>
+              </span>
+              <button matButton type="button" (click)="goTo('customer')">
+                {{ 'booking.book.change' | translate }}
+              </button>
+            </div>
+          }
+          <section aria-labelledby="services-title">
+            <h2 id="services-title">{{ 'booking.book.service' | translate }}</h2>
+            @if (team.services.error()) {
+              <app-state-view kind="error" (retry)="team.services.reload()" />
+            } @else if (team.services.isLoading() && store.services().length === 0) {
+              <app-skeleton [rows]="3" />
+            } @else {
+              <ul class="options">
+                @for (service of store.services(); track service.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="option"
+                      [class.on]="store.service()?.id === service.id"
+                      [attr.aria-pressed]="store.service()?.id === service.id"
+                      (click)="chooseService(service.id)"
+                    >
+                      <mat-icon aria-hidden="true">content_cut</mat-icon>
+                      <span class="text">
+                        <span class="name">{{ service.name }}</span>
+                        <span class="muted">{{
+                          'booking.book.minutes' | translate: { count: service.durationMinutes }
+                        }}</span>
+                      </span>
+                      <span class="price">{{ service.price.format() }}</span>
+                    </button>
+                  </li>
+                } @empty {
+                  <li>
+                    <app-state-view
+                      kind="empty"
+                      title="booking.book.noServices.title"
+                      message="booking.book.noServices.message"
+                    />
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+        }
+        @case ('time') {
+          @let service = store.service();
+          <div class="summaries">
+            <div class="summary">
+              <app-avatar [name]="store.customer()?.displayName ?? '?'" [size]="32" />
+              <span class="text">
+                <span class="tk-label">{{ 'booking.book.customer' | translate }}</span>
+                <span>{{
+                  store.customer()?.displayName ??
+                    ('booking.appointment.customerLoading' | translate)
+                }}</span>
+              </span>
+              @if (!rescheduling) {
+                <button matButton type="button" (click)="goTo('customer')">
+                  {{ 'booking.book.change' | translate }}
+                </button>
+              }
+            </div>
+            @if (service) {
+              <div class="summary">
+                <mat-icon class="icon" aria-hidden="true">content_cut</mat-icon>
+                <span class="text">
+                  <span class="tk-label">{{ 'booking.book.service' | translate }}</span>
+                  <span>
+                    {{ service.name }} ·
+                    {{ 'booking.book.minutes' | translate: { count: service.durationMinutes } }} ·
+                    {{ (original?.price ?? service.price).format() }}
+                  </span>
+                </span>
+                @if (!rescheduling) {
+                  <button matButton type="button" (click)="goTo('service')">
+                    {{ 'booking.book.change' | translate }}
+                  </button>
+                }
+              </div>
+            }
+            @if (original) {
+              <div class="summary">
+                <mat-icon class="icon" aria-hidden="true">schedule</mat-icon>
+                <span class="text">
+                  <span class="tk-label">{{ 'booking.book.now' | translate }}</span>
+                  <span>
+                    <span class="capitalize">{{ original.start | zonedDate: tz : 'dayTime' }}</span>
+                    –
+                    {{ original.end | zonedDate: tz : 'time' }}
+                    · {{ team.membersById().get(original.staffMemberId)?.name }}
+                  </span>
+                </span>
+              </div>
+            }
+          </div>
+
+          @if (!service) {
+            <app-state-view
+              kind="notFound"
+              title="booking.book.serviceGone.title"
+              message="booking.book.serviceGone.message"
+            />
+          } @else {
+            <section aria-labelledby="day-title">
+              <div class="section-head">
+                <h2 id="day-title">{{ 'booking.book.date' | translate }}</h2>
+                @if (store.day(); as day) {
+                  <span class="tk-label">{{ day | zonedDate: tz : 'monthYear' }}</span>
+                }
+              </div>
+              <div
+                class="strip"
+                role="group"
+                [attr.aria-label]="'booking.book.chooseDay' | translate"
+              >
+                @if (canGoBack()) {
+                  <button
+                    matIconButton
+                    type="button"
+                    [attr.aria-label]="'booking.book.earlierDays' | translate"
+                    (click)="moveStrip(-1)"
+                  >
+                    <mat-icon aria-hidden="true">chevron_left</mat-icon>
+                  </button>
+                }
+                @for (day of strip(); track day.toString()) {
+                  @let on = day.equals(store.day());
+                  <button
+                    type="button"
+                    class="day"
+                    [class.on]="on"
+                    [attr.aria-pressed]="on"
+                    [attr.aria-label]="day | zonedDate: tz : 'longDay'"
+                    (click)="chooseDay(day)"
+                  >
+                    {{
+                      isToday(day)
+                        ? ('booking.book.today' | translate)
+                        : (day | zonedDate: tz : 'weekday')
+                    }}
+                    <b>{{ day.day }}</b>
+                  </button>
+                }
+                <button
+                  type="button"
+                  class="day more"
+                  [attr.aria-label]="'booking.book.laterDays' | translate"
+                  (click)="moveStrip(1)"
+                >
+                  {{ 'booking.book.more' | translate }}
+                  <mat-icon aria-hidden="true">chevron_right</mat-icon>
+                </button>
+              </div>
+            </section>
+
+            <section aria-labelledby="time-title" class="slots">
+              <div class="section-head">
+                <h2 id="time-title">{{ 'booking.book.time' | translate }}</h2>
+                @if (!store.memberId()) {
+                  <span class="tk-label">{{ 'booking.book.freeHint' | translate }}</span>
+                }
+              </div>
+              @if (store.slots.isLoading()) {
+                <mat-progress-bar mode="indeterminate" class="progress" />
+              }
+              @if (slotsError(); as e) {
+                @if (e.code === 'SERVICE_NOT_BOOKABLE') {
+                  <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+                } @else {
+                  <app-state-view [kind]="slotsErrorKind()" (retry)="store.slots.reload()" />
+                }
+              } @else if (!store.slots.hasValue()) {
+                <app-skeleton [rows]="2" />
+              } @else {
+                <app-slot-picker
+                  [slots]="store.visibleSlots()"
+                  [timeZone]="tz"
+                  [selected]="store.slot()"
+                  [showFree]="!store.memberId() && !rescheduling"
+                  (choose)="store.chooseSlot($event)"
+                />
+                @if (store.visibleSlots().length === 0) {
+                  <app-state-view
+                    kind="empty"
+                    title="booking.book.noSlots.title"
+                    message="booking.book.noSlots.message"
+                  />
+                }
+              }
+            </section>
+
+            <section aria-labelledby="who-title">
+              <h2 id="who-title">{{ 'booking.book.who' | translate }}</h2>
+              <ul class="options" role="group" [attr.aria-labelledby]="'who-title'">
+                <li>
+                  <button
+                    type="button"
+                    class="option"
+                    [class.on]="store.memberId() === null"
+                    [attr.aria-pressed]="store.memberId() === null"
+                    (click)="store.chooseMember(null)"
+                  >
+                    <span class="radio" aria-hidden="true"></span>
+                    <span class="text">
+                      @if (original) {
+                        <span class="name">{{
+                          'booking.book.keep'
+                            | translate
+                              : { name: team.membersById().get(original.staffMemberId)?.name ?? '' }
+                        }}</span>
+                      } @else {
+                        <span class="name">{{ 'booking.book.anyone' | translate }}</span>
+                        <span class="muted">{{ 'booking.book.anyoneHint' | translate }}</span>
+                      }
+                    </span>
+                  </button>
+                </li>
+                @for (member of store.performers(); track member.id) {
+                  @if (member.id !== original?.staffMemberId) {
+                    @let busyThen = !!store.slot() && !store.slot()!.isFree(member.id);
+                    <li>
+                      <button
+                        type="button"
+                        class="option"
+                        [class.on]="store.memberId() === member.id"
+                        [attr.aria-pressed]="store.memberId() === member.id"
+                        [disabled]="busyThen"
+                        (click)="store.chooseMember(member.id)"
+                      >
+                        <span class="radio" aria-hidden="true"></span>
+                        <app-avatar
+                          [name]="member.name"
+                          [colorIndex]="store.colorIndex(member.id)"
+                          [size]="32"
+                        />
+                        <span class="text">
+                          <span class="name">{{ member.name }}</span>
+                          @if (busyThen) {
+                            <span class="muted">{{ 'booking.book.busyThen' | translate }}</span>
+                          }
+                        </span>
+                      </button>
+                    </li>
+                  }
+                }
+              </ul>
+            </section>
+          }
+        }
+      }
+    }
+  </div>
+
+  @if (planActive && step() === 'time' && tz && (!original || original.canReschedule)) {
+    <footer class="footer">
+      @if (error(); as e) {
+        <p class="field-error" role="alert">
+          {{ e | errorMessage }}
+          @if (e.retryable) {
+            <button matButton type="button" (click)="confirm()">
+              {{ 'shared.state.retry' | translate }}
+            </button>
+          }
+        </p>
+      } @else {
+        <p class="muted">{{ 'booking.book.notice' | translate }}</p>
+      }
+      @let slot = store.slot();
+      <app-busy-button class="wide" [busy]="busy()" [disabled]="!slot" (pressed)="confirm()">
+        @if (busy()) {
+          {{ (rescheduling ? 'booking.book.rescheduling' : 'booking.book.booking') | translate }}
+        } @else if (slot) {
+          {{
+            (rescheduling ? 'booking.book.confirmReschedule' : 'booking.book.confirm')
+              | translate
+                : {
+                    day: isToday(store.day()!)
+                      ? ('booking.book.today' | translate)
+                      : (slot.start | zonedDate: tz : 'dayMonth'),
+                    from: (slot.start | zonedDate: tz : 'time'),
+                    to: (store.slotEnd()! | zonedDate: tz : 'time'),
+                  }
+          }}
+        } @else {
+          {{ 'booking.book.chooseTime' | translate }}
+        }
+      </app-busy-button>
+    </footer>
+  }
+</article>

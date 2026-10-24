@@ -39,7 +39,7 @@ One pull request into `develop` per step, built from the designs in `../ui-refer
 - **F1** design system and shell (done).
 - **F2** sign-in, session, organization picker, establishment switcher, invitation acceptance, guards, roles, plan banner (done).
 - **F3** calendar day and week, appointment detail and actions, cancel sheet, time blocks (done).
-- **F4** booking flow.
+- **F4** booking flow, customer search and registration, rescheduling (done).
 - **F5** customers.
 - **F6** inbox and chat.
 - **F7** onboarding and establishment settings.
@@ -58,11 +58,17 @@ Where pibble's API serves less than a design shows, the design adapts:
 - The customers page has previous and next without a total.
 - Staff send text and templates only.
 - The navigation shows no unread count.
+- Booking offers the slots pibble lists, which start from now; the design draws no direct time, so a walk-in that already started is booked at the next free slot instead of directly (B16).
+- The booking day strip marks no closed days until opening hours are read (F7); a closed day says there are no free times.
+- Rescheduling lists slots without ignoring the appointment being moved, because the slots endpoint does not; times that overlap its own are not offered, and it shows no "N libres" counts.
+- Booking has three steps instead of the design's four: the third ends with the design's "Reservar" button.
+- The booking footer says the confirmation goes by WhatsApp only when the establishment has a line (W12); it promises no reminder, which depends on how far ahead the appointment is (W11).
+- Customer search shows the first 20 matches and asks to keep typing when there are more.
 - The account button shows the user's name, or the email when the user has none: `JoinedOrganization` carries no member display name.
 - The plan card names the plan (`standard` or `max`) and its end; pibble has no trial flag, so it never says "Prueba gratis".
 - An invitation for another email shows only the signed-in email; pibble does not return the invited one.
 
-Defaults for the designs' open questions: navigation says "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel sheet says "El cliente"; the renewal contact is `environment.renewalContact`, a placeholder; there is no floating assistant button; sign-in shows the "Takodu" wordmark, because the mascot marks only the assistant; a user without an organization sees an explanation and a link to `/primeros-pasos`, a placeholder until F7; "Nueva cita" and "Reprogramar" open `/agenda/reservar`, a placeholder until F4; the calendar does not read opening hours until F7, so it marks no closed days or appointments outside them, and the desktop grid shows 08:00 to 20:00, widened to fit what it draws.
+Defaults for the designs' open questions: navigation says "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel sheet says "El cliente"; the renewal contact is `environment.renewalContact`, a placeholder; there is no floating assistant button; sign-in shows the "Takodu" wordmark, because the mascot marks only the assistant; a user without an organization sees an explanation and a link to `/primeros-pasos`, a placeholder until F7; "Cualquiera" in booking lets pibble choose the least busy member (B17), and in rescheduling it is "Mantener a …"; the calendar does not read opening hours until F7, so it marks no closed days or appointments outside them, and the desktop grid shows 08:00 to 20:00, widened to fit what it draws.
 
 ## API contract
 

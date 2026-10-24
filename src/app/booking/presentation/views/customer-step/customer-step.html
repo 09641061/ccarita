@@ -1,0 +1,89 @@
+@if (registering()) {
+  <form class="register" (submit)="register($event)" novalidate>
+    <h2 id="register-title">{{ 'customers.register.title' | translate }}</h2>
+    <p class="muted">{{ 'customers.register.lead' | translate }}</p>
+    <mat-form-field>
+      <mat-label>{{ 'customers.register.phone' | translate }}</mat-label>
+      <input matInput type="tel" autocomplete="off" [formField]="registerForm.phone" />
+      <mat-hint>{{ 'customers.register.phoneHint' | translate }}</mat-hint>
+      @if (registerForm.phone().touched() && !model().phone.trim()) {
+        <mat-error>{{ 'customers.register.phoneRequired' | translate }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>{{ 'customers.register.name' | translate }}</mat-label>
+      <input matInput autocomplete="off" [formField]="registerForm.name" />
+    </mat-form-field>
+    @if (error(); as e) {
+      <p class="field-error" role="alert">
+        {{ e | errorMessage }}
+        @if (e.code === 'CUSTOMER_CONFLICT') {
+          {{ 'customers.register.conflictHint' | translate }}
+        }
+      </p>
+    }
+    <div class="actions">
+      <button matButton type="button" (click)="stopRegistering()">
+        {{ 'customers.register.back' | translate }}
+      </button>
+      <app-busy-button type="submit" [busy]="busy()">
+        {{ (busy() ? 'customers.register.saving' : 'customers.register.save') | translate }}
+      </app-busy-button>
+    </div>
+  </form>
+} @else {
+  <mat-form-field class="search" subscriptSizing="dynamic">
+    <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+    <mat-label>{{ 'customers.search.label' | translate }}</mat-label>
+    <input
+      matInput
+      type="search"
+      autocomplete="off"
+      [value]="search.query()"
+      (input)="type($any($event.target).value)"
+    />
+  </mat-form-field>
+
+  <button matButton="tonal" type="button" class="new" (click)="startRegistering()">
+    <mat-icon aria-hidden="true">person_add</mat-icon>
+    {{ 'customers.search.register' | translate }}
+  </button>
+
+  <div class="results">
+    @if (search.results.isLoading()) {
+      <mat-progress-bar mode="indeterminate" class="progress" />
+    }
+    @if (loadError()) {
+      <app-state-view [kind]="errorKind()" (retry)="search.results.reload()" />
+    } @else if (page(); as p) {
+      <ul [attr.aria-label]="'customers.search.results' | translate">
+        @for (customer of p.items; track customer.id) {
+          <li>
+            <button type="button" class="customer" (click)="chosen.emit(customer)">
+              <app-avatar [name]="customer.displayName" [size]="40" />
+              <span class="text">
+                <span class="name">{{ customer.displayName }}</span>
+                @if (customer.displayName !== customer.phone) {
+                  <span class="phone">{{ customer.phone }}</span>
+                }
+              </span>
+              <mat-icon aria-hidden="true">chevron_right</mat-icon>
+            </button>
+          </li>
+        } @empty {
+          <li class="empty">
+            {{
+              (search.query().trim() ? 'customers.search.none' : 'customers.search.noCustomers')
+                | translate
+            }}
+          </li>
+        }
+      </ul>
+      @if (p.hasMore) {
+        <p class="muted more">{{ 'customers.search.more' | translate }}</p>
+      }
+    } @else {
+      <app-skeleton [rows]="3" />
+    }
+  </div>
+}

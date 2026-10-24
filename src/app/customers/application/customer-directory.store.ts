@@ -43,6 +43,14 @@ export class CustomerDirectory {
     }
   }
 
+  /** Keeps customers another read already brought, such as a search or a registration. */
+  remember(customers: Iterable<Customer>): void {
+    this.keep(
+      this.tenant.organizationId(),
+      [...customers].map((customer) => [customer.id, customer] as const),
+    );
+  }
+
   private async read(organizationId: string | null, id: string): Promise<void> {
     let known: KnownCustomer;
     try {
@@ -51,12 +59,19 @@ export class CustomerDirectory {
       if (ApiError.of(error).code !== 'CUSTOMER_NOT_FOUND') return;
       known = 'deleted';
     }
+    this.keep(organizationId, [[id, known]]);
+  }
+
+  private keep(
+    organizationId: string | null,
+    entries: Iterable<readonly [string, KnownCustomer]>,
+  ): void {
     if (organizationId !== this.tenant.organizationId()) return;
     this.directory.update((directory) => {
       const customers = new Map(
         directory.organizationId === organizationId ? directory.customers : [],
       );
-      customers.set(id, known);
+      for (const [id, known] of entries) customers.set(id, known);
       return { organizationId, customers };
     });
   }

@@ -104,4 +104,63 @@ describe('AppointmentsApi', () => {
     backend.expectOne(`${API}/api/v1/appointments/a-1`).flush(appointmentResource('a-1'));
     expect((await result).id).toBe('a-1');
   });
+
+  it('books with a member and the idempotency key', async () => {
+    const start = new Date('2026-10-23T16:45:00Z');
+    const result = firstValueFrom(
+      api.book({ customerId: 'c-1', serviceId: 's-1', staffMemberId: 'm-2', start }, 'key-4'),
+    );
+    const request = backend.expectOne(`${API}/api/v1/appointments`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.headers.get('Idempotency-Key')).toBe('key-4');
+    expect(request.request.body).toEqual({
+      customerId: 'c-1',
+      serviceId: 's-1',
+      staffMemberId: 'm-2',
+      start: '2026-10-23T16:45:00.000Z',
+    });
+    request.flush(appointmentResource('a-9'), { status: 201, statusText: 'Created' });
+    expect((await result).id).toBe('a-9');
+  });
+
+  it('leaves the member out so pibble chooses one (B17)', () => {
+    api
+      .book(
+        { customerId: 'c-1', serviceId: 's-1', staffMemberId: null, start: new Date(0) },
+        'key-5',
+      )
+      .subscribe();
+    const request = backend.expectOne(`${API}/api/v1/appointments`);
+    expect(request.request.body).not.toHaveProperty('staffMemberId');
+    request.flush(appointmentResource('a-9'));
+  });
+
+  it('reschedules, keeping the member when none is given (B13)', async () => {
+    const result = firstValueFrom(
+      api.reschedule(
+        'a-1',
+        { start: new Date('2026-10-24T15:00:00Z'), staffMemberId: null },
+        'key-6',
+      ),
+    );
+    const request = backend.expectOne(`${API}/api/v1/appointments/a-1/reschedulings`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.headers.get('Idempotency-Key')).toBe('key-6');
+    expect(request.request.body).toEqual({ start: '2026-10-24T15:00:00.000Z' });
+    request.flush(appointmentResource('a-1', { start: '2026-10-24T15:00:00Z' }));
+    expect((await result).start.toISOString()).toBe('2026-10-24T15:00:00.000Z');
+  });
+
+  it('surfaces a taken slot', async () => {
+    const result = firstValueFrom(
+      api.book(
+        { customerId: 'c-1', serviceId: 's-1', staffMemberId: null, start: new Date(0) },
+        'key-7',
+      ),
+    );
+    backend
+      .expectOne(`${API}/api/v1/appointments`)
+      .flush({ code: 'SLOT_UNAVAILABLE', message: 'x' }, { status: 409, statusText: 'Conflict' });
+    await expect(result).rejects.toMatchObject({ code: 'SLOT_UNAVAILABLE', retryable: false });
+  });
 });
