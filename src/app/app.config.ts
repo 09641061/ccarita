@@ -16,6 +16,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { authInterceptor } from './iam/public-api';
 import { API_BASE_URL } from './shared/infrastructure/http/api-base-url';
 import { apiErrorInterceptor } from './shared/infrastructure/http/api-error.interceptor';
 import { idempotencyInterceptor } from './shared/infrastructure/http/idempotency';
@@ -32,7 +33,12 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
     provideHttpClient(
       withFetch(),
-      withInterceptors([tenantInterceptor, idempotencyInterceptor, apiErrorInterceptor]),
+      withInterceptors([
+        authInterceptor,
+        tenantInterceptor,
+        idempotencyInterceptor,
+        apiErrorInterceptor,
+      ]),
     ),
     provideTranslateService({
       loader: provideTranslateHttpLoader({ prefix: '/i18n/', suffix: '.json' }),
