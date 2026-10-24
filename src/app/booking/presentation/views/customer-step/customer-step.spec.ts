@@ -3,11 +3,19 @@ import { TestBed } from '@angular/core/testing';
 import { fakeResource } from '../../../../../testing/fake-resource';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { settle } from '../../../../../testing/settle';
-import { Customer, CustomerPage, CustomerSearch } from '../../../../customers/public-api';
+import { CustomerPage, CustomerProfile, CustomerSearch } from '../../../../customers/public-api';
 import { ApiError } from '../../../../shared/domain/model/api-error';
 import { CustomerStep } from './customer-step';
 
-const ROSA = new Customer('c-1', '+51987654321', 'Rosa Huamán');
+const ROSA = new CustomerProfile(
+  'c-1',
+  '+51987654321',
+  'Rosa Huamán',
+  'Rosa Huamán',
+  null,
+  null,
+  null,
+);
 
 describe('CustomerStep', () => {
   let search: {

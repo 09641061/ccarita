@@ -6,7 +6,12 @@ import { appointment } from '../../../../../testing/booking-fixtures';
 import { fakeResource } from '../../../../../testing/fake-resource';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { settle } from '../../../../../testing/settle';
-import { Customer, CustomerSearch } from '../../../../customers/public-api';
+import {
+  Customer,
+  CustomerDirectory,
+  CustomerSearch,
+  KnownCustomer,
+} from '../../../../customers/public-api';
 import {
   CurrentEstablishment,
   CurrentOrganization,
@@ -79,6 +84,8 @@ function fakeStore() {
 describe('BookingFlow', () => {
   let store: ReturnType<typeof fakeStore>;
   const planActive = signal(true);
+  const known = signal<ReadonlyMap<string, KnownCustomer>>(new Map());
+  const want = vi.fn();
 
   async function render(url = '/agenda/reservar') {
     vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-23T14:00:00Z') });
@@ -94,6 +101,7 @@ describe('BookingFlow', () => {
           withComponentInputBinding(),
         ),
         { provide: BookingStore, useValue: store },
+        { provide: CustomerDirectory, useValue: { customers: known, want } },
         { provide: CurrentOrganization, useValue: { planActive } },
         { provide: CurrentEstablishment, useValue: { timeZone: signal('America/Lima') } },
         {
@@ -142,7 +150,11 @@ describe('BookingFlow', () => {
     await stable();
   }
 
-  beforeEach(() => planActive.set(true));
+  beforeEach(() => {
+    planActive.set(true);
+    known.set(new Map());
+    want.mockClear();
+  });
   afterEach(() => vi.useRealTimers());
 
   it('goes from the customer to the service to the time', async () => {
@@ -295,6 +307,27 @@ describe('BookingFlow', () => {
       store.rescheduling.error.set(new ApiError(404, 'APPOINTMENT_NOT_FOUND', 'x'));
       await stable();
       expect(text(host)).toContain('No encontramos esta cita');
+    });
+  });
+
+  describe('from a customer', () => {
+    it('starts with the customer chosen once known', async () => {
+      const { host, stable } = await render('/agenda/reservar?cliente=c-1');
+      expect(want).toHaveBeenCalledWith(['c-1']);
+      expect(text(host)).toContain('Paso 1 de 3 · Cliente');
+
+      known.set(new Map([['c-1', ROSA]]));
+      await stable();
+      expect(store.chooseCustomer).toHaveBeenCalledWith(ROSA);
+      expect(text(host)).toContain('Paso 2 de 3 · Servicio');
+    });
+
+    it('asks for a customer when that one was deleted (C5)', async () => {
+      const { host, stable } = await render('/agenda/reservar?cliente=c-1');
+      known.set(new Map([['c-1', 'deleted']]));
+      await stable();
+      expect(store.chooseCustomer).not.toHaveBeenCalled();
+      expect(text(host)).toContain('Paso 1 de 3 · Cliente');
     });
   });
 });

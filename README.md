@@ -40,7 +40,7 @@ One pull request into `develop` per step, built from the designs in `../ui-refer
 - **F2** sign-in, session, organization picker, establishment switcher, invitation acceptance, guards, roles, plan banner (done).
 - **F3** calendar day and week, appointment detail and actions, cancel sheet, time blocks (done).
 - **F4** booking flow, customer search and registration, rescheduling (done).
-- **F5** customers.
+- **F5** customers: list, detail, registration, editing and deletion (done).
 - **F6** inbox and chat.
 - **F7** onboarding and establishment settings.
 - **F8** assistant settings and usage.
@@ -52,7 +52,9 @@ Where pibble's API serves less than a design shows, the design adapts:
 - The calendar loads customer names with `GET /api/v1/customers/{id}`, cached per customer. pibble answers 404 for a deleted customer, so their past appointments say "Cliente eliminado" instead of the name C5 keeps.
 - The calendar has no appointment search: pibble has no endpoint for it.
 - The cancel sheet says the customer gets a WhatsApp only when the business cancels and the establishment has a line; pibble sends nothing when the customer asked.
-- The customer panel shows no appointments, and there is no "Próxima cita" column.
+- The customer panel shows no appointments, and there is no "Próxima cita" column: pibble lists appointments only per establishment and date range.
+- The customer panel has no "Ver chat" until the inbox exists (F6).
+- The customers list follows pibble's order by display name, so customers without a name (shown as "Sin nombre") come first, by phone.
 - Appointments show no notification status.
 - The inbox shows a status line instead of a message preview, has no search and no "replying" state, and filters only loaded conversations.
 - The customers page has previous and next without a total.

@@ -51,6 +51,11 @@ export class CustomerDirectory {
     );
   }
 
+  /** C5: a customer just deleted; screens that name it say so, as when pibble answers 404. */
+  forget(customerId: string): void {
+    this.keep(this.tenant.organizationId(), [[customerId, 'deleted']]);
+  }
+
   private async read(organizationId: string | null, id: string): Promise<void> {
     let known: KnownCustomer;
     try {

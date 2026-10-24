@@ -1,0 +1,92 @@
+<article class="detail" aria-labelledby="customer-title">
+  <header class="bar">
+    <a matIconButton routerLink="/clientes" [attr.aria-label]="'customers.detail.back' | translate">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    </a>
+    <span class="bar-title">{{ 'customers.detail.title' | translate }}</span>
+  </header>
+
+  @if (loadError()) {
+    <app-state-view
+      [kind]="errorKind()"
+      [title]="errorKind() === 'notFound' ? 'customers.detail.notFound.title' : undefined"
+      [message]="errorKind() === 'notFound' ? 'customers.detail.notFound.message' : undefined"
+      (retry)="store.profile.reload()"
+    />
+  } @else if (profile(); as c) {
+    <section class="summary">
+      <app-avatar [name]="c.displayName" [size]="48" />
+      <div class="names">
+        <h1 id="customer-title">{{ c.displayName }}</h1>
+        @if (c.otherWhatsappName; as whatsapp) {
+          <span class="muted">{{
+            'customers.detail.whatsappName' | translate: { name: whatsapp }
+          }}</span>
+        }
+      </div>
+      <a
+        matIconButton
+        [routerLink]="['/clientes', c.id, 'editar']"
+        [attr.aria-label]="'customers.detail.edit' | translate"
+      >
+        <mat-icon aria-hidden="true">edit</mat-icon>
+      </a>
+      @if (access.canDelete()) {
+        <button
+          matIconButton
+          type="button"
+          class="delete"
+          [attr.aria-label]="'customers.detail.delete' | translate"
+          (click)="remove()"
+        >
+          <mat-icon aria-hidden="true">delete</mat-icon>
+        </button>
+      }
+    </section>
+
+    <dl class="facts">
+      <dt>{{ 'customers.detail.phone' | translate }}</dt>
+      <dd>
+        <a
+          class="phone"
+          [href]="'tel:' + c.phone"
+          [attr.aria-label]="'customers.detail.call' | translate: { phone: c.phone }"
+          >{{ c.phone }}</a
+        >
+      </dd>
+      <dt>{{ 'customers.detail.document' | translate }}</dt>
+      <dd>
+        @if (c.document; as d) {
+          {{ 'customers.document.' + d.type | translate }} {{ d.number }}
+        } @else {
+          <span class="muted">{{ 'customers.detail.none' | translate }}</span>
+        }
+      </dd>
+      <dt>{{ 'customers.detail.notes' | translate }}</dt>
+      <dd class="notes">
+        @if (c.notes) {
+          {{ c.notes }}
+        } @else {
+          <span class="muted">{{ 'customers.detail.none' | translate }}</span>
+        }
+      </dd>
+    </dl>
+
+    <div class="actions">
+      <a
+        matButton="filled"
+        routerLink="/agenda/reservar"
+        [queryParams]="{ cliente: c.id }"
+        [disabled]="!access.canBook()"
+      >
+        <mat-icon aria-hidden="true">event</mat-icon>
+        {{ 'customers.detail.book' | translate }}
+      </a>
+      @if (!access.canBook()) {
+        <p class="muted">{{ 'customers.detail.bookInactive' | translate }}</p>
+      }
+    </div>
+  } @else {
+    <app-skeleton [rows]="4" />
+  }
+</article>

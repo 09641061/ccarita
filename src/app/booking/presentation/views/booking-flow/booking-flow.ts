@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Customer } from '../../../../customers/public-api';
+import { Customer, CustomerDirectory } from '../../../../customers/public-api';
 import {
   CurrentEstablishment,
   CurrentOrganization,
@@ -57,7 +57,8 @@ function errorKindOf(error: ApiError | null): StateKind {
 /**
  * Reservar cita: customer, service, then day, time and member, and one tap to book (B1–B9, B16, B17). With
  * `?reprogramar=<id>` it moves a confirmed appointment instead, keeping its service and customer (B13). Every role
- * books in the establishments it sees (03 §5); an inactive plan blocks both (O6).
+ * books in the establishments it sees (03 §5); an inactive plan blocks both (O6). With `?cliente=<id>`, from a
+ * customer's page, that customer is already chosen.
  */
 @Component({
   selector: 'app-booking-flow',
@@ -86,16 +87,23 @@ export class BookingFlow {
   protected readonly establishment = inject(CurrentEstablishment);
   protected readonly team = inject(EstablishmentTeam);
   private readonly router = inject(Router);
+  private readonly directory = inject(CustomerDirectory);
 
   /** From the query `?reprogramar=<appointmentId>`. */
   readonly reprogramar = input<string>();
+  /** From the query `?cliente=<customerId>`. */
+  readonly cliente = input<string>();
+  /** The customer of `?cliente` until the directory knows it; a deleted one is not chosen. */
+  private readonly presetCustomerId = signal<string | null>(null);
 
   protected readonly step = signal<BookingStep>('customer');
   protected readonly stepNumber = computed(() => STEPS.indexOf(this.step()) + 1);
   protected readonly stepCount = STEPS.length;
   protected readonly leaveLink = computed(() => {
     const original = this.reprogramar();
-    return original ? `/agenda/citas/${original}` : '/agenda';
+    if (original) return `/agenda/citas/${original}`;
+    const customerId = this.cliente();
+    return customerId ? `/clientes/${customerId}` : '/agenda';
   });
 
   protected readonly originalError = computed(() => {
@@ -139,6 +147,22 @@ export class BookingFlow {
         this.step.set(appointmentId ? 'time' : 'customer');
         this.stripStart.set(null);
         this.error.set(null);
+      });
+    });
+    effect(() => {
+      const customerId = this.reprogramar() ? null : (this.cliente() ?? null);
+      untracked(() => {
+        this.presetCustomerId.set(customerId);
+        if (customerId) this.directory.want([customerId]);
+      });
+    });
+    effect(() => {
+      const customerId = this.presetCustomerId();
+      const known = customerId ? this.directory.customers().get(customerId) : undefined;
+      if (!known) return;
+      untracked(() => {
+        this.presetCustomerId.set(null);
+        if (known instanceof Customer && this.step() === 'customer') this.chooseCustomer(known);
       });
     });
   }

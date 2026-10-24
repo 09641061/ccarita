@@ -33,6 +33,16 @@ const signedIn = {
       await page.locator('app-slot-picker .slot').first().click();
     },
   ],
+  customers: '/clientes',
+  customer: [
+    '/clientes',
+    async (page) => {
+      await page.getByLabel('Buscar por nombre o teléfono').fill('Rosa');
+      await page.waitForLoadState('networkidle');
+      await page.locator('app-customer-list li a.row').first().click();
+    },
+  ],
+  'customer-new': '/clientes/nuevo',
   more: '/mas',
 };
 const viewports = { phone: { width: 390, height: 844 }, desktop: { width: 1440, height: 900 } };
