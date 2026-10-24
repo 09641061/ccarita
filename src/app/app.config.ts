@@ -1,8 +1,15 @@
 import { registerLocaleData } from '@angular/common';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import localeEsPe from '@angular/common/locales/es-PE';
-import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { MediaMatcher } from '@angular/cdk/layout';
+import {
+  ApplicationConfig,
+  LOCALE_ID,
+  inject,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
+import { MAT_RIPPLE_GLOBAL_OPTIONS, RippleGlobalOptions } from '@angular/material/core';
+import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { environment } from '../environments/environment';
@@ -17,7 +24,7 @@ registerLocaleData(localeEsPe);
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withComponentInputBinding()),
+    provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
     provideHttpClient(
       withFetch(),
       withInterceptors([tenantInterceptor, idempotencyInterceptor, apiErrorInterceptor]),
@@ -29,5 +36,11 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: LOCALE_ID, useValue: 'es-PE' },
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
+    {
+      provide: MAT_RIPPLE_GLOBAL_OPTIONS,
+      useFactory: (): RippleGlobalOptions => ({
+        disabled: inject(MediaMatcher).matchMedia('(prefers-reduced-motion: reduce)').matches,
+      }),
+    },
   ],
 };

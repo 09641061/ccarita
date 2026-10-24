@@ -28,6 +28,13 @@ Visual design comes from the designs made for Takodu; this skill fixes how they 
 - Icons are Material Symbols (`<mat-icon>`), loaded in `index.html`.
 - Phone first: design for 360 px wide, then add a breakpoint with `BreakpointObserver` or CSS for tablet and desktop. Dialogs become bottom sheets or full screens on phones.
 
+## Motion
+
+- Material components already animate (ripples, dialogs, menus, sheets, tabs); do not add motion on top of them.
+- Custom motion is CSS transitions, or `animate.enter="tk-enter"` / `animate.leave="tk-leave"` in templates. Never `@angular/animations`; it is legacy.
+- Durations and easing come only from `--tk-duration-short` (160 ms: hover, press), `--tk-duration-medium` (300 ms: panels, sheets), `--tk-motion-standard` and `--tk-motion-emphasized` (things entering).
+- Page changes use the router's view transitions. `prefers-reduced-motion: reduce` turns animations, transitions and ripples off; never override it.
+
 ## States every screen renders
 
 | State         | From                                                                                                               |
