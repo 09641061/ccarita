@@ -18,3 +18,38 @@ export function establishmentResource(id: string, archivedAt?: string) {
     ...(archivedAt ? { archivedAt } : {}),
   };
 }
+
+export function memberResource(
+  id: string,
+  overrides: Partial<{
+    displayName: string;
+    role: 'owner' | 'manager' | 'staff';
+    bookable: boolean;
+    status: 'pending' | 'active';
+    establishmentIds: string[];
+  }> = {},
+) {
+  return {
+    id,
+    email: `${id}@example.com`,
+    displayName: `Persona ${id}`,
+    role: 'staff',
+    bookable: true,
+    status: 'active',
+    establishmentIds: ['est-1'],
+    ...overrides,
+  };
+}
+
+export function serviceResource(id: string, durationMinutes = 45, priceCents = 3500) {
+  return {
+    id,
+    establishmentId: 'est-1',
+    name: `Servicio ${id}`,
+    durationMinutes,
+    priceCents,
+    currency: 'PEN',
+    active: true,
+    performerIds: [],
+  };
+}
