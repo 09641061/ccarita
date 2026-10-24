@@ -1,0 +1,50 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface);
+}
+
+.row span {
+  height: 12px;
+  border-radius: 6px;
+  background:
+    linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in srgb, var(--mat-sys-surface) 60%, transparent),
+        transparent
+      )
+      0 0 / 200% 100% no-repeat,
+    var(--mat-sys-surface-container-high);
+  animation: shimmer calc(var(--tk-duration-medium) * 5) var(--tk-motion-standard) infinite;
+}
+
+.row span:first-child {
+  width: 40%;
+}
+
+.row span:last-child {
+  width: 70%;
+}
+
+@keyframes shimmer {
+  from {
+    background-position:
+      200% 0,
+      0 0;
+  }
+  to {
+    background-position:
+      -200% 0,
+      0 0;
+  }
+}
