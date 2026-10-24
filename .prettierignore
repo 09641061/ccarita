@@ -4,3 +4,4 @@
 pnpm-lock.yaml
 api/openapi.json
 src/app/shared/infrastructure/api/pibble.schema.ts
+/screenshots
