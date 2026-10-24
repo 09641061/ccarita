@@ -47,7 +47,7 @@ Show errors with `ErrorMessagePipe`, which reads `errors.<CODE>` from `public/i1
 ## Data formats
 
 - Instants (`start`, `occurredAt`) are ISO strings in UTC: `new Date(value)` in the assembler, `toISOString()` in requests.
-- `LocalDate` (`2026-11-02`) and `LocalTime` (`09:30`) belong to the establishment's time zone; keep them as strings or small value objects, never convert them through the device's zone. Display with `DatePipe` and the establishment's `timeZone`.
+- `LocalDate` (`2026-11-02`) and `LocalTime` (`09:30`) belong to the establishment's time zone; keep them as strings or small value objects, never convert them through the device's zone. Display instants with the `zonedDate` pipe and the establishment's `timeZone` ([ccarita-ui](../ccarita-ui/SKILL.md)).
 - Money is `priceCents` + `currency` → `Money`.
 - Pages: customers use `page` and `size`; conversations use `cursor` and `size` (`nextCursor` in the answer); messages use `before` and `size`.
 

@@ -22,6 +22,7 @@ src/app/<context>/
   presentation/<context>.routes.ts       bookingRoutes
   presentation/views/<view>/<view>.ts    Calendar (routed screen; .html and .scss beside it)
   presentation/components/<c>/<c>.ts     AppointmentCard (reusable, inputs and outputs only)
+  presentation/guards/<name>.guard.ts    roleGuard (functional route guards)
   public-api.ts                          what other contexts may import
 ```
 
@@ -32,9 +33,9 @@ src/app/<context>/
 ## What each layer holds
 
 - **domain:** readonly classes and union types with business methods (`appointment.canMarkNoShow(now)`), cite the rule id (`B11`) in TSDoc, no Angular, no RxJS, no `Date.now()` (pass `now` in). Identifiers are `string` UUIDs; instants are `Date`; money is `Money`.
-- **infrastructure:** `*.api.ts` injects `HttpClient` and `API_BASE_URL`, types bodies with `pibble.schema.ts`, maps with an assembler and returns `Observable<DomainType>`. No state, no navigation, no error handling beyond what the interceptors do. Guards, interceptors and browser storage also live here.
+- **infrastructure:** `*.api.ts` injects `HttpClient` and `API_BASE_URL`, types bodies with `pibble.schema.ts`, maps with an assembler and returns `Observable<DomainType>`. No state, no navigation, no error handling beyond what the interceptors do. Interceptors and browser storage also live here.
 - **application:** stores own signals, `rxResource` reads and `async` commands; they translate between screens and endpoints and are the only callers of `*.api.ts`.
-- **presentation:** views read stores, call commands, navigate and show texts; components get data through `input()` and report through `output()`.
+- **presentation:** views read stores, call commands, navigate and show texts; components get data through `input()` and report through `output()`. Route guards live in `presentation/guards/`, because they read stores.
 
 ## Rules `pnpm arch` enforces
 
