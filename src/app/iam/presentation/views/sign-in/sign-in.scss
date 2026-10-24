@@ -1,0 +1,103 @@
+// Ingreso con código: one column, 390 px on phones, centered on a card from 600 px.
+:host {
+  display: grid;
+  min-height: 100dvh;
+  place-items: start center;
+
+  @media (min-width: 600px) {
+    place-items: center;
+    padding: 24px;
+  }
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+  max-width: 420px;
+  min-height: 100dvh;
+  padding: 24px 20px 28px;
+  background: var(--mat-sys-surface-container-low);
+
+  @media (min-width: 600px) {
+    min-height: 0;
+    padding: 32px;
+    border-radius: 28px;
+    background: var(--mat-sys-surface);
+    border: 1px solid var(--mat-sys-outline-variant);
+  }
+}
+
+.wordmark {
+  margin-top: 56px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+
+  @media (min-width: 600px) {
+    margin-top: 0;
+  }
+}
+
+.back {
+  margin-left: -12px;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  strong {
+    color: var(--mat-sys-on-surface);
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  app-busy-button {
+    display: flex;
+    margin-top: 4px;
+  }
+
+  app-busy-button ::ng-deep button {
+    width: 100%;
+    height: 52px;
+  }
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--mat-sys-error);
+
+  mat-icon {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    margin-top: 1px;
+  }
+}
+
+.end {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.small {
+  max-width: 300px;
+  font-size: 13px;
+}

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { devRoutes } from './dev.routes';
+import { authGuard } from './iam/public-api';
 import { navigationFor } from './shared/presentation/components/shell/navigation-item';
 
 const pageNotFound = () =>
@@ -17,7 +18,12 @@ const navigation = navigationFor('owner');
 export const routes: Routes = [
   ...devRoutes,
   {
+    path: 'ingresar',
+    loadChildren: () => import('./iam/presentation/iam.routes').then((m) => m.iamRoutes),
+  },
+  {
     path: '',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./shared/presentation/views/shell-page/shell-page').then((m) => m.ShellPage),
     data: { navigation },
