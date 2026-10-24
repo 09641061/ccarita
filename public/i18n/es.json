@@ -1,0 +1,49 @@
+{
+  "app": {
+    "name": "Takodu"
+  },
+  "pageNotFound": {
+    "title": "Página no encontrada",
+    "back": "Ir al inicio"
+  },
+  "errors": {
+    "ACCESS_DENIED": "No tienes permiso para hacer esto.",
+    "APPOINTMENT_NOT_UPCOMING": "La cita ya no está pendiente.",
+    "CUSTOMER_CHANGE_TOO_LATE": "Ya es tarde para que el cliente cambie esta cita.",
+    "CUSTOMER_DELETED": "Este cliente fue eliminado.",
+    "ESTABLISHMENT_ARCHIVED": "Este local está archivado.",
+    "INVALID_TRANSITION": "La cita no puede pasar a ese estado.",
+    "INVITATION_EXPIRED": "La invitación venció. Pide una nueva.",
+    "INVITATION_NOT_PENDING": "Esta invitación ya no es válida.",
+    "LINE_DISCONNECTED": "La línea de WhatsApp está desconectada.",
+    "LOGIN_CODE_INVALID": "El código es incorrecto o venció.",
+    "LOGIN_CODE_LIMIT": "Pediste demasiados códigos. Intenta de nuevo en una hora.",
+    "MEDIA_DOWNLOAD_FAILED": "No se pudo descargar este archivo.",
+    "MEDIA_NOT_READY": "El archivo todavía se está descargando.",
+    "MEDIA_REMOVED": "Este archivo fue eliminado.",
+    "MEMBER_CANNOT_PERFORM_SERVICE": "Esta persona no realiza ese servicio.",
+    "MEMBER_HAS_UPCOMING_APPOINTMENTS": "Esta persona tiene citas pendientes. Reasígnalas o cancélalas primero.",
+    "MEMBER_NOT_ACTIVE": "Esta persona ya no está activa.",
+    "MEMBER_NOT_AT_ESTABLISHMENT": "Esta persona no trabaja en este local.",
+    "NO_SHOW_BEFORE_START": "Solo puedes marcar inasistencia después de la hora de inicio.",
+    "OUTSIDE_BOOKING_WINDOW": "Esa hora está fuera del rango permitido para reservar.",
+    "OUTSIDE_OPENING_HOURS": "Esa hora está fuera del horario de atención.",
+    "OWNER_CHANGE_NOT_ALLOWED": "El rol del dueño no se puede cambiar.",
+    "PERFORMER_NOT_ELIGIBLE": "Esta persona no puede realizar ese servicio aquí.",
+    "PLAN_INACTIVE": "Tu plan venció. Renuévalo para seguir reservando y enviando mensajes.",
+    "PLAN_LIMIT_REACHED": "Tu plan no permite más locales activos.",
+    "REFRESH_TOKEN_INVALID": "Tu sesión terminó. Vuelve a ingresar.",
+    "SERVICE_NOT_BOOKABLE": "Este servicio no está disponible.",
+    "SLOT_UNAVAILABLE": "Ese horario ya no está disponible.",
+    "TEMPLATE_NOT_APPROVED": "Meta todavía no aprobó esta plantilla.",
+    "TIME_BLOCKED": "Ese horario está bloqueado.",
+    "UNAUTHENTICATED": "Tu sesión terminó. Vuelve a ingresar.",
+    "VALIDATION_ERROR": "Revisa los datos ingresados.",
+    "WHATSAPP_SIGNUP_FAILED": "No se pudo conectar WhatsApp. Inténtalo de nuevo.",
+    "WINDOW_CLOSED": "Pasaron 24 horas desde el último mensaje del cliente. Solo puedes enviar una plantilla.",
+    "NOT_FOUND": "No encontramos lo que buscas.",
+    "CONFLICT": "Alguien cambió esto al mismo tiempo. Recarga e inténtalo de nuevo.",
+    "NETWORK_ERROR": "Sin conexión. Revisa tu internet e inténtalo de nuevo.",
+    "UNEXPECTED_ERROR": "Algo salió mal. Inténtalo de nuevo."
+  }
+}

@@ -1,0 +1,12 @@
+# path<TAB>max words. Raise a ceiling only when the content needs it, and say why in the pull request (docs/AGENTS.md).
+AGENTS.md	700
+docs/AGENTS.md	540
+docs/architecture.md	700
+docs/decisions/README.md	350
+.agents/skills/ccarita-ddd/SKILL.md	700
+.agents/skills/ccarita-feature/SKILL.md	750
+.agents/skills/ccarita-fix/SKILL.md	550
+.agents/skills/ccarita-api/SKILL.md	950
+.agents/skills/ccarita-session/SKILL.md	800
+.agents/skills/ccarita-ui/SKILL.md	800
+.agents/skills/ccarita-docs/SKILL.md	850

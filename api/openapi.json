@@ -1,0 +1,4157 @@
+{
+  "openapi" : "3.1.0",
+  "components" : {
+    "schemas" : {
+      "AcceptInvitationRequest" : {
+        "type" : "object",
+        "required" : [ "token" ],
+        "properties" : {
+          "token" : {
+            "type" : "string",
+            "description" : "The token from the invitation link",
+            "pattern" : "\\S",
+            "maxLength" : 100
+          }
+        }
+      },
+      "Appointment" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "establishmentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "customerId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "serviceId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "staffMemberId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "start" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "end" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "priceCents" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "currency" : {
+            "type" : "string",
+            "examples" : [ "PEN" ]
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "confirmed", "in_progress", "completed", "cancelled", "no_show" ]
+          },
+          "source" : {
+            "type" : "string",
+            "enum" : [ "staff", "assistant" ]
+          },
+          "cancelReason" : {
+            "type" : "string"
+          },
+          "cancelledBy" : {
+            "type" : "string",
+            "enum" : [ "staff", "customer" ]
+          }
+        }
+      },
+      "AssignConversationRequest" : {
+        "description" : "W9: informative only; it locks nothing",
+        "type" : "object",
+        "properties" : {
+          "memberId" : {
+            "description" : "Leave out to unassign",
+            "type" : "string",
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }
+      },
+      "AssistantSettings" : {
+        "type" : "object",
+        "properties" : {
+          "establishmentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "enabled" : {
+            "type" : "boolean"
+          },
+          "businessInfo" : {
+            "type" : "string"
+          }
+        }
+      },
+      "AssistantSettingsRequest" : {
+        "description" : "Whether the assistant answers customers, and what it knows",
+        "type" : "object",
+        "required" : [ "enabled" ],
+        "properties" : {
+          "enabled" : {
+            "type" : "boolean"
+          },
+          "businessInfo" : {
+            "type" : "string",
+            "description" : "Address details, payment methods, policies, FAQs (A1)",
+            "examples" : [ "Aceptamos Yape y Plin. Estacionamiento gratis en la puerta." ],
+            "maxLength" : 4000
+          }
+        }
+      },
+      "AssistantUsage" : {
+        "description" : "An establishment's assistant usage, day by day in its time zone (A9)",
+        "type" : "object",
+        "properties" : {
+          "establishmentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "establishmentName" : {
+            "type" : "string"
+          },
+          "timeZone" : {
+            "type" : "string"
+          },
+          "from" : {
+            "$ref" : "#/components/schemas/LocalDate"
+          },
+          "to" : {
+            "$ref" : "#/components/schemas/LocalDate"
+          },
+          "totals" : {
+            "$ref" : "#/components/schemas/UsageTotals"
+          },
+          "days" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DailyUsage"
+            },
+            "description" : "Only days with answered turns, oldest first"
+          }
+        }
+      },
+      "BookAppointmentRequest" : {
+        "description" : "The establishment is the service's (B1)",
+        "type" : "object",
+        "required" : [ "customerId", "serviceId", "start" ],
+        "properties" : {
+          "customerId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "serviceId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "staffMemberId" : {
+            "description" : "Leave out to let booking choose: the least busy member that day, then the first to join (B17)",
+            "type" : "string",
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "start" : {
+            "type" : "string",
+            "examples" : [ "2026-11-02T15:00:00Z" ],
+            "$ref" : "#/components/schemas/Instant"
+          }
+        }
+      },
+      "CancelAppointmentRequest" : {
+        "description" : "B12",
+        "type" : "object",
+        "required" : [ "reason" ],
+        "properties" : {
+          "reason" : {
+            "type" : "string",
+            "examples" : [ "Se enfermó" ],
+            "pattern" : "\\S",
+            "maxLength" : 500
+          },
+          "cancelledBy" : {
+            "type" : "string",
+            "description" : "Who asked to cancel; staff record a customer's call as customer. Defaults to staff.",
+            "enum" : [ "staff", "customer" ]
+          }
+        }
+      },
+      "ChangeAppointmentStatusRequest" : {
+        "description" : "B10, B11; cancelling goes through cancellations",
+        "type" : "object",
+        "required" : [ "status" ],
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "enum" : [ "in_progress", "completed", "no_show" ],
+            "pattern" : "\\S"
+          }
+        }
+      },
+      "ChangePlan" : {
+        "description" : "Send activeUntil or extendDays, not both; with neither only the plan changes",
+        "type" : "object",
+        "properties" : {
+          "plan" : {
+            "type" : "string",
+            "description" : "Omit to keep the plan",
+            "enum" : [ "standard", "max" ],
+            "pattern" : "standard|max"
+          },
+          "activeUntil" : {
+            "description" : "New end of the paid period; a past instant ends the plan",
+            "type" : "string",
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "extendDays" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Days added to the current end, or to now once the plan has ended",
+            "maximum" : 3660,
+            "minimum" : 1
+          },
+          "note" : {
+            "type" : "string",
+            "description" : "How and when the business paid, such as \"Yape 2026-10-23\"",
+            "pattern" : "\\S",
+            "maxLength" : 500
+          }
+        },
+        "required" : [ "note" ]
+      },
+      "ConnectWhatsappLineRequest" : {
+        "description" : "What Embedded Signup returned to the browser (W2)",
+        "type" : "object",
+        "required" : [ "code", "wabaId", "phoneNumberId" ],
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "description" : "Single-use code from Embedded Signup",
+            "pattern" : "\\S"
+          },
+          "wabaId" : {
+            "type" : "string",
+            "examples" : [ "102290129340398" ],
+            "pattern" : "\\S"
+          },
+          "phoneNumberId" : {
+            "type" : "string",
+            "examples" : [ "106540352242922" ],
+            "pattern" : "\\S"
+          },
+          "mode" : {
+            "type" : "string",
+            "description" : "Defaults to coexistence",
+            "enum" : [ "coexistence", "cloud_api" ],
+            "pattern" : "coexistence|cloud_api"
+          },
+          "pin" : {
+            "type" : "string",
+            "description" : "6-digit two-step verification PIN; cloud_api only"
+          }
+        }
+      },
+      "Conversation" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "establishmentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "customerId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "customerName" : {
+            "type" : "string"
+          },
+          "customerPhone" : {
+            "type" : "string"
+          },
+          "customerDeleted" : {
+            "type" : "boolean"
+          },
+          "assignedMemberId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "unreadCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "lastMessageAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "lastInboundAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "windowOpen" : {
+            "type" : "boolean"
+          },
+          "windowClosesAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "assistantPaused" : {
+            "type" : "boolean"
+          },
+          "assistantPausedUntil" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "assistantHandedOff" : {
+            "type" : "boolean"
+          },
+          "handoffSummary" : {
+            "type" : "string"
+          },
+          "assistantPausedManually" : {
+            "type" : "boolean"
+          },
+          "assistantPausedByMemberId" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }
+      },
+      "ConversationPage" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Conversation"
+            }
+          },
+          "nextCursor" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CreateOrganizationRequest" : {
+        "description" : "The business, its first establishment and how the owner is shown to the team",
+        "type" : "object",
+        "required" : [ "name", "establishmentName", "ownerDisplayName" ],
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "examples" : [ "Barbería Don Pepe" ],
+            "pattern" : "\\S",
+            "maxLength" : 120
+          },
+          "establishmentName" : {
+            "type" : "string",
+            "examples" : [ "Sede Miraflores" ],
+            "pattern" : "\\S",
+            "maxLength" : 120
+          },
+          "address" : {
+            "type" : "string",
+            "examples" : [ "Av. Larco 345, Miraflores" ],
+            "maxLength" : 300
+          },
+          "timeZone" : {
+            "type" : "string",
+            "description" : "IANA time zone; America/Lima when omitted",
+            "examples" : [ "America/Lima" ],
+            "maxLength" : 64
+          },
+          "ownerDisplayName" : {
+            "type" : "string",
+            "examples" : [ "Pepe" ],
+            "pattern" : "\\S",
+            "maxLength" : 120
+          }
+        }
+      },
+      "CreateTimeBlockRequest" : {
+        "description" : "A range in which a member, or everyone, cannot be booked (B15)",
+        "type" : "object",
+        "properties" : {
+          "staffMemberId" : {
+            "description" : "The blocked member; leave out to block the whole establishment",
+            "type" : "string",
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "start" : {
+            "type" : "string",
+            "examples" : [ "2026-11-02T18:00:00Z" ],
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "end" : {
+            "type" : "string",
+            "examples" : [ "2026-11-02T20:00:00Z" ],
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "reason" : {
+            "type" : "string",
+            "examples" : [ "Cita médica" ],
+            "maxLength" : 500
+          }
+        },
+        "required" : [ "start", "end" ]
+      },
+      "Customer" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "phone" : {
+            "type" : "string",
+            "examples" : [ "+51987654321" ]
+          },
+          "displayName" : {
+            "type" : "string",
+            "description" : "The typed name, else the WhatsApp profile name, else the phone"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "whatsappProfileName" : {
+            "type" : "string"
+          },
+          "documentType" : {
+            "type" : "string",
+            "examples" : [ "dni" ]
+          },
+          "documentNumber" : {
+            "type" : "string"
+          },
+          "notes" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CustomerDetailsRequest" : {
+        "description" : "The whole editable state of a customer; the phone never changes (C1, C4)",
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "examples" : [ "Rosa Quispe" ],
+            "maxLength" : 120
+          },
+          "documentType" : {
+            "type" : "string",
+            "description" : "dni, ruc, ce or passport; together with documentNumber",
+            "examples" : [ "dni" ]
+          },
+          "documentNumber" : {
+            "type" : "string",
+            "examples" : [ "45678912" ],
+            "maxLength" : 20
+          },
+          "notes" : {
+            "type" : "string",
+            "examples" : [ "Prefiere los sábados" ],
+            "maxLength" : 2000
+          }
+        }
+      },
+      "CustomerPage" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Customer"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "hasMore" : {
+            "type" : "boolean",
+            "description" : "Whether the next page has customers"
+          }
+        }
+      },
+      "DailyUsage" : {
+        "type" : "object",
+        "properties" : {
+          "date" : {
+            "description" : "Day in the establishment's time zone",
+            "type" : "string",
+            "$ref" : "#/components/schemas/LocalDate"
+          },
+          "totals" : {
+            "$ref" : "#/components/schemas/UsageTotals"
+          }
+        }
+      },
+      "Establishment" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "address" : {
+            "type" : "string"
+          },
+          "timeZone" : {
+            "type" : "string",
+            "examples" : [ "America/Lima" ]
+          },
+          "archivedAt" : {
+            "description" : "Set when the establishment is archived",
+            "type" : "string",
+            "$ref" : "#/components/schemas/Instant"
+          }
+        }
+      },
+      "EstablishmentDetailsRequest" : {
+        "description" : "Name, address and time zone of an establishment",
+        "type" : "object",
+        "required" : [ "name" ],
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "examples" : [ "Sede San Isidro" ],
+            "pattern" : "\\S",
+            "maxLength" : 120
+          },
+          "address" : {
+            "type" : "string",
+            "examples" : [ "Av. Conquistadores 120" ],
+            "maxLength" : 300
+          },
+          "timeZone" : {
+            "type" : "string",
+            "description" : "IANA time zone; America/Lima when omitted",
+            "examples" : [ "America/Lima" ],
+            "maxLength" : 64
+          }
+        }
+      },
+      "InboxChange" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "conversationId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "establishmentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }
+      },
+      "Instant" : {
+        "type" : "string",
+        "format" : "date-time",
+        "examples" : [ "2022-03-10T16:15:50Z" ]
+      },
+      "InviteMemberRequest" : {
+        "description" : "Who to invite and with which role",
+        "type" : "object",
+        "required" : [ "email", "displayName", "role" ],
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "examples" : [ "lucia@example.com" ],
+            "pattern" : "\\S",
+            "maxLength" : 254
+          },
+          "displayName" : {
+            "type" : "string",
+            "examples" : [ "Lucía" ],
+            "pattern" : "\\S",
+            "maxLength" : 120
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "manager", "staff" ],
+            "pattern" : "\\S"
+          },
+          "establishmentIds" : {
+            "type" : "array",
+            "uniqueItems" : true,
+            "items" : {
+              "type" : "string",
+              "format" : "uuid",
+              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+            },
+            "description" : "Where a staff member works; at least one for staff, ignored for managers",
+            "maxItems" : 100
+          },
+          "bookable" : {
+            "type" : "boolean",
+            "description" : "Whether the member receives appointments; true when omitted"
+          }
+        }
+      },
+      "JoinedOrganization" : {
+        "description" : "An organization of the caller, with their role in it",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "planActiveUntil" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "memberId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "owner", "manager", "staff" ]
+          }
+        }
+      },
+      "LocalDate" : {
+        "type" : "string",
+        "format" : "date",
+        "examples" : [ "2022-03-10" ]
+      },
+      "LocalTime" : {
+        "type" : "string",
+        "format" : "local-time",
+        "examples" : [ "13:45:30.123456789" ],
+        "externalDocs" : {
+          "description" : "As defined by 'partial-time' in RFC3339",
+          "url" : "https://www.rfc-editor.org/rfc/rfc3339.html#section-5.6"
+        }
+      },
+      "Member" : {
+        "description" : "An active member or a pending invitation",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "owner", "manager", "staff" ]
+          },
+          "bookable" : {
+            "type" : "boolean"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "pending", "active" ]
+          },
+          "establishmentIds" : {
+            "type" : "array",
+            "uniqueItems" : true,
+            "items" : {
+              "type" : "string",
+              "format" : "uuid",
+              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+            },
+            "description" : "Assigned establishments of a staff member; empty for owners and managers"
+          },
+          "inviteExpiresAt" : {
+            "description" : "When a pending invitation expires",
+            "type" : "string",
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "joinedAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          }
+        }
+      },
+      "Message" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "conversationId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "direction" : {
+            "type" : "string"
+          },
+          "origin" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "body" : {
+            "type" : "string"
+          },
+          "hasMedia" : {
+            "type" : "boolean"
+          },
+          "mediaMime" : {
+            "type" : "string"
+          },
+          "mediaStatus" : {
+            "type" : "string"
+          },
+          "templateName" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "error" : {
+            "type" : "string"
+          },
+          "sentByMemberId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "choicesStyle" : {
+            "type" : "string"
+          },
+          "choices" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "occurredAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          }
+        }
+      },
+      "MessagePage" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Message"
+            }
+          },
+          "nextCursor" : {
+            "type" : "string"
+          }
+        }
+      },
+      "OpeningHours" : {
+        "description" : "The whole week; a weekday without ranges is closed (O8)",
+        "type" : "object",
+        "required" : [ "ranges" ],
+        "properties" : {
+          "ranges" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OpeningRange"
+            },
+            "maxItems" : 70
+          }
+        }
+      },
+      "OpeningRange" : {
+        "type" : "object",
+        "description" : "A range of one weekday, in the establishment's time zone",
+        "required" : [ "weekday", "opensAt", "closesAt" ],
+        "properties" : {
+          "weekday" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "ISO weekday: 1 is Monday, 7 is Sunday",
+            "examples" : [ 1 ],
+            "maximum" : 7,
+            "minimum" : 1
+          },
+          "opensAt" : {
+            "type" : "string",
+            "examples" : [ "09:00" ],
+            "$ref" : "#/components/schemas/LocalTime"
+          },
+          "closesAt" : {
+            "type" : "string",
+            "examples" : [ "13:00" ],
+            "$ref" : "#/components/schemas/LocalTime"
+          }
+        }
+      },
+      "Organization" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "plan" : {
+            "type" : "string",
+            "enum" : [ "standard", "max" ]
+          },
+          "planActiveUntil" : {
+            "description" : "The plan is active until this instant (O5)",
+            "type" : "string",
+            "$ref" : "#/components/schemas/Instant"
+          }
+        }
+      },
+      "OrganizationAccount" : {
+        "description" : "An organization as the Takodu team follows its plan",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "plan" : {
+            "type" : "string",
+            "enum" : [ "standard", "max" ]
+          },
+          "planActiveUntil" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "planActive" : {
+            "type" : "boolean"
+          },
+          "ownerEmail" : {
+            "type" : "string"
+          },
+          "activeEstablishments" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Compared with the plan's limit (O4)"
+          }
+        }
+      },
+      "OrganizationAssistantUsage" : {
+        "description" : "Each establishment's assistant usage and their sum (A9)",
+        "type" : "object",
+        "properties" : {
+          "organizationId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "from" : {
+            "$ref" : "#/components/schemas/LocalDate"
+          },
+          "to" : {
+            "$ref" : "#/components/schemas/LocalDate"
+          },
+          "totals" : {
+            "$ref" : "#/components/schemas/UsageTotals"
+          },
+          "establishments" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AssistantUsage"
+            },
+            "description" : "Establishments with answered turns, by name"
+          }
+        }
+      },
+      "PlanChange" : {
+        "description" : "One entry of an organization's append-only plan history (O5)",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "organizationId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "fromPlan" : {
+            "type" : "string",
+            "enum" : [ "standard", "max" ]
+          },
+          "toPlan" : {
+            "type" : "string",
+            "enum" : [ "standard", "max" ]
+          },
+          "fromActiveUntil" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "toActiveUntil" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "changedBy" : {
+            "description" : "The platform operator's user id",
+            "type" : "string",
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "changedByEmail" : {
+            "type" : "string"
+          },
+          "changedAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          }
+        }
+      },
+      "RefreshSessionRequest" : {
+        "description" : "The refresh token from the last sign-in or refresh",
+        "type" : "object",
+        "required" : [ "refreshToken" ],
+        "properties" : {
+          "refreshToken" : {
+            "type" : "string",
+            "pattern" : "\\S",
+            "maxLength" : 100
+          }
+        }
+      },
+      "RegisterCustomerRequest" : {
+        "description" : "Only the phone is required (C3, C4)",
+        "type" : "object",
+        "required" : [ "phone" ],
+        "properties" : {
+          "phone" : {
+            "type" : "string",
+            "description" : "With country code; a Peruvian mobile may omit +51",
+            "examples" : [ "987 654 321" ],
+            "pattern" : "\\S",
+            "maxLength" : 30
+          },
+          "name" : {
+            "type" : "string",
+            "examples" : [ "Rosa Quispe" ],
+            "maxLength" : 120
+          },
+          "documentType" : {
+            "type" : "string",
+            "description" : "dni, ruc, ce or passport; together with documentNumber",
+            "examples" : [ "dni" ]
+          },
+          "documentNumber" : {
+            "type" : "string",
+            "examples" : [ "45678912" ],
+            "maxLength" : 20
+          },
+          "notes" : {
+            "type" : "string",
+            "examples" : [ "Prefiere los sábados" ],
+            "maxLength" : 2000
+          }
+        }
+      },
+      "RenameOrganizationRequest" : {
+        "type" : "object",
+        "required" : [ "name" ],
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "examples" : [ "Barbería Don Pepe" ],
+            "pattern" : "\\S",
+            "maxLength" : 120
+          }
+        }
+      },
+      "RequestLoginCodeRequest" : {
+        "description" : "Where to email a sign-in code",
+        "type" : "object",
+        "required" : [ "email" ],
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "examples" : [ "ana@example.com" ],
+            "pattern" : "\\S",
+            "maxLength" : 254
+          }
+        }
+      },
+      "RescheduleAppointmentRequest" : {
+        "description" : "A new start and optionally a new member; the length stays (B13)",
+        "type" : "object",
+        "properties" : {
+          "staffMemberId" : {
+            "description" : "Leave out to keep the current member",
+            "type" : "string",
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "start" : {
+            "type" : "string",
+            "examples" : [ "2026-11-03T16:00:00Z" ],
+            "$ref" : "#/components/schemas/Instant"
+          }
+        },
+        "required" : [ "start" ]
+      },
+      "SendMessageRequest" : {
+        "description" : "A staff reply inside the 24-hour window (W6)",
+        "type" : "object",
+        "required" : [ "body" ],
+        "properties" : {
+          "body" : {
+            "type" : "string",
+            "examples" : [ "Sí, mañana a las 4 está libre" ],
+            "pattern" : "\\S",
+            "maxLength" : 4096
+          }
+        }
+      },
+      "SendTemplateRequest" : {
+        "description" : "An appointment's reminder or confirmation, which reaches a customer whose window is closed (W6)",
+        "type" : "object",
+        "required" : [ "template", "appointmentId" ],
+        "properties" : {
+          "template" : {
+            "type" : "string",
+            "examples" : [ "reminder" ],
+            "pattern" : "reminder|confirmation"
+          },
+          "appointmentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }
+      },
+      "Service" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "establishmentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "durationMinutes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "priceCents" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "currency" : {
+            "type" : "string",
+            "examples" : [ "PEN" ]
+          },
+          "instructions" : {
+            "type" : "string"
+          },
+          "active" : {
+            "type" : "boolean"
+          },
+          "performerIds" : {
+            "type" : "array",
+            "uniqueItems" : true,
+            "items" : {
+              "type" : "string",
+              "format" : "uuid",
+              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+            }
+          }
+        }
+      },
+      "ServiceDetailsRequest" : {
+        "description" : "The whole editable state of a service; prices are in PEN",
+        "type" : "object",
+        "required" : [ "name", "durationMinutes", "priceCents" ],
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "examples" : [ "Corte clásico" ],
+            "pattern" : "\\S",
+            "maxLength" : 120
+          },
+          "durationMinutes" : {
+            "type" : "integer",
+            "format" : "int32",
+            "examples" : [ 45 ],
+            "maximum" : 720,
+            "minimum" : 1
+          },
+          "priceCents" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Price in céntimos",
+            "examples" : [ 3500 ],
+            "maximum" : 100000000,
+            "minimum" : 0
+          },
+          "instructions" : {
+            "type" : "string",
+            "description" : "Sent to the customer when booked",
+            "examples" : [ "Llega 5 minutos antes" ],
+            "maxLength" : 1000
+          },
+          "performerIds" : {
+            "type" : "array",
+            "uniqueItems" : true,
+            "items" : {
+              "type" : "string",
+              "format" : "uuid",
+              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+            },
+            "description" : "Members who perform it (O15)",
+            "maxItems" : 100
+          }
+        }
+      },
+      "Session" : {
+        "description" : "A device where the user is signed in",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "lastUsedAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "expiresAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "current" : {
+            "type" : "boolean",
+            "description" : "Whether the request was made from this session"
+          }
+        }
+      },
+      "SessionTokens" : {
+        "description" : "Send accessToken as a Bearer token; exchange refreshToken for new tokens before it expires",
+        "type" : "object",
+        "properties" : {
+          "sessionId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "accessToken" : {
+            "type" : "string"
+          },
+          "accessTokenExpiresAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "refreshToken" : {
+            "type" : "string"
+          },
+          "refreshTokenExpiresAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "user" : {
+            "$ref" : "#/components/schemas/User"
+          }
+        }
+      },
+      "SignInRequest" : {
+        "description" : "The email and the code it received",
+        "type" : "object",
+        "required" : [ "email", "code" ],
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "examples" : [ "ana@example.com" ],
+            "pattern" : "\\S",
+            "maxLength" : 254
+          },
+          "code" : {
+            "type" : "string",
+            "examples" : [ "042917" ],
+            "pattern" : "\\S"
+          }
+        }
+      },
+      "Slot" : {
+        "type" : "object",
+        "properties" : {
+          "start" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "end" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "freeMemberIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "uuid",
+              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+            }
+          }
+        }
+      },
+      "TimeBlock" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "establishmentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "staffMemberId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "start" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "end" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "reason" : {
+            "type" : "string"
+          }
+        }
+      },
+      "TransferOwnershipRequest" : {
+        "type" : "object",
+        "required" : [ "newOwnerId" ],
+        "properties" : {
+          "newOwnerId" : {
+            "description" : "An active member of the organization",
+            "type" : "string",
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }
+      },
+      "UUID" : {
+        "type" : "string",
+        "format" : "uuid",
+        "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+      },
+      "UpdateMemberRequest" : {
+        "description" : "The whole editable state of a member",
+        "type" : "object",
+        "required" : [ "displayName", "bookable", "role" ],
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "examples" : [ "Lucía" ],
+            "pattern" : "\\S",
+            "maxLength" : 120
+          },
+          "bookable" : {
+            "type" : "boolean"
+          },
+          "role" : {
+            "type" : "string",
+            "description" : "The owner's role stays owner",
+            "enum" : [ "owner", "manager", "staff" ],
+            "pattern" : "\\S"
+          },
+          "establishmentIds" : {
+            "type" : "array",
+            "uniqueItems" : true,
+            "items" : {
+              "type" : "string",
+              "format" : "uuid",
+              "pattern" : "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+            },
+            "description" : "Where a staff member works; at least one for staff, ignored otherwise",
+            "maxItems" : 100
+          }
+        }
+      },
+      "UsageTotals" : {
+        "type" : "object",
+        "description" : "Answered turns and what they used (A9); no prices",
+        "properties" : {
+          "turns" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "inputTokens" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "cachedTokens" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Part of inputTokens served from the provider's cache"
+          },
+          "outputTokens" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "toolCalls" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "User" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "WhatsappLine" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "establishmentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          },
+          "displayPhone" : {
+            "type" : "string"
+          },
+          "mode" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "connectedAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "templates" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "SecurityScheme" : {
+        "type" : "http",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT",
+        "description" : "Authentication"
+      }
+    }
+  },
+  "tags" : [ {
+    "name" : "Appointments",
+    "description" : "Booking, moving, cancelling and following appointments"
+  }, {
+    "name" : "Assistant",
+    "description" : "The AI assistant that answers an establishment's customers on WhatsApp"
+  }, {
+    "name" : "Customers",
+    "description" : "The people the organization serves, identified by phone"
+  }, {
+    "name" : "Establishments",
+    "description" : "Branches of the caller's organization"
+  }, {
+    "name" : "Inbox",
+    "description" : "WhatsApp conversations and messages of each establishment"
+  }, {
+    "name" : "Internal",
+    "description" : "Takodu team only: plans and usage across organizations"
+  }, {
+    "name" : "Members",
+    "description" : "The team of the caller's organization and its invitations"
+  }, {
+    "name" : "Organizations",
+    "description" : "Businesses the caller founded or joined"
+  }, {
+    "name" : "Services",
+    "description" : "What each establishment sells and who performs it"
+  }, {
+    "name" : "Sign-in",
+    "description" : "Passwordless sign-in with emailed codes"
+  }, {
+    "name" : "Time blocks",
+    "description" : "Ranges in which a member or the whole establishment cannot be booked"
+  }, {
+    "name" : "WhatsApp lines",
+    "description" : "The WhatsApp business number of each establishment"
+  }, {
+    "name" : "WhatsApp webhook",
+    "description" : "Called by Meta, not by the app"
+  } ],
+  "paths" : {
+    "/api/v1/appointments" : {
+      "post" : {
+        "summary" : "Book appointment",
+        "description" : "Any member, in the establishments they see (B1-B9). The price is copied from the service (B8).",
+        "tags" : [ "Appointments" ],
+        "parameters" : [ {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BookAppointmentRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Appointment booked, or the one an earlier request with the same key booked",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Appointment"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Missing field or Idempotency-Key"
+          },
+          "402" : {
+            "description" : "The plan is not active (B7)"
+          },
+          "403" : {
+            "description" : "Staff not assigned to the service's establishment"
+          },
+          "404" : {
+            "description" : "Service or customer not found in the organization, or the customer is deleted"
+          },
+          "409" : {
+            "description" : "SLOT_UNAVAILABLE: the member or the customer is busy then (B5, B6); or the same request is still running"
+          },
+          "422" : {
+            "description" : "SERVICE_NOT_BOOKABLE (B1), MEMBER_CANNOT_PERFORM_SERVICE (B2), OUTSIDE_OPENING_HOURS (B3), TIME_BLOCKED (B4) or OUTSIDE_BOOKING_WINDOW (B9)"
+          }
+        }
+      }
+    },
+    "/api/v1/appointments/{appointmentId}" : {
+      "get" : {
+        "summary" : "Get appointment by id",
+        "tags" : [ "Appointments" ],
+        "parameters" : [ {
+          "name" : "appointmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Appointment found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Appointment"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Staff not assigned to the appointment's establishment"
+          },
+          "404" : {
+            "description" : "Appointment not found in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/appointments/{appointmentId}/cancellations" : {
+      "post" : {
+        "summary" : "Cancel appointment",
+        "description" : "Any member, in the establishments they see (B12). Works while the plan is inactive.",
+        "tags" : [ "Appointments" ],
+        "parameters" : [ {
+          "name" : "appointmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CancelAppointmentRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Appointment cancelled, or already cancelled by a request with the same key",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Appointment"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Reason missing or over 500 characters, unknown cancelledBy, or missing Idempotency-Key"
+          },
+          "403" : {
+            "description" : "Staff not assigned to the appointment's establishment"
+          },
+          "404" : {
+            "description" : "Appointment not found in the organization"
+          },
+          "409" : {
+            "description" : "APPOINTMENT_CONFLICT: changed at the same time"
+          },
+          "422" : {
+            "description" : "INVALID_TRANSITION: already completed, cancelled or no-show (B10)"
+          }
+        }
+      }
+    },
+    "/api/v1/appointments/{appointmentId}/reschedulings" : {
+      "post" : {
+        "summary" : "Reschedule appointment",
+        "description" : "Any member, in the establishments they see. Only confirmed appointments (B13).",
+        "tags" : [ "Appointments" ],
+        "parameters" : [ {
+          "name" : "appointmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RescheduleAppointmentRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Appointment moved, or already moved by a request with the same key",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Appointment"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Missing start or Idempotency-Key"
+          },
+          "402" : {
+            "description" : "The plan is not active (B7)"
+          },
+          "403" : {
+            "description" : "Staff not assigned to the appointment's establishment"
+          },
+          "404" : {
+            "description" : "Appointment not found in the organization"
+          },
+          "409" : {
+            "description" : "SLOT_UNAVAILABLE (B5, B6), or APPOINTMENT_CONFLICT when changed at the same time"
+          },
+          "422" : {
+            "description" : "INVALID_TRANSITION (B13), MEMBER_CANNOT_PERFORM_SERVICE, OUTSIDE_OPENING_HOURS, TIME_BLOCKED or OUTSIDE_BOOKING_WINDOW"
+          }
+        }
+      }
+    },
+    "/api/v1/appointments/{appointmentId}/status-changes" : {
+      "post" : {
+        "summary" : "Change appointment status",
+        "description" : "Start, complete or mark a no-show, any member in the establishments they see (B10, B11). Works while the plan is inactive.",
+        "tags" : [ "Appointments" ],
+        "parameters" : [ {
+          "name" : "appointmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChangeAppointmentStatusRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Status changed, or already changed by a request with the same key",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Appointment"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Status other than in_progress, completed or no_show, or missing Idempotency-Key"
+          },
+          "403" : {
+            "description" : "Staff not assigned to the appointment's establishment"
+          },
+          "404" : {
+            "description" : "Appointment not found in the organization"
+          },
+          "409" : {
+            "description" : "APPOINTMENT_CONFLICT: changed at the same time"
+          },
+          "422" : {
+            "description" : "INVALID_TRANSITION (B10) or NO_SHOW_BEFORE_START (B11)"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login-codes" : {
+      "post" : {
+        "summary" : "Request sign-in code",
+        "description" : "Emails a 6-digit code valid for 10 minutes. The answer is the same whether or not the email has an account.",
+        "tags" : [ "Sign-in" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RequestLoginCodeRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "202" : {
+            "description" : "Code emailed"
+          },
+          "400" : {
+            "description" : "Invalid email"
+          },
+          "429" : {
+            "description" : "Five codes were already requested for this email in the last hour"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/session-refreshes" : {
+      "post" : {
+        "summary" : "Refresh session",
+        "description" : "Rotates the refresh token and returns a new access token. Retrying with the previous token within two minutes works; later it ends the session.",
+        "tags" : [ "Sign-in" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RefreshSessionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "New tokens",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SessionTokens"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Missing refresh token"
+          },
+          "401" : {
+            "description" : "The session has ended; sign in again"
+          },
+          "403" : {
+            "description" : "The user is disabled"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/sessions" : {
+      "post" : {
+        "summary" : "Sign in",
+        "description" : "Exchanges an emailed code for a session on this device. The first sign-in creates the user.",
+        "tags" : [ "Sign-in" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SignInRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Signed in",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SessionTokens"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid email, or the code is not 6 digits"
+          },
+          "401" : {
+            "description" : "The code is wrong, used, expired or out of attempts"
+          },
+          "403" : {
+            "description" : "The user is disabled"
+          }
+        }
+      },
+      "get" : {
+        "summary" : "List my sessions",
+        "description" : "The devices where the caller is signed in.",
+        "tags" : [ "Sign-in" ],
+        "responses" : {
+          "200" : {
+            "description" : "Active sessions, most recently used first",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Session"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Missing or expired access token"
+          },
+          "403" : {
+            "description" : "Not Allowed"
+          }
+        },
+        "security" : [ {
+          "SecurityScheme" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/auth/sessions/{sessionId}" : {
+      "delete" : {
+        "summary" : "Sign a device out",
+        "description" : "Ends one of the caller's sessions; its access tokens stop working within 15 minutes.",
+        "tags" : [ "Sign-in" ],
+        "parameters" : [ {
+          "name" : "sessionId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Session ended"
+          },
+          "401" : {
+            "description" : "Missing or expired access token"
+          },
+          "404" : {
+            "description" : "The caller has no session with this id"
+          },
+          "403" : {
+            "description" : "Not Allowed"
+          }
+        },
+        "security" : [ {
+          "SecurityScheme" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/conversations/{conversationId}" : {
+      "get" : {
+        "summary" : "Get a conversation",
+        "tags" : [ "Inbox" ],
+        "parameters" : [ {
+          "name" : "conversationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The conversation",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Conversation"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Staff not assigned to its establishment"
+          },
+          "404" : {
+            "description" : "Conversation not in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{conversationId}/assignee" : {
+      "put" : {
+        "summary" : "Assign",
+        "description" : "Informative only (W9); any member who sees the inbox may be assigned.",
+        "tags" : [ "Inbox" ],
+        "parameters" : [ {
+          "name" : "conversationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AssignConversationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "The conversation",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Conversation"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Staff not assigned to its establishment"
+          },
+          "404" : {
+            "description" : "Conversation or member not in the organization"
+          },
+          "422" : {
+            "description" : "MEMBER_NOT_AT_ESTABLISHMENT"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{conversationId}/assistant/pause" : {
+      "post" : {
+        "summary" : "Pause the assistant",
+        "description" : "Keeps the assistant quiet on this chat until someone resumes it (A3), recording who paused it. Works while the plan is inactive.",
+        "tags" : [ "Inbox" ],
+        "parameters" : [ {
+          "name" : "conversationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The conversation",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Conversation"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Missing Idempotency-Key"
+          },
+          "403" : {
+            "description" : "Staff not assigned to its establishment"
+          },
+          "404" : {
+            "description" : "Conversation not in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{conversationId}/assistant/resume" : {
+      "post" : {
+        "summary" : "Resume the assistant",
+        "description" : "Clears the 12-hour pause after a human message, a manual pause and a handoff (A3, A7); the assistant answers the customer's next message. Works while the plan is inactive.",
+        "tags" : [ "Inbox" ],
+        "parameters" : [ {
+          "name" : "conversationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The conversation",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Conversation"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Missing Idempotency-Key"
+          },
+          "403" : {
+            "description" : "Staff not assigned to its establishment"
+          },
+          "404" : {
+            "description" : "Conversation not in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{conversationId}/messages" : {
+      "post" : {
+        "summary" : "Reply",
+        "description" : "Queues a staff text inside the 24-hour window (W6) and pauses the assistant for 12 hours (A3). It is sent right after; its status follows.",
+        "tags" : [ "Inbox" ],
+        "parameters" : [ {
+          "name" : "conversationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SendMessageRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Queued as pending, or the message an earlier request with the same key queued",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Blank or longer than 4,096 characters, or missing Idempotency-Key"
+          },
+          "402" : {
+            "description" : "Plan inactive (O6)"
+          },
+          "403" : {
+            "description" : "Staff not assigned to its establishment"
+          },
+          "404" : {
+            "description" : "Conversation not in the organization"
+          },
+          "409" : {
+            "description" : "The same request is still running"
+          },
+          "422" : {
+            "description" : "WINDOW_CLOSED (send a template) or LINE_DISCONNECTED"
+          }
+        }
+      },
+      "get" : {
+        "summary" : "Read the chat",
+        "description" : "Newest first; pass nextCursor as before for older messages. Reading does not mark the chat read.",
+        "tags" : [ "Inbox" ],
+        "parameters" : [ {
+          "name" : "conversationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "before",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "One page",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MessagePage"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid cursor or size"
+          },
+          "403" : {
+            "description" : "Staff not assigned to its establishment"
+          },
+          "404" : {
+            "description" : "Conversation not in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{conversationId}/read" : {
+      "post" : {
+        "summary" : "Mark read",
+        "description" : "Resets the unread count (W8). Works while the plan is inactive.",
+        "tags" : [ "Inbox" ],
+        "parameters" : [ {
+          "name" : "conversationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The conversation",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Conversation"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Staff not assigned to its establishment"
+          },
+          "404" : {
+            "description" : "Conversation not in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{conversationId}/templates" : {
+      "post" : {
+        "summary" : "Send an appointment template",
+        "description" : "Queues the reminder or confirmation of one of the customer's upcoming appointments, which reaches them even when the 24-hour window is closed (W6). Outside the window, and always for a reminder, it goes as the approved template; inside, as the same text. Pauses the assistant for 12 hours like a reply (A3).",
+        "tags" : [ "Inbox" ],
+        "parameters" : [ {
+          "name" : "conversationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SendTemplateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Queued as pending, or the message an earlier request with the same key queued",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Template not reminder or confirmation, no appointment, or missing Idempotency-Key"
+          },
+          "402" : {
+            "description" : "Plan inactive (O6)"
+          },
+          "403" : {
+            "description" : "Staff not assigned to its establishment"
+          },
+          "404" : {
+            "description" : "Conversation not in the organization"
+          },
+          "409" : {
+            "description" : "The same request is still running"
+          },
+          "422" : {
+            "description" : "LINE_DISCONNECTED, TEMPLATE_NOT_APPROVED, APPOINTMENT_NOT_UPCOMING or CUSTOMER_DELETED"
+          }
+        }
+      }
+    },
+    "/api/v1/customers" : {
+      "get" : {
+        "summary" : "Search customers",
+        "description" : "Active customers by display name. Digits in q also match the phone.",
+        "tags" : [ "Customers" ],
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "minimum" : 0,
+            "default" : 0
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1,
+            "default" : 20
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "One page of customers",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CustomerPage"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "page below 0, or size outside 1-100"
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Register customer",
+        "description" : "Any member (C3). Works while the plan is inactive.",
+        "tags" : [ "Customers" ],
+        "parameters" : [ {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RegisterCustomerRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Customer registered, or the one an earlier request with the same key registered",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Customer"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Phone without country code, invalid document, or missing Idempotency-Key"
+          },
+          "409" : {
+            "description" : "CUSTOMER_CONFLICT: an active customer has the phone (C1); or the same request is still running"
+          }
+        }
+      }
+    },
+    "/api/v1/customers/{customerId}" : {
+      "put" : {
+        "summary" : "Update customer",
+        "description" : "Any member (C4). Fields left out are cleared.",
+        "tags" : [ "Customers" ],
+        "parameters" : [ {
+          "name" : "customerId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CustomerDetailsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Customer updated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Customer"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid document, or name or notes too long"
+          },
+          "404" : {
+            "description" : "Customer deleted or not in the organization"
+          }
+        }
+      },
+      "get" : {
+        "summary" : "Get customer by id",
+        "tags" : [ "Customers" ],
+        "parameters" : [ {
+          "name" : "customerId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Customer found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Customer"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Customer deleted or not in the organization"
+          }
+        }
+      },
+      "delete" : {
+        "summary" : "Delete customer",
+        "description" : "Owner or manager. Soft delete: history is kept and the phone can be registered again (C5).",
+        "tags" : [ "Customers" ],
+        "parameters" : [ {
+          "name" : "customerId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Customer deleted"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Customer already deleted or not in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/establishments" : {
+      "post" : {
+        "summary" : "Open establishment",
+        "description" : "Owner only. The new branch is closed until its opening hours are set.",
+        "tags" : [ "Establishments" ],
+        "parameters" : [ {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EstablishmentDetailsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Establishment opened, or the one an earlier request with the same key opened",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Establishment"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Blank name, unknown time zone, or missing Idempotency-Key"
+          },
+          "402" : {
+            "description" : "The plan is not active (O6)"
+          },
+          "403" : {
+            "description" : "The caller is not the owner"
+          },
+          "409" : {
+            "description" : "The same request is still running"
+          },
+          "422" : {
+            "description" : "PLAN_LIMIT_REACHED: the plan allows no more active establishments (O4)"
+          }
+        }
+      },
+      "get" : {
+        "summary" : "List establishments",
+        "description" : "Active establishments the caller sees: all for owners and managers, assigned ones for staff (O13).",
+        "tags" : [ "Establishments" ],
+        "responses" : {
+          "200" : {
+            "description" : "Establishments by name",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Establishment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/establishments/{establishmentId}" : {
+      "get" : {
+        "summary" : "Get establishment by id",
+        "tags" : [ "Establishments" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Establishment found, archived or not",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Establishment"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Staff not assigned to the establishment"
+          },
+          "404" : {
+            "description" : "Establishment not found in the organization"
+          }
+        }
+      },
+      "put" : {
+        "summary" : "Change establishment details",
+        "description" : "Owner only. Name, address and time zone.",
+        "tags" : [ "Establishments" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EstablishmentDetailsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Establishment changed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Establishment"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Blank name or unknown time zone"
+          },
+          "402" : {
+            "description" : "The plan is not active (O6)"
+          },
+          "403" : {
+            "description" : "The caller is not the owner"
+          },
+          "404" : {
+            "description" : "Establishment not found in the organization"
+          },
+          "422" : {
+            "description" : "ESTABLISHMENT_ARCHIVED"
+          }
+        }
+      }
+    },
+    "/api/v1/establishments/{establishmentId}/appointments" : {
+      "get" : {
+        "summary" : "List the calendar",
+        "description" : "Appointments in every status overlapping [from, to), at most 42 days; also those outside today's opening hours (O8).",
+        "tags" : [ "Appointments" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Appointments, earliest first",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Appointment"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "from or to missing, to not after from, or more than 42 days"
+          },
+          "403" : {
+            "description" : "Staff not assigned to the establishment"
+          },
+          "404" : {
+            "description" : "Establishment not found in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/establishments/{establishmentId}/archivals" : {
+      "post" : {
+        "summary" : "Archive establishment",
+        "description" : "Owner only. Frees its place in the plan (O4); history is kept.",
+        "tags" : [ "Establishments" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Establishment archived",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Establishment"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "The caller is not the owner"
+          },
+          "404" : {
+            "description" : "Establishment not found in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/establishments/{establishmentId}/assistant" : {
+      "get" : {
+        "summary" : "Get assistant settings",
+        "description" : "Owner or manager. Off with no business info until configured.",
+        "tags" : [ "Assistant" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Whether the assistant answers, and its business info",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AssistantSettings"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Establishment not found in the organization"
+          }
+        }
+      },
+      "put" : {
+        "summary" : "Configure the assistant",
+        "description" : "Owner or manager. Turns it on or off and replaces the business info (A1).",
+        "tags" : [ "Assistant" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AssistantSettingsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Settings saved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AssistantSettings"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "enabled missing, or business info over 4,000 characters"
+          },
+          "402" : {
+            "description" : "The plan is not active (O6)"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Establishment not found in the organization"
+          },
+          "409" : {
+            "description" : "Someone else saved the first settings meanwhile"
+          },
+          "422" : {
+            "description" : "ESTABLISHMENT_ARCHIVED"
+          }
+        }
+      }
+    },
+    "/api/v1/establishments/{establishmentId}/assistant/usage" : {
+      "get" : {
+        "summary" : "Get assistant usage",
+        "description" : "Owner or manager. Answered turns, tokens and tool calls per day in the establishment's time zone (A9), also while the plan is inactive.",
+        "tags" : [ "Assistant" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Usage for the days from and to, both included",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AssistantUsage"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "from or to missing or not a date, to before from, or more than 366 days"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Establishment not found in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/establishments/{establishmentId}/conversations" : {
+      "get" : {
+        "summary" : "List the inbox",
+        "description" : "Newest activity first, with unread counts, window and assistant state (W7).",
+        "tags" : [ "Inbox" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "cursor",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 30
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "One page",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConversationPage"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid cursor or size"
+          },
+          "403" : {
+            "description" : "Staff not assigned to the establishment"
+          },
+          "404" : {
+            "description" : "Establishment not in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/establishments/{establishmentId}/opening-hours" : {
+      "put" : {
+        "summary" : "Replace opening hours",
+        "description" : "Owner or manager. Replaces the whole week; appointments already booked outside the new hours are kept.",
+        "tags" : [ "Establishments" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OpeningHours"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Opening hours replaced",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OpeningHours"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Overlapping ranges, a range that crosses midnight, or a weekday outside 1-7"
+          },
+          "402" : {
+            "description" : "The plan is not active (O6)"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Establishment not found in the organization"
+          },
+          "422" : {
+            "description" : "ESTABLISHMENT_ARCHIVED"
+          }
+        }
+      },
+      "get" : {
+        "summary" : "Get opening hours",
+        "tags" : [ "Establishments" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The week, by weekday and opening time",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OpeningHours"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Staff not assigned to the establishment"
+          },
+          "404" : {
+            "description" : "Establishment not found in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/establishments/{establishmentId}/services" : {
+      "get" : {
+        "summary" : "List services of an establishment",
+        "description" : "Active and inactive services.",
+        "tags" : [ "Services" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Services by name",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Service"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Staff not assigned to the establishment"
+          },
+          "404" : {
+            "description" : "Establishment not found in the organization"
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Create service",
+        "description" : "Owner or manager (O14, O15).",
+        "tags" : [ "Services" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ServiceDetailsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Service created, or the one an earlier request with the same key created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Service"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Blank name, duration or price out of range, or missing Idempotency-Key"
+          },
+          "402" : {
+            "description" : "The plan is not active (O6)"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Establishment or performer not found in the organization"
+          },
+          "409" : {
+            "description" : "The same request is still running"
+          },
+          "422" : {
+            "description" : "ESTABLISHMENT_ARCHIVED, or PERFORMER_NOT_ELIGIBLE (O15)"
+          }
+        }
+      }
+    },
+    "/api/v1/establishments/{establishmentId}/time-blocks" : {
+      "get" : {
+        "summary" : "List time blocks",
+        "description" : "Blocks overlapping [from, to), at most 42 days.",
+        "tags" : [ "Time blocks" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Blocks, earliest first",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TimeBlock"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "from or to missing, to not after from, or more than 42 days"
+          },
+          "403" : {
+            "description" : "Staff not assigned to the establishment"
+          },
+          "404" : {
+            "description" : "Establishment not found in the organization"
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Create time block",
+        "description" : "Any member blocks their own time; owners and managers block anyone or the whole establishment (B15). Works while the plan is inactive.",
+        "tags" : [ "Time blocks" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateTimeBlockRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Block created, or the one an earlier request with the same key created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TimeBlock"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "end not after start, longer than 366 days, or missing Idempotency-Key"
+          },
+          "403" : {
+            "description" : "Staff blocking someone else, the whole establishment, or an establishment they are not assigned to"
+          },
+          "404" : {
+            "description" : "Establishment or member not found in the organization"
+          },
+          "409" : {
+            "description" : "The same request is still running"
+          },
+          "422" : {
+            "description" : "MEMBER_NOT_AT_ESTABLISHMENT (O13)"
+          }
+        }
+      }
+    },
+    "/api/v1/establishments/{establishmentId}/whatsapp-line" : {
+      "get" : {
+        "summary" : "Get the line",
+        "description" : "The connected line, else the last one, so the app can show it disconnected.",
+        "tags" : [ "WhatsApp lines" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The line",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WhatsappLine"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Staff not assigned to the establishment"
+          },
+          "404" : {
+            "description" : "Establishment not in the organization, or it never had a line"
+          }
+        }
+      },
+      "delete" : {
+        "summary" : "Disconnect the line",
+        "description" : "Owner only. Conversations stay; new webhooks for the number are ignored.",
+        "tags" : [ "WhatsApp lines" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Line disconnected"
+          },
+          "403" : {
+            "description" : "Caller is not the owner"
+          },
+          "404" : {
+            "description" : "Establishment not in the organization, or no connected line"
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Connect the line",
+        "description" : "Owner only. Finishes Embedded Signup with Meta while the owner waits (W1, W2).",
+        "tags" : [ "WhatsApp lines" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ConnectWhatsappLineRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Line connected, or the one an earlier request with the same key connected",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WhatsappLine"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Missing field, cloud_api without a 6-digit pin, or missing Idempotency-Key"
+          },
+          "402" : {
+            "description" : "Plan inactive (O6)"
+          },
+          "403" : {
+            "description" : "Caller is not the owner"
+          },
+          "404" : {
+            "description" : "Establishment not in the organization"
+          },
+          "409" : {
+            "description" : "LINE_ALREADY_CONNECTED: the establishment has a line or the number is on another one (W1)"
+          },
+          "422" : {
+            "description" : "WHATSAPP_SIGNUP_FAILED or ESTABLISHMENT_ARCHIVED"
+          }
+        }
+      }
+    },
+    "/api/v1/inbox/stream" : {
+      "get" : {
+        "summary" : "Follow the inbox",
+        "description" : "Server-sent events naming each conversation that changed in the establishments the caller sees; the app then reloads it. Reconnect and reload after a drop.",
+        "tags" : [ "Inbox" ],
+        "responses" : {
+          "200" : {
+            "description" : "An endless event stream",
+            "content" : {
+              "text/event-stream" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InboxChange"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/invitation-acceptances" : {
+      "post" : {
+        "summary" : "Accept invitation",
+        "description" : "Joins the organization of the invitation; the caller must have signed in with the invited email (O10).",
+        "tags" : [ "Members" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AcceptInvitationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Joined",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/JoinedOrganization"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Missing or expired access token"
+          },
+          "403" : {
+            "description" : "The caller signed in with another email"
+          },
+          "404" : {
+            "description" : "Unknown or revoked invitation"
+          },
+          "409" : {
+            "description" : "Another user accepted the invitation"
+          },
+          "422" : {
+            "description" : "INVITATION_EXPIRED"
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        },
+        "security" : [ {
+          "SecurityScheme" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/media/{messageId}" : {
+      "get" : {
+        "summary" : "Download a message's media",
+        "description" : "The image, audio, video, document or sticker a customer sent, once the media job stored it (07 §4). Works while the plan is inactive.",
+        "tags" : [ "Inbox" ],
+        "parameters" : [ {
+          "name" : "messageId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The file, with the type WhatsApp reported",
+            "content" : {
+              "application/json" : {
+                "schema" : { }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Staff not assigned to its establishment"
+          },
+          "404" : {
+            "description" : "Message not in the organization, or it carries no media"
+          },
+          "409" : {
+            "description" : "MEDIA_NOT_READY: still being downloaded; try again shortly"
+          },
+          "422" : {
+            "description" : "MEDIA_DOWNLOAD_FAILED: it could not be downloaded"
+          }
+        }
+      }
+    },
+    "/api/v1/members" : {
+      "post" : {
+        "summary" : "Invite member",
+        "description" : "Owner or manager. Emails a link valid 7 days (O10).",
+        "tags" : [ "Members" ],
+        "parameters" : [ {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/InviteMemberRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Invitation sent, or the one an earlier request with the same key created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Member"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid email or role, staff without establishments, or missing Idempotency-Key"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "A staff establishment is not active in the organization"
+          },
+          "409" : {
+            "description" : "MEMBER_CONFLICT: the email is already a member or invited (O11)"
+          },
+          "422" : {
+            "description" : "OWNER_CHANGE_NOT_ALLOWED: owners are not invited (O12)"
+          }
+        }
+      },
+      "get" : {
+        "summary" : "List members",
+        "description" : "Active members and pending invitations.",
+        "tags" : [ "Members" ],
+        "responses" : {
+          "200" : {
+            "description" : "Members by display name",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Member"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/members/{memberId}" : {
+      "put" : {
+        "summary" : "Update member",
+        "description" : "Owner or manager. Name, bookability, role and staff establishments; the owner's role cannot change (O12).",
+        "tags" : [ "Members" ],
+        "parameters" : [ {
+          "name" : "memberId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateMemberRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Member updated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Member"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Blank name, unknown role, or staff without establishments"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Member, or a staff establishment, not found in the organization"
+          },
+          "422" : {
+            "description" : "OWNER_CHANGE_NOT_ALLOWED: transfer ownership instead"
+          }
+        }
+      },
+      "delete" : {
+        "summary" : "Remove member",
+        "description" : "Owner or manager. Removes a member or revokes a pending invitation; history is kept.",
+        "tags" : [ "Members" ],
+        "parameters" : [ {
+          "name" : "memberId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Member removed"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Member not found in the organization"
+          },
+          "422" : {
+            "description" : "OWNER_CHANGE_NOT_ALLOWED, or MEMBER_HAS_UPCOMING_APPOINTMENTS"
+          }
+        }
+      }
+    },
+    "/api/v1/members/{memberId}/invitation-renewals" : {
+      "post" : {
+        "summary" : "Resend invitation",
+        "description" : "Owner or manager. Emails a new link valid 7 days; the old link stops working.",
+        "tags" : [ "Members" ],
+        "parameters" : [ {
+          "name" : "memberId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "New link sent",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Member"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Missing Idempotency-Key"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Member not found in the organization"
+          },
+          "422" : {
+            "description" : "INVITATION_NOT_PENDING: the invitation was accepted"
+          }
+        }
+      }
+    },
+    "/api/v1/organization" : {
+      "put" : {
+        "summary" : "Rename organization",
+        "description" : "Owner only (§5).",
+        "tags" : [ "Organizations" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RenameOrganizationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Organization renamed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Organization"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Blank name"
+          },
+          "402" : {
+            "description" : "The plan is not active (O6)"
+          },
+          "403" : {
+            "description" : "The caller is not the owner"
+          }
+        }
+      },
+      "get" : {
+        "summary" : "Get my organization",
+        "description" : "The organization of the X-Organization-Id header, with its plan.",
+        "tags" : [ "Organizations" ],
+        "responses" : {
+          "200" : {
+            "description" : "Organization found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Organization"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Missing or malformed X-Organization-Id"
+          },
+          "401" : {
+            "description" : "Missing or expired access token"
+          },
+          "403" : {
+            "description" : "The caller is not a member of the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations" : {
+      "get" : {
+        "summary" : "List my organizations",
+        "description" : "Organizations where the caller is an active member, with their role.",
+        "tags" : [ "Organizations" ],
+        "responses" : {
+          "200" : {
+            "description" : "The caller's organizations, by name",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/JoinedOrganization"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Missing or expired access token"
+          },
+          "403" : {
+            "description" : "Not Allowed"
+          }
+        },
+        "security" : [ {
+          "SecurityScheme" : [ ]
+        } ]
+      },
+      "post" : {
+        "summary" : "Create organization",
+        "description" : "Creates the organization, its first establishment and the caller as owner (O1), on a trial plan.",
+        "tags" : [ "Organizations" ],
+        "parameters" : [ {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateOrganizationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Organization created, or the one an earlier request with the same key created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Organization"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Blank name, unknown time zone, or missing Idempotency-Key"
+          },
+          "401" : {
+            "description" : "Missing or expired access token"
+          },
+          "409" : {
+            "description" : "The same request is still running"
+          },
+          "403" : {
+            "description" : "Not Allowed"
+          }
+        },
+        "security" : [ {
+          "SecurityScheme" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/ownership-transfers" : {
+      "post" : {
+        "summary" : "Transfer ownership",
+        "description" : "Owner only. The member becomes owner and the caller a manager, in one step (O12).",
+        "tags" : [ "Members" ],
+        "parameters" : [ {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TransferOwnershipRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Ownership transferred; the body is the new owner",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Member"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Missing Idempotency-Key"
+          },
+          "403" : {
+            "description" : "The caller is not the owner"
+          },
+          "404" : {
+            "description" : "Member not found in the organization"
+          },
+          "409" : {
+            "description" : "A concurrent transfer finished first"
+          },
+          "422" : {
+            "description" : "MEMBER_NOT_ACTIVE: the invitation was not accepted yet"
+          }
+        }
+      }
+    },
+    "/api/v1/services/{serviceId}" : {
+      "put" : {
+        "summary" : "Update service",
+        "description" : "Owner or manager. Booked appointments keep their price (B8).",
+        "tags" : [ "Services" ],
+        "parameters" : [ {
+          "name" : "serviceId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ServiceDetailsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Service updated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Service"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Blank name, or duration or price out of range"
+          },
+          "402" : {
+            "description" : "The plan is not active (O6)"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Service or performer not found in the organization"
+          },
+          "422" : {
+            "description" : "PERFORMER_NOT_ELIGIBLE (O15)"
+          }
+        }
+      },
+      "get" : {
+        "summary" : "Get service by id",
+        "tags" : [ "Services" ],
+        "parameters" : [ {
+          "name" : "serviceId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Service found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Service"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Staff not assigned to the service's establishment"
+          },
+          "404" : {
+            "description" : "Service not found in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/services/{serviceId}/activations" : {
+      "post" : {
+        "summary" : "Activate service",
+        "description" : "Owner or manager. Offers a deactivated service again.",
+        "tags" : [ "Services" ],
+        "parameters" : [ {
+          "name" : "serviceId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Service activated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Service"
+                }
+              }
+            }
+          },
+          "402" : {
+            "description" : "The plan is not active (O6)"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Service not found in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/services/{serviceId}/deactivations" : {
+      "post" : {
+        "summary" : "Deactivate service",
+        "description" : "Owner or manager. The service is no longer offered (O14).",
+        "tags" : [ "Services" ],
+        "parameters" : [ {
+          "name" : "serviceId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Service deactivated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Service"
+                }
+              }
+            }
+          },
+          "402" : {
+            "description" : "The plan is not active (O6)"
+          },
+          "403" : {
+            "description" : "The caller is staff"
+          },
+          "404" : {
+            "description" : "Service not found in the organization"
+          }
+        }
+      }
+    },
+    "/api/v1/services/{serviceId}/slots" : {
+      "get" : {
+        "summary" : "List free slots",
+        "description" : "Start times every 15 minutes on a date of the establishment's time zone, from now on, with who is free (B16).",
+        "tags" : [ "Appointments" ],
+        "parameters" : [ {
+          "name" : "serviceId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "customerId",
+          "in" : "query",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "date",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "staffMemberId",
+          "in" : "query",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Slots, earliest first",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Slot"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "date missing or not yyyy-MM-dd"
+          },
+          "403" : {
+            "description" : "Staff not assigned to the service's establishment"
+          },
+          "404" : {
+            "description" : "Service or customer not found in the organization"
+          },
+          "422" : {
+            "description" : "SERVICE_NOT_BOOKABLE: inactive service or archived establishment (B1)"
+          }
+        }
+      }
+    },
+    "/api/v1/time-blocks/{timeBlockId}" : {
+      "delete" : {
+        "summary" : "Delete time block",
+        "description" : "Any member deletes their own; owners and managers any (B15).",
+        "tags" : [ "Time blocks" ],
+        "parameters" : [ {
+          "name" : "timeBlockId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Block deleted"
+          },
+          "403" : {
+            "description" : "Staff deleting a block that is not their own"
+          },
+          "404" : {
+            "description" : "Block already deleted or not in the organization"
+          }
+        }
+      }
+    },
+    "/internal/v1/operator" : {
+      "get" : {
+        "summary" : "Get the signed-in operator",
+        "description" : "Lets an internal tool check it is signed in as a platform operator.",
+        "tags" : [ "Internal" ],
+        "responses" : {
+          "200" : {
+            "description" : "The caller is a platform operator",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Missing or expired access token"
+          },
+          "403" : {
+            "description" : "The caller is not a platform operator, or is disabled"
+          }
+        }
+      }
+    },
+    "/internal/v1/organizations" : {
+      "get" : {
+        "summary" : "List organizations",
+        "description" : "Every organization with its plan, owner email and active establishments.",
+        "tags" : [ "Internal" ],
+        "responses" : {
+          "200" : {
+            "description" : "Organizations, the plan ending soonest first",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OrganizationAccount"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Missing or expired access token"
+          },
+          "403" : {
+            "description" : "The caller is not a platform operator"
+          }
+        }
+      }
+    },
+    "/internal/v1/organizations/{organizationId}/assistant-usage" : {
+      "get" : {
+        "summary" : "Get an organization's assistant usage",
+        "description" : "Each establishment's answered turns, tokens and tool calls, in its own time zone, and their sum.",
+        "tags" : [ "Internal" ],
+        "parameters" : [ {
+          "name" : "organizationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Usage for the days from and to, both included",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OrganizationAssistantUsage"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "from or to missing or not a date, to before from, or more than 366 days"
+          },
+          "401" : {
+            "description" : "Missing or expired access token"
+          },
+          "403" : {
+            "description" : "The caller is not a platform operator"
+          },
+          "404" : {
+            "description" : "No organization has this id"
+          }
+        }
+      }
+    },
+    "/internal/v1/organizations/{organizationId}/plan-changes" : {
+      "get" : {
+        "summary" : "List plan changes",
+        "description" : "The organization's append-only plan history, to answer a payment dispute.",
+        "tags" : [ "Internal" ],
+        "parameters" : [ {
+          "name" : "organizationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Plan changes, newest first",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanChange"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Missing or expired access token"
+          },
+          "403" : {
+            "description" : "The caller is not a platform operator"
+          },
+          "404" : {
+            "description" : "No organization has this id"
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Change the plan",
+        "description" : "Sets the plan and the end of the paid period after a payment, and appends the change to the history.",
+        "tags" : [ "Internal" ],
+        "parameters" : [ {
+          "name" : "organizationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }, {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChangePlan"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Plan changed, or the change an earlier request with the same key made",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanChange"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Both or neither of the fields, a blank note, or missing Idempotency-Key"
+          },
+          "401" : {
+            "description" : "Missing or expired access token"
+          },
+          "403" : {
+            "description" : "The caller is not a platform operator"
+          },
+          "404" : {
+            "description" : "No organization has this id"
+          },
+          "409" : {
+            "description" : "The same request is still running"
+          }
+        }
+      }
+    },
+    "/webhooks/whatsapp" : {
+      "get" : {
+        "summary" : "Verify the webhook",
+        "description" : "Meta's handshake: echoes hub.challenge when hub.verify_token matches.",
+        "tags" : [ "WhatsApp webhook" ],
+        "parameters" : [ {
+          "name" : "hub.challenge",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "hub.mode",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "hub.verify_token",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The challenge",
+            "content" : {
+              "text/plain" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "WEBHOOK_VERIFICATION_FAILED"
+          }
+        }
+      },
+      "post" : {
+        "summary" : "Receive events",
+        "description" : "Checks X-Hub-Signature-256 on the raw body, stores everything in one transaction and answers. Calls nothing outside the database.",
+        "tags" : [ "WhatsApp webhook" ],
+        "parameters" : [ {
+          "name" : "X-Hub-Signature-256",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "type" : "string",
+                "format" : "binary"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Stored, or ignored for an unknown or disconnected line"
+          },
+          "400" : {
+            "description" : "Signed body that is not JSON"
+          },
+          "401" : {
+            "description" : "WEBHOOK_SIGNATURE_INVALID: nothing stored"
+          }
+        }
+      }
+    }
+  },
+  "info" : {
+    "title" : "Pibble API",
+    "version" : "1.0.0-SNAPSHOT"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "Auto generated value"
+  }, {
+    "url" : "http://0.0.0.0:8080",
+    "description" : "Auto generated value"
+  } ]
+}

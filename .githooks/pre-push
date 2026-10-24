@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Layer and context rules, lint and tests must hold before code leaves the machine.
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+# Use the Node and pnpm pinned in mise.toml; hooks do not inherit the project's shell activation.
+if command -v mise >/dev/null 2>&1; then run=(mise exec --); else run=(); fi
+"${run[@]}" pnpm arch
+"${run[@]}" pnpm lint
+"${run[@]}" pnpm test
