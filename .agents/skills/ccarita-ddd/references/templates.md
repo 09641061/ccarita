@@ -152,7 +152,7 @@ export class CalendarStore {
 }
 ```
 
-`startOfToday` and `nextDay` compute in the establishment's time zone (pure helpers in the domain).
+`startOfToday` and `nextDay` stand for `LocalDate` and `CalendarRange` (`shared/domain/model/local-date.ts`, `booking/domain/model/calendar-range.ts`), which compute in the establishment's time zone.
 
 ## Presentation: view `booking/presentation/views/calendar/calendar.ts`
 

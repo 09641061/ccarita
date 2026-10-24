@@ -38,7 +38,7 @@ One pull request into `develop` per step, built from the designs in `../ui-refer
 
 - **F1** design system and shell (done).
 - **F2** sign-in, session, organization picker, establishment switcher, invitation acceptance, guards, roles, plan banner (done).
-- **F3** calendar day and week, appointment detail and actions, cancel sheet, time blocks.
+- **F3** calendar day and week, appointment detail and actions, cancel sheet, time blocks (done).
 - **F4** booking flow.
 - **F5** customers.
 - **F6** inbox and chat.
@@ -49,7 +49,9 @@ One pull request into `develop` per step, built from the designs in `../ui-refer
 
 Where pibble's API serves less than a design shows, the design adapts:
 
-- The calendar loads customer names with `GET /api/v1/customers/{id}`, cached per customer.
+- The calendar loads customer names with `GET /api/v1/customers/{id}`, cached per customer. pibble answers 404 for a deleted customer, so their past appointments say "Cliente eliminado" instead of the name C5 keeps.
+- The calendar has no appointment search: pibble has no endpoint for it.
+- The cancel sheet says the customer gets a WhatsApp only when the business cancels and the establishment has a line; pibble sends nothing when the customer asked.
 - The customer panel shows no appointments, and there is no "Próxima cita" column.
 - Appointments show no notification status.
 - The inbox shows a status line instead of a message preview, has no search and no "replying" state, and filters only loaded conversations.
@@ -60,7 +62,7 @@ Where pibble's API serves less than a design shows, the design adapts:
 - The plan card names the plan (`standard` or `max`) and its end; pibble has no trial flag, so it never says "Prueba gratis".
 - An invitation for another email shows only the signed-in email; pibble does not return the invited one.
 
-Defaults for the designs' open questions: navigation says "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel sheet says "El cliente"; the renewal contact is `environment.renewalContact`, a placeholder; there is no floating assistant button; sign-in shows the "Takodu" wordmark, because the mascot marks only the assistant; a user without an organization sees an explanation and a link to `/primeros-pasos`, a placeholder until F7.
+Defaults for the designs' open questions: navigation says "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel sheet says "El cliente"; the renewal contact is `environment.renewalContact`, a placeholder; there is no floating assistant button; sign-in shows the "Takodu" wordmark, because the mascot marks only the assistant; a user without an organization sees an explanation and a link to `/primeros-pasos`, a placeholder until F7; "Nueva cita" and "Reprogramar" open `/agenda/reservar`, a placeholder until F4; the calendar does not read opening hours until F7, so it marks no closed days or appointments outside them, and the desktop grid shows 08:00 to 20:00, widened to fit what it draws.
 
 ## API contract
 
