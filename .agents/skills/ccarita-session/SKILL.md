@@ -33,6 +33,7 @@ The account sessions list (`GET`/`DELETE /api/v1/auth/sessions`) belongs to the 
 `MAIN_NAVIGATION` lists the roles of each destination; `canPerform(role, action)` holds the actions of §5.
 
 - Hide navigation and actions the role cannot use; a deep link a role cannot use shows `/sin-permiso`, and pibble's `ACCESS_DENIED` shows the same state.
+- A context the map keeps below `organization` (`customers`) reads the role through a token it declares, provided in `app.routes.ts` (`CUSTOMER_ACCESS`, [decision](../../../docs/decisions/implemented/2026-10-24-member-access-provided-by-the-app-routes.md)).
 - **pibble is the authority.** A hidden button is convenience, not security: never skip a request because the UI believes it would fail, and never send a role or organization in a body.
 
 ## Guards
