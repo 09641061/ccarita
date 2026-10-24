@@ -1,0 +1,133 @@
+@let p = page();
+<div class="customers">
+  <section class="list" aria-labelledby="customers-title">
+    <header class="header">
+      <h1 id="customers-title">{{ 'customers.list.title' | translate }}</h1>
+      <a matButton="filled" routerLink="/clientes/nuevo">
+        <mat-icon aria-hidden="true">person_add</mat-icon>
+        {{ 'customers.list.new' | translate }}
+      </a>
+    </header>
+
+    <mat-form-field class="search" subscriptSizing="dynamic">
+      <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+      <mat-label>{{ 'customers.search.label' | translate }}</mat-label>
+      <input
+        matInput
+        type="search"
+        autocomplete="off"
+        [value]="store.query()"
+        (input)="type($any($event.target).value)"
+      />
+    </mat-form-field>
+
+    <div class="results">
+      @if (store.results.isLoading()) {
+        <mat-progress-bar mode="indeterminate" class="progress" />
+      }
+      @if (loadError()) {
+        <app-state-view [kind]="errorKind()" (retry)="store.results.reload()" />
+      } @else if (p) {
+        @if (p.items.length === 0 && p.page === 0) {
+          @if (store.query().trim()) {
+            <app-state-view
+              kind="notFound"
+              title="customers.list.none.title"
+              message="customers.list.none.message"
+            />
+          } @else {
+            <app-state-view
+              kind="empty"
+              title="customers.list.empty.title"
+              message="customers.list.empty.message"
+            />
+          }
+        } @else {
+          <div class="table">
+            @if (desktop()) {
+              <div class="row head" aria-hidden="true">
+                <span>{{ 'customers.list.customer' | translate }}</span>
+                <span>{{ 'customers.list.whatsapp' | translate }}</span>
+                <span>{{ 'customers.list.document' | translate }}</span>
+              </div>
+            }
+            <ul [attr.aria-label]="'customers.search.results' | translate">
+              @for (customer of p.items; track customer.id) {
+                @let named = customer.displayName !== customer.phone;
+                <li>
+                  <a
+                    class="row"
+                    [routerLink]="['/clientes', customer.id]"
+                    [class.selected]="detail.openedId() === customer.id"
+                    [attr.aria-current]="detail.openedId() === customer.id ? 'page' : null"
+                  >
+                    <span class="who">
+                      @if (named) {
+                        <app-avatar [name]="customer.displayName" [size]="desktop() ? 32 : 40" />
+                      } @else {
+                        <span class="no-name-avatar" aria-hidden="true">
+                          <mat-icon>person</mat-icon>
+                        </span>
+                      }
+                      <span class="text">
+                        @if (named) {
+                          <span class="name">{{ customer.displayName }}</span>
+                        } @else {
+                          <span class="name muted">{{ 'customers.list.noName' | translate }}</span>
+                        }
+                        @if (!desktop()) {
+                          <span class="phone">{{ customer.phone }}</span>
+                        }
+                      </span>
+                    </span>
+                    @if (desktop()) {
+                      <span class="phone">{{ customer.phone }}</span>
+                      @if (customer.document; as d) {
+                        <span>{{ 'customers.document.' + d.type | translate }} {{ d.number }}</span>
+                      } @else {
+                        <span class="muted">{{ 'customers.detail.none' | translate }}</span>
+                      }
+                    } @else {
+                      <mat-icon class="chevron" aria-hidden="true">chevron_right</mat-icon>
+                    }
+                  </a>
+                </li>
+              }
+            </ul>
+            <nav class="pager" [attr.aria-label]="'customers.list.title' | translate">
+              <span class="muted">
+                @if (range(); as r) {
+                  {{ 'customers.list.range' | translate: r }}
+                }
+              </span>
+              <button
+                matIconButton
+                type="button"
+                [disabled]="p.page === 0"
+                [attr.aria-label]="'customers.list.previous' | translate"
+                (click)="store.previous()"
+              >
+                <mat-icon aria-hidden="true">chevron_left</mat-icon>
+              </button>
+              <button
+                matIconButton
+                type="button"
+                [disabled]="!p.hasMore"
+                [attr.aria-label]="'customers.list.next' | translate"
+                (click)="store.next()"
+              >
+                <mat-icon aria-hidden="true">chevron_right</mat-icon>
+              </button>
+            </nav>
+          </div>
+        }
+      } @else {
+        <app-skeleton [rows]="5" />
+      }
+    </div>
+  </section>
+
+  <aside class="detail">
+    <router-outlet (activate)="detailOpen.set(true)" (deactivate)="detailOpen.set(false)" />
+  </aside>
+</div>

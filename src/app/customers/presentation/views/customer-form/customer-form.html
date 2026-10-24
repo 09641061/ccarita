@@ -1,0 +1,103 @@
+<article class="panel" aria-labelledby="customer-form-title">
+  <header class="bar">
+    <a
+      matIconButton
+      [routerLink]="leaveLink()"
+      [attr.aria-label]="'customers.form.cancel' | translate"
+    >
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    </a>
+    <h1 id="customer-form-title">
+      {{ (editing() ? 'customers.form.editTitle' : 'customers.form.newTitle') | translate }}
+    </h1>
+  </header>
+
+  @if (loadError()) {
+    <app-state-view
+      [kind]="errorKind()"
+      [title]="errorKind() === 'notFound' ? 'customers.detail.notFound.title' : undefined"
+      [message]="errorKind() === 'notFound' ? 'customers.detail.notFound.message' : undefined"
+      (retry)="store.profile.reload()"
+    />
+  } @else if (editing() && !profile()) {
+    <app-skeleton [rows]="4" />
+  } @else {
+    <form (submit)="save($event)" novalidate>
+      @if (profile(); as c) {
+        <div class="fixed">
+          <span class="label">{{ 'customers.register.phone' | translate }}</span>
+          <span class="phone">{{ c.phone }}</span>
+          <span class="muted">{{ 'customers.form.phoneFixed' | translate }}</span>
+        </div>
+      } @else {
+        <p class="muted">{{ 'customers.register.lead' | translate }}</p>
+        <mat-form-field>
+          <mat-label>{{ 'customers.register.phone' | translate }}</mat-label>
+          <input matInput type="tel" autocomplete="off" [formField]="customerForm.phone" />
+          <mat-hint>{{ 'customers.register.phoneHint' | translate }}</mat-hint>
+          @if (customerForm.phone().touched() && !model().phone.trim()) {
+            <mat-error>{{ 'customers.register.phoneRequired' | translate }}</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      <mat-form-field>
+        <mat-label>{{ 'customers.register.name' | translate }}</mat-label>
+        <input matInput autocomplete="off" [formField]="customerForm.name" />
+      </mat-form-field>
+
+      <fieldset>
+        <legend>{{ 'customers.form.document' | translate }}</legend>
+        <mat-form-field>
+          <mat-label>{{ 'customers.form.documentType' | translate }}</mat-label>
+          <mat-select [formField]="customerForm.documentType">
+            <mat-option value="">{{ 'customers.form.noDocument' | translate }}</mat-option>
+            @for (type of documentTypes; track type) {
+              <mat-option [value]="type">{{ 'customers.document.' + type | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>{{ 'customers.form.documentNumber' | translate }}</mat-label>
+          <input matInput autocomplete="off" [formField]="customerForm.documentNumber" />
+        </mat-form-field>
+      </fieldset>
+      @if (customerForm().touched() && missingDocument(); as missing) {
+        <p class="field-error" role="alert">
+          {{
+            (missing === 'type' ? 'customers.form.missingType' : 'customers.form.missingNumber')
+              | translate
+          }}
+        </p>
+      }
+
+      <mat-form-field>
+        <mat-label>{{ 'customers.form.notes' | translate }}</mat-label>
+        <textarea matInput rows="3" [formField]="customerForm.notes"></textarea>
+        <mat-hint align="end">{{
+          'customers.form.count' | translate: { count: model().notes.length }
+        }}</mat-hint>
+      </mat-form-field>
+
+      @if (error(); as e) {
+        <p class="field-error" role="alert">
+          {{ e | errorMessage }}
+          @if (e.code === 'VALIDATION_ERROR' && model().documentType) {
+            {{ 'customers.form.documentHint' | translate }}
+          }
+        </p>
+      }
+
+      <div class="actions">
+        <a matButton [routerLink]="leaveLink()">{{ 'customers.form.cancel' | translate }}</a>
+        <app-busy-button type="submit" [busy]="busy()">
+          @if (editing()) {
+            {{ (busy() ? 'customers.form.saving' : 'customers.form.save') | translate }}
+          } @else {
+            {{ (busy() ? 'customers.register.saving' : 'customers.register.save') | translate }}
+          }
+        </app-busy-button>
+      </div>
+    </form>
+  }
+</article>

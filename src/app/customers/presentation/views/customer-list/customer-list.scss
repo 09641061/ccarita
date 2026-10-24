@@ -1,0 +1,223 @@
+:host {
+  display: block;
+}
+
+.customers {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+
+  :host(.desktop.detail-open) & {
+    grid-template-columns: minmax(0, 1fr) 380px;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+
+  h1 {
+    flex: 1;
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+
+    :host(.desktop) & {
+      font-size: 28px;
+    }
+  }
+}
+
+.search {
+  width: 100%;
+}
+
+.results {
+  position: relative;
+}
+
+.progress {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+}
+
+.table {
+  overflow: hidden;
+
+  :host(.desktop) & {
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 14px;
+    background: var(--mat-sys-surface-container-lowest);
+  }
+}
+
+ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  :host(.desktop) & {
+    gap: 0;
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 14px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  color: var(--mat-sys-on-surface);
+  background: var(--mat-sys-surface-container-lowest);
+  font-size: 14px;
+  text-decoration: none;
+  transition: background-color var(--tk-duration-short) var(--tk-motion-standard);
+
+  &:focus-visible {
+    outline: 2px solid var(--tk-ring);
+    outline-offset: -2px;
+  }
+
+  :host(.desktop) & {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, 1.3fr);
+    gap: 16px;
+    min-height: 52px;
+    padding: 8px 16px;
+    border: 0;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  :host(.desktop) &:is(a):not(.selected):hover {
+    background: var(--mat-sys-surface-container);
+  }
+
+  &.selected,
+  :host(.desktop) &.selected {
+    background: var(--mat-sys-secondary-container);
+  }
+}
+
+.head {
+  min-height: 40px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.who {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.no-name-avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 50%;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-container);
+
+  :host(.desktop) & {
+    width: 32px;
+    height: 32px;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  :host(.desktop) & {
+    font-size: 14px;
+  }
+}
+
+.phone {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.text .phone,
+.muted,
+.chevron {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.muted.name {
+  font-weight: 400;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0 0;
+  font-size: 13px;
+
+  :host(.desktop) & {
+    padding: 4px 8px 4px 16px;
+  }
+
+  .muted {
+    flex: 1;
+  }
+}
+
+.detail {
+  display: none;
+
+  :host(.detail-open) & {
+    display: block;
+  }
+}
+
+// On phones the detail takes the list's place.
+:host(.detail-open:not(.desktop)) .list {
+  display: none;
+}
+
+:host(.desktop) .detail {
+  position: sticky;
+  top: 24px;
+}

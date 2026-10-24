@@ -1,0 +1,27 @@
+<div class="sheet">
+  <header>
+    <h2 id="delete-title">
+      {{ 'customers.delete.title' | translate: { name: customer.displayName } }}
+    </h2>
+    <p class="muted">{{ customer.phone }}</p>
+  </header>
+
+  <p>{{ 'customers.delete.lead' | translate }}</p>
+  <p class="notice">
+    <mat-icon aria-hidden="true">phone</mat-icon>
+    <span>{{ 'customers.delete.phone' | translate }}</span>
+  </p>
+
+  @if (error(); as e) {
+    <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+  }
+
+  <div class="actions">
+    <button matButton type="button" (click)="back()">
+      {{ 'customers.delete.back' | translate }}
+    </button>
+    <app-busy-button class="danger" [busy]="busy()" (pressed)="confirm()">
+      {{ (busy() ? 'customers.delete.busy' : 'customers.delete.confirm') | translate }}
+    </app-busy-button>
+  </div>
+</div>

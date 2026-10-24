@@ -1,5 +1,6 @@
-import { inject } from '@angular/core';
+import { computed, inject } from '@angular/core';
 import { ResolveFn, Route, Routes } from '@angular/router';
+import { CUSTOMER_ACCESS } from './customers/public-api';
 import { devRoutes } from './dev.routes';
 import { authGuard } from './iam/public-api';
 import {
@@ -24,6 +25,22 @@ const CONTEXT_ROUTES: Record<string, Route> = {
   '/agenda': {
     loadChildren: () =>
       import('./booking/presentation/booking.routes').then((m) => m.bookingRoutes),
+  },
+  '/clientes': {
+    providers: [
+      {
+        provide: CUSTOMER_ACCESS,
+        useFactory: () => {
+          const organization = inject(CurrentOrganization);
+          return {
+            canDelete: computed(() => organization.can('deleteCustomers')),
+            canBook: organization.planActive,
+          };
+        },
+      },
+    ],
+    loadChildren: () =>
+      import('./customers/presentation/customers.routes').then((m) => m.customersRoutes),
   },
 };
 

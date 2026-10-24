@@ -365,6 +365,74 @@
       "save": "Registrar",
       "saving": "Registrando…",
       "conflictHint": "Lo buscamos para que lo elijas."
+    },
+    "list": {
+      "title": "Clientes",
+      "new": "Nuevo cliente",
+      "customer": "Cliente",
+      "whatsapp": "WhatsApp",
+      "document": "Documento",
+      "noName": "Sin nombre",
+      "range": "{{from}} – {{to}}",
+      "previous": "Página anterior",
+      "next": "Página siguiente",
+      "empty": {
+        "title": "Aún no hay clientes",
+        "message": "Registra el primero con su teléfono. Quienes escriban por WhatsApp se agregan solos."
+      },
+      "none": {
+        "title": "Sin resultados",
+        "message": "No encontramos clientes con ese nombre o teléfono."
+      }
+    },
+    "document": {
+      "dni": "DNI",
+      "ruc": "RUC",
+      "ce": "CE",
+      "passport": "Pasaporte"
+    },
+    "detail": {
+      "title": "Cliente",
+      "back": "Volver a clientes",
+      "whatsappName": "Perfil de WhatsApp: “{{name}}”",
+      "edit": "Editar cliente",
+      "delete": "Eliminar cliente",
+      "phone": "WhatsApp",
+      "call": "Llamar a {{phone}}",
+      "document": "Documento",
+      "notes": "Notas",
+      "none": "—",
+      "book": "Reservar cita",
+      "bookInactive": "Con el plan vencido no se puede reservar.",
+      "notFound": {
+        "title": "Este cliente no existe",
+        "message": "Puede que lo hayan eliminado. Sus citas pasadas siguen en el calendario."
+      }
+    },
+    "form": {
+      "newTitle": "Nuevo cliente",
+      "editTitle": "Editar cliente",
+      "phoneFixed": "El teléfono no se puede cambiar.",
+      "document": "Documento (opcional)",
+      "documentType": "Tipo",
+      "noDocument": "Sin documento",
+      "documentNumber": "Número",
+      "missingType": "Elige el tipo de documento.",
+      "missingNumber": "Escribe el número de documento.",
+      "documentHint": "Revisa el documento: el DNI tiene 8 dígitos y el RUC, 11.",
+      "notes": "Notas (opcional)",
+      "count": "{{count}} / 2000",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando…"
+    },
+    "delete": {
+      "title": "¿Eliminar a {{name}}?",
+      "lead": "Dejará de aparecer en Clientes y en las búsquedas. Sus citas y conversaciones pasadas se mantienen, pero las fotos, audios y documentos que envió se borrarán.",
+      "phone": "Su teléfono queda libre: puedes registrarlo de nuevo, y si vuelve a escribir se creará un cliente nuevo.",
+      "back": "Volver",
+      "confirm": "Eliminar",
+      "busy": "Eliminando…"
     }
   },
   "pageNotFound": {

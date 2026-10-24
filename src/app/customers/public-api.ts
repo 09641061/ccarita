@@ -5,3 +5,5 @@ export { CustomerProfile } from './domain/model/customer-profile';
 export { CustomerDirectory } from './application/customer-directory.store';
 export type { KnownCustomer } from './application/customer-directory.store';
 export { CustomerSearch } from './application/customer-search.store';
+export { CUSTOMER_ACCESS } from './application/customer-access';
+export type { CustomerAccess } from './application/customer-access';
