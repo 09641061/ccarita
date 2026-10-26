@@ -1,5 +1,5 @@
 import { Provider, inject } from '@angular/core';
-import { Route, Routes } from '@angular/router';
+import { CanActivateFn, Route, Router, Routes } from '@angular/router';
 import { authGuard } from '../../iam/public-api';
 import { CurrentOrganization } from '../application/current-organization.store';
 import { roleGuard } from './guards/role.guard';
@@ -25,6 +25,15 @@ export const organizationEntryRoutes: Routes = [
   },
 ];
 
+/** `/ajustes` opens the first section the role sees, once the role is known (route redirects run before guards). */
+const firstSection: CanActivateFn = async () => {
+  const organization = inject(CurrentOrganization);
+  const router = inject(Router);
+  await organization.load().catch(() => undefined);
+  const section = organization.can('manageEstablishments') ? 'datos' : 'horario';
+  return router.createUrlTree(['/ajustes', section]);
+};
+
 const openingHours = () =>
   import('./views/opening-hours-editor/opening-hours-editor').then((m) => m.OpeningHoursEditor);
 const services = () => import('./views/service-list/service-list').then((m) => m.ServiceList);
@@ -39,12 +48,7 @@ export function settingsRoutes(whatsapp: Route): Routes {
       path: '',
       loadComponent: () => import('./views/settings/settings').then((m) => m.Settings),
       children: [
-        {
-          path: '',
-          pathMatch: 'full',
-          redirectTo: () =>
-            inject(CurrentOrganization).can('manageEstablishments') ? 'datos' : 'horario',
-        },
+        { path: '', pathMatch: 'full', canActivate: [firstSection], children: [] },
         {
           path: 'datos',
           canActivate: [roleGuard(['owner'])],
