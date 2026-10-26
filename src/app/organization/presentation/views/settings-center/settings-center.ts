@@ -26,12 +26,12 @@ import { CurrentOrganization } from '../../../application/current-organization.s
 import { SETTINGS_SCREENS } from '../../settings-screens';
 import { SettingsGroup, SettingsSection, settingsSections } from './settings-sections';
 
-const GROUPS: readonly SettingsGroup[] = ['account', 'establishment', 'organization'];
+const GROUPS: readonly SettingsGroup[] = ['general', 'service', 'messaging'];
 
 /**
  * The settings center, a window over the current screen like Claude's settings: the sections the role may use on
- * the left, grouped into the account, the selected establishment and the organization, and the chosen one on the
- * right; on phones the list, then the section with a back arrow. The section is `?ajustes=<id>`, so back closes the
+ * the left, grouped by what they tune (general, service, messaging), and the chosen one on the right, naming the
+ * selected establishment when it acts on it; on phones the list, then the section with a back arrow. The section is `?ajustes=<id>`, so back closes the
  * window and a section can be linked; switching sections replaces the address. A value the role cannot use opens the
  * first section it can.
  */

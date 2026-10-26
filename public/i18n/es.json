@@ -255,7 +255,7 @@
         "saved": "Cambios guardados.",
         "others": "Otros locales",
         "othersLead": "Abre otros locales o archiva uno desde Organización. Cada local tiene su propio calendario, horario, servicios y WhatsApp.",
-        "toOrganization": "Ir a Organización"
+        "toOrganization": "Ir a Negocio"
       },
       "openSheet": {
         "title": "Abrir otro local",
@@ -338,9 +338,9 @@
       "close": "Cerrar ajustes",
       "back": "Volver a la lista",
       "groups": {
-        "account": "Tu cuenta",
-        "establishment": "Este local",
-        "organization": "Organización"
+        "general": "General",
+        "service": "Atención",
+        "messaging": "Mensajes"
       },
       "sections": {
         "account": "Cuenta",
@@ -350,7 +350,7 @@
         "whatsapp": "WhatsApp",
         "assistant": "Asistente",
         "usage": "Uso del asistente",
-        "organization": "Organización"
+        "organization": "Negocio"
       },
       "noEstablishment": {
         "title": "Aún no hay locales",

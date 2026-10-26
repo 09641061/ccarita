@@ -12,11 +12,13 @@ The navigation, in the drawer and the phone's bottom bar, is Calendario, Mensaje
 
 The foot of the drawer is `ProfileMenu`: the user's name and, after a dot, the organization's plan ("Luis Ramírez · Plan Max"); on phones only the avatar, in the top bar. Its menu has Ajustes, Cambiar de organización and Panel de Takodu when they apply, Cerrar sesión, and "Ayuda", "Subir plan" and "Aprender más" as disabled placeholders marked "Pronto". The plan card is removed; `PlanBanner` still marks an inactive plan.
 
-`SettingsCenter` (`organization`) is a `MatDialog` that `Workspace` opens over the current screen whenever the address has `?ajustes=<section>`: a list of sections grouped into Tu cuenta (Cuenta), Este local (Datos, Horario, Servicios, WhatsApp, Asistente, Uso) and Organización, filtered by `canPerform`, and the chosen section beside it; on phones the list, then the section with a back arrow. Switching sections replaces the address, so back closes the center; a value the role cannot use opens the first section it can. Any context links to a section with the shared `SettingsLink` directive, which never imports `organization`. The screens of `conversations` and `assistant` arrive through `SETTINGS_SCREENS`, provided on the `Workspace` route with `ACCOUNT_WORKSPACE`. The routes `/ajustes/**`, `/organizacion`, `/cuenta`, `/asistente` and `/mas` are removed without redirects.
+`SettingsCenter` (`organization`) is a `MatDialog` that `Workspace` opens over the current screen whenever the address has `?ajustes=<section>`: a list of sections grouped by what they tune, not by whose they are: General (Cuenta, Negocio), Atención (Datos del local, Horario, Servicios) and Mensajes (WhatsApp, Asistente, Uso), filtered by `canPerform`, and the chosen section beside it, its header naming the selected establishment when the section acts on it; on phones the list, then the section with a back arrow. Switching sections replaces the address, so back closes the center; a value the role cannot use opens the first section it can. Any context links to a section with the shared `SettingsLink` directive, which never imports `organization`. The screens of `conversations` and `assistant` arrive through `SETTINGS_SCREENS`, provided on the `Workspace` route with `ACCOUNT_WORKSPACE`. The routes `/ajustes/**`, `/organizacion`, `/cuenta`, `/asistente` and `/mas` are removed without redirects.
 
 ## Alternatives considered
 
 **Keep the pages and only trim the navigation.** Each setting still leaves the current screen, and the profile menu would link to five pages.
+
+**Groups by owner (Tu cuenta, Este local, Organización).** The first version; it read like the old pages under new headings, and the product owner asked for areas by purpose, as in Claude's settings.
 
 **A dialog without an address.** Simpler, but back would leave the app instead of closing it, and other screens could not link to a section.
 

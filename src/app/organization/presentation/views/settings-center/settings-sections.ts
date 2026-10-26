@@ -1,13 +1,17 @@
 import { MemberAction } from '../../../domain/model/member-role';
 import { ScreenLoader, SettingsScreens } from '../../settings-screens';
 
-/** The headings the section list groups by. */
-export type SettingsGroup = 'account' | 'establishment' | 'organization';
+/** The headings the section list groups by, named for what the user tunes, like Claude's settings. */
+export type SettingsGroup = 'general' | 'service' | 'messaging';
+
+/** What a section configures; `establishment` sections act on the selected establishment. */
+export type SettingsScope = 'account' | 'establishment' | 'organization';
 
 /** One section of the settings center; its id is the value of `?ajustes=`. */
 export interface SettingsSection {
   readonly id: string;
   readonly group: SettingsGroup;
+  readonly scope: SettingsScope;
   /** Translation key of the label, also the section's title. */
   readonly label: string;
   readonly icon: string;
@@ -16,20 +20,31 @@ export interface SettingsSection {
   readonly load: ScreenLoader;
 }
 
-/** The sections in order, as the center lists them (Mapa por rol, 03 §5). */
+/** The sections in order, as the center lists them; who sees each follows 03 §5. */
 export function settingsSections(screens: SettingsScreens): readonly SettingsSection[] {
   return [
     {
       id: 'cuenta',
-      group: 'account',
+      group: 'general',
+      scope: 'account',
       label: 'organization.settingsCenter.sections.account',
       icon: 'account_circle',
       action: null,
       load: () => import('../../../../iam/public-api').then((m) => m.Account),
     },
     {
+      id: 'organizacion',
+      group: 'general',
+      scope: 'organization',
+      label: 'organization.settingsCenter.sections.organization',
+      icon: 'domain',
+      action: 'editOrganization',
+      load: () => import('../organization-page/organization-page').then((m) => m.OrganizationPage),
+    },
+    {
       id: 'datos',
-      group: 'establishment',
+      group: 'service',
+      scope: 'establishment',
       label: 'organization.settingsCenter.sections.details',
       icon: 'storefront',
       action: 'manageEstablishments',
@@ -40,7 +55,8 @@ export function settingsSections(screens: SettingsScreens): readonly SettingsSec
     },
     {
       id: 'horario',
-      group: 'establishment',
+      group: 'service',
+      scope: 'establishment',
       label: 'organization.settingsCenter.sections.hours',
       icon: 'schedule',
       action: 'editSettings',
@@ -49,7 +65,8 @@ export function settingsSections(screens: SettingsScreens): readonly SettingsSec
     },
     {
       id: 'servicios',
-      group: 'establishment',
+      group: 'service',
+      scope: 'establishment',
       label: 'organization.settingsCenter.sections.services',
       icon: 'content_cut',
       action: 'editSettings',
@@ -57,7 +74,8 @@ export function settingsSections(screens: SettingsScreens): readonly SettingsSec
     },
     {
       id: 'whatsapp',
-      group: 'establishment',
+      group: 'messaging',
+      scope: 'establishment',
       label: 'organization.settingsCenter.sections.whatsapp',
       icon: 'chat',
       action: 'connectWhatsapp',
@@ -65,7 +83,8 @@ export function settingsSections(screens: SettingsScreens): readonly SettingsSec
     },
     {
       id: 'asistente',
-      group: 'establishment',
+      group: 'messaging',
+      scope: 'establishment',
       label: 'organization.settingsCenter.sections.assistant',
       icon: 'smart_toy',
       action: 'editSettings',
@@ -73,19 +92,12 @@ export function settingsSections(screens: SettingsScreens): readonly SettingsSec
     },
     {
       id: 'uso',
-      group: 'establishment',
+      group: 'messaging',
+      scope: 'establishment',
       label: 'organization.settingsCenter.sections.usage',
       icon: 'bar_chart',
       action: 'editSettings',
       load: screens.usage,
-    },
-    {
-      id: 'organizacion',
-      group: 'organization',
-      label: 'organization.settingsCenter.sections.organization',
-      icon: 'domain',
-      action: 'editOrganization',
-      load: () => import('../organization-page/organization-page').then((m) => m.OrganizationPage),
     },
   ];
 }

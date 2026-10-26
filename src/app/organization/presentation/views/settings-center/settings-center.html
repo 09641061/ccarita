@@ -18,14 +18,7 @@
         }
       </div>
       @for (entry of groups(); track entry.group) {
-        <p class="group">
-          @if (entry.group === 'establishment' && establishment.selected(); as place) {
-            {{ 'organization.settingsCenter.groups.establishment' | translate }} ·
-            <span class="place">{{ place.name }}</span>
-          } @else {
-            {{ 'organization.settingsCenter.groups.' + entry.group | translate }}
-          }
-        </p>
+        <p class="group">{{ 'organization.settingsCenter.groups.' + entry.group | translate }}</p>
         <ul>
           @for (section of entry.sections; track section.id) {
             <li>
@@ -62,9 +55,14 @@
             <mat-icon aria-hidden="true">arrow_back</mat-icon>
           </button>
         }
-        <h3 id="section-title" [attr.tabindex]="wide() ? null : -1">
-          {{ current.label | translate }}
-        </h3>
+        <div class="heading">
+          <h3 id="section-title" [attr.tabindex]="wide() ? null : -1">
+            {{ current.label | translate }}
+          </h3>
+          @if (current.scope === 'establishment' && establishment.selected(); as place) {
+            <p class="place">{{ place.name }}</p>
+          }
+        </div>
         <button
           matIconButton
           type="button"
@@ -76,7 +74,7 @@
         </button>
       </header>
       <div class="body">
-        @if (current.group === 'establishment') {
+        @if (current.scope === 'establishment') {
           @if (!establishment.selected() && !establishment.list.isLoading()) {
             <app-state-view
               kind="empty"

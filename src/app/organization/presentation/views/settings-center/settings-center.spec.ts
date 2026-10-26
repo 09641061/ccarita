@@ -97,23 +97,23 @@ describe('SettingsCenter', () => {
   const listed = (host: HTMLElement) =>
     [...host.querySelectorAll('.section-link span')].map((s) => s.textContent!.trim());
 
-  it('03 §5: lists every section to the owner, grouped, with the establishment named', async () => {
+  it('03 §5: lists every section to the owner, grouped by what it tunes', async () => {
     const { host } = await render('owner', '/agenda?ajustes=', { wide: false });
 
     expect([...host.querySelectorAll('.group')].map((g) => text(g))).toEqual([
-      'Tu cuenta',
-      'Este local · Miraflores',
-      'Organización',
+      'General',
+      'Atención',
+      'Mensajes',
     ]);
     expect(listed(host)).toEqual([
       'Cuenta',
+      'Negocio',
       'Datos del local',
       'Horario',
       'Servicios',
       'WhatsApp',
       'Asistente',
       'Uso del asistente',
-      'Organización',
     ]);
     expect(host.querySelector('.content')).toBeNull();
   });
@@ -133,10 +133,11 @@ describe('SettingsCenter', () => {
     expect(listed(staff.host)).toEqual(['Cuenta']);
   });
 
-  it('opens the linked section, marks it, and switches by replacing the address', async () => {
+  it('opens the linked section, names its establishment, and switches by replacing the address', async () => {
     const { fixture, host } = await render('owner', '/mensajes?ajustes=whatsapp');
 
     expect(text(host.querySelector('#section-title'))).toBe('WhatsApp');
+    expect(text(host.querySelector('.content-head .place'))).toBe('Miraflores');
     expect(text(host.querySelector('[aria-current="page"]'))).toBe('chatWhatsApp');
     expect(host.querySelector('.stub')).not.toBeNull();
 
@@ -155,6 +156,7 @@ describe('SettingsCenter', () => {
     const { fixture, host } = await render('manager', '/agenda?ajustes=organizacion');
 
     expect(text(host.querySelector('#section-title'))).toBe('Cuenta');
+    expect(host.querySelector('.content-head .place')).toBeNull();
     await vi.waitFor(async () => {
       await fixture.whenStable();
       expect(host.textContent).toContain('Tus datos');
