@@ -54,9 +54,13 @@ export class CurrentEstablishment {
     return opened;
   }
 
-  /** Owner only: name, address and time zone (O7). @throws ApiError `PLAN_INACTIVE`, `ESTABLISHMENT_ARCHIVED`. */
+  /**
+   * Owner only: name, address and time zone (O7), keeping it selected, since a new name can move it from the first
+   * place the default selection falls back to. @throws ApiError `PLAN_INACTIVE`, `ESTABLISHMENT_ARCHIVED`.
+   */
   async describe(establishmentId: string, details: EstablishmentDetails): Promise<Establishment> {
     const described = await firstValueFrom(this.api.describe(establishmentId, details));
+    this.select(establishmentId);
     this.list.reload();
     return described;
   }

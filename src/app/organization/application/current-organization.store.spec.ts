@@ -222,6 +222,35 @@ describe('CurrentOrganization and CurrentEstablishment', () => {
     expect(establishment.id()).toBe('est-1');
   });
 
+  it('O7: keeps the edited establishment selected when its new name sorts it elsewhere', async () => {
+    tenant.selectOrganization('org-1');
+    const establishment = TestBed.inject(CurrentEstablishment);
+    await load([joinedResource('org-1')]);
+    TestBed.tick();
+    // No choice stored: the first one by name is selected.
+    backend
+      .expectOne(`${API}/api/v1/establishments`)
+      .flush([establishmentResource('est-b'), establishmentResource('est-m')]);
+    await settle();
+    expect(establishment.id()).toBe('est-b');
+
+    const details = { name: 'Zona Sur', address: '', timeZone: 'America/Lima' };
+    const described = establishment.describe('est-b', details);
+    backend
+      .expectOne(`${API}/api/v1/establishments/est-b`)
+      .flush({ ...establishmentResource('est-b'), name: 'Zona Sur' });
+    await described;
+    TestBed.tick();
+    backend
+      .expectOne(`${API}/api/v1/establishments`)
+      .flush([
+        establishmentResource('est-m'),
+        { ...establishmentResource('est-b'), name: 'Zona Sur' },
+      ]);
+    await settle();
+    expect(establishment.id()).toBe('est-b');
+  });
+
   it('O2: renames the organization and rereads it and the memberships', async () => {
     await load([joinedResource('org-1', 'owner')]);
     TestBed.tick();
