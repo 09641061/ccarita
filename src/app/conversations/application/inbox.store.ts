@@ -18,7 +18,7 @@ import { Conversation } from '../domain/model/conversation';
 import { InboxChange } from '../domain/model/inbox-change';
 import { ConversationsApi } from '../infrastructure/conversations.api';
 import { InboxStreamApi } from '../infrastructure/inbox-stream.api';
-import { WhatsappLinesApi } from '../infrastructure/whatsapp-lines.api';
+import { WhatsappLineStore } from './whatsapp-line.store';
 
 export const INBOX_PAGE_SIZE = 30;
 /** pibble pings every 25 seconds; a stream silent for this long is reconnected. */
@@ -50,7 +50,6 @@ export function reconnectDelay(attempt: number): number {
 export class InboxStore {
   private readonly api = inject(ConversationsApi);
   private readonly streamApi = inject(InboxStreamApi);
-  private readonly linesApi = inject(WhatsappLinesApi);
   private readonly establishment = inject(CurrentEstablishment);
   private readonly organization = inject(CurrentOrganization);
 
@@ -64,10 +63,7 @@ export class InboxStore {
   });
 
   /** The establishment's line, connected or the last one; `WHATSAPP_LINE_NOT_FOUND` when it never had one. */
-  readonly line = rxResource({
-    params: () => this.establishment.id() ?? undefined,
-    stream: ({ params }) => this.linesApi.forEstablishment(params),
-  });
+  readonly line = inject(WhatsappLineStore).line;
 
   private readonly loaded = linkedSignal<Loaded | null>(() =>
     this.firstPage.hasValue() ? this.firstPage.value() : null,

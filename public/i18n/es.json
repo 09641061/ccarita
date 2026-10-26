@@ -649,6 +649,8 @@
     "SERVICE_NOT_FOUND": "No encontramos este servicio.",
     "CONVERSATION_NOT_FOUND": "No encontramos esta conversación.",
     "MESSAGE_NOT_FOUND": "No encontramos este mensaje.",
-    "WHATSAPP_LINE_NOT_FOUND": "Este local aún no tiene una línea de WhatsApp."
+    "WHATSAPP_LINE_NOT_FOUND": "Este local aún no tiene una línea de WhatsApp.",
+    "LINE_ALREADY_CONNECTED": "Este local ya tiene una línea, o ese número ya está conectado a otro local.",
+    "SIGNUP_CANCELLED": "Cerraste la ventana de Meta antes de terminar. Inténtalo de nuevo."
   }
 }
