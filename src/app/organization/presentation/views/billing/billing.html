@@ -1,0 +1,45 @@
+@if (!organization.can('editOrganization')) {
+  <app-state-view kind="forbidden" />
+} @else {
+  @let active = organization.planActive();
+  <section class="section" aria-labelledby="plan-title">
+    <h2 id="plan-title">{{ 'organization.billing.planTitle' | translate }}</h2>
+    <div class="card plan" [class.ended]="!active">
+      <mat-icon class="plan-icon" aria-hidden="true">workspace_premium</mat-icon>
+      <div class="plan-info">
+        <div class="plan-head">
+          <span class="plan-name">{{
+            (plan() ? 'organization.plan.' + plan() : 'organization.plan.current') | translate
+          }}</span>
+          <span class="badge" [class.ok]="active">
+            <mat-icon aria-hidden="true">{{ active ? 'check' : 'error' }}</mat-icon>
+            {{
+              (active ? 'organization.billing.active' : 'organization.billing.ended') | translate
+            }}
+          </span>
+        </div>
+        @if (organization.planActiveUntil(); as until) {
+          <p class="muted">
+            {{
+              (active ? 'organization.plan.activeUntil' : 'organization.plan.endedOn')
+                | translate: { date: until | zonedDate: timeZone() }
+            }}
+          </p>
+        }
+      </div>
+      <a matButton="outlined" [href]="'mailto:' + renewalContact">
+        {{ 'organization.billing.renew' | translate }}
+      </a>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="payment-title">
+    <h2 id="payment-title">{{ 'organization.billing.paymentTitle' | translate }}</h2>
+    <div class="card">
+      <p>{{ 'organization.billing.payment' | translate }}</p>
+      <p class="muted">
+        {{ 'organization.billing.contact' | translate: { contact: renewalContact } }}
+      </p>
+    </div>
+  </section>
+}

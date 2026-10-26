@@ -3,7 +3,7 @@
 @let tz = timeZone();
 <a
   class="row"
-  [routerLink]="['/bandeja', c.id]"
+  [routerLink]="['/mensajes', c.id]"
   [class.selected]="selected()"
   [class.unread]="c.unreadCount > 0"
   [attr.aria-current]="selected() ? 'page' : null"

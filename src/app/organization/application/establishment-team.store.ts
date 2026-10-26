@@ -25,6 +25,11 @@ export class EstablishmentTeam {
     defaultValue: [],
   });
 
+  /** The signed-in user's membership, for the name the organization knows them by (O9). */
+  readonly me = computed(
+    () => this.members.value().find((member) => member.id === this.organization.memberId()) ?? null,
+  );
+
   readonly services = rxResource({
     params: () => this.establishment.id(),
     stream: ({ params }) =>

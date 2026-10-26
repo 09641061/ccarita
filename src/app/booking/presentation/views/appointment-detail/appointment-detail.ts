@@ -9,7 +9,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -31,7 +31,8 @@ import { ErrorMessagePipe } from '../../../../shared/presentation/pipes/error-me
 import { ZonedDatePipe } from '../../../../shared/presentation/pipes/zoned-date.pipe';
 import { CalendarStore } from '../../../application/calendar.store';
 import { StatusChange } from '../../../domain/model/appointment';
-import { CancelSheet, CancelSheetData } from '../cancel-sheet/cancel-sheet';
+import { CancelDialog, CancelDialogData } from '../cancel-dialog/cancel-dialog';
+import { DIALOG_OPTIONS } from '../../../../shared/presentation/dialog-options';
 
 interface Failure {
   readonly action: StatusChange;
@@ -68,7 +69,7 @@ export class AppointmentDetail {
   protected readonly organization = inject(CurrentOrganization);
   private readonly team = inject(EstablishmentTeam);
   private readonly directory = inject(CustomerDirectory);
-  private readonly sheet = inject(MatBottomSheet);
+  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
   /** From the route `citas/:appointmentId`. */
@@ -174,7 +175,7 @@ export class AppointmentDetail {
     const appointment = this.appointment();
     const timeZone = this.store.timeZone();
     if (!appointment || !timeZone) return;
-    const data: CancelSheetData = {
+    const data: CancelDialogData = {
       appointment,
       customerName: this.customerName(),
       serviceName: this.serviceName(),
@@ -182,7 +183,8 @@ export class AppointmentDetail {
       timeZone,
     };
     this.failure.set(null);
-    this.sheet.open(CancelSheet, {
+    this.dialog.open(CancelDialog, {
+      ...DIALOG_OPTIONS,
       data,
       ariaLabel: this.translate.instant('booking.cancel.title', { name: data.customerName }),
     });

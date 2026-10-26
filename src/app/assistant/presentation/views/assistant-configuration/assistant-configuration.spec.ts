@@ -96,7 +96,7 @@ describe('AssistantConfiguration', () => {
       line: line(false),
     });
     expect(text(host)).toContain('Encendido, pero sin WhatsApp');
-    expect(host.querySelector('a[href="/ajustes/whatsapp"]')).not.toBeNull();
+    expect(host.querySelector('a[href$="?ajustes=whatsapp"]')).not.toBeNull();
   });
 
   it('A2: a line never connected is no line; managers get no link to it', async () => {
@@ -105,7 +105,7 @@ describe('AssistantConfiguration', () => {
       line: new ApiError(404, 'WHATSAPP_LINE_NOT_FOUND', ''),
     });
     expect(text(host)).toContain('Encendido, pero sin WhatsApp');
-    expect(host.querySelector('a[href="/ajustes/whatsapp"]')).toBeNull();
+    expect(host.querySelector('a[href$="?ajustes=whatsapp"]')).toBeNull();
   });
 
   it('A1: is off with no business info until configured', async () => {

@@ -73,9 +73,11 @@
 
   @include mat.list-overrides(
     (
-      list-item-one-line-container-height: 56px,
-      list-item-container-shape: 28px,
-      active-indicator-shape: 28px,
+      list-item-one-line-container-height: 40px,
+      list-item-container-shape: 10px,
+      active-indicator-shape: 10px,
+      list-item-label-text-size: 14px,
+      list-item-leading-icon-size: 20px,
       active-indicator-color: var(--mat-sys-secondary-container),
       list-item-label-text-color: var(--mat-sys-on-surface-variant),
       list-item-leading-icon-color: var(--mat-sys-on-surface-variant),
@@ -83,7 +85,11 @@
     )
   );
 
+  // Thin items with a gap, so a hovered item never touches its neighbor.
   mat-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     padding: 0;
   }
 

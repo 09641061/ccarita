@@ -115,7 +115,7 @@ export class Chat {
   private readonly team = inject(EstablishmentTeam);
   protected readonly upcoming = inject(UpcomingAppointments);
 
-  /** From the route `bandeja/:conversationId`. */
+  /** From the route `mensajes/:conversationId`. */
   readonly conversationId = input.required<string>();
 
   protected readonly maxLength = REPLY_MAX_LENGTH;

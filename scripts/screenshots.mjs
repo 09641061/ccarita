@@ -43,9 +43,8 @@ const signedIn = {
     },
   ],
   'customer-new': '/clientes/nuevo',
-  inbox: '/bandeja',
-  chat: ['/bandeja', (page) => page.locator('app-conversation-row').first().click()],
-  more: '/mas',
+  inbox: '/mensajes',
+  chat: ['/mensajes', (page) => page.locator('app-conversation-row').first().click()],
 };
 const viewports = { phone: { width: 390, height: 844 }, desktop: { width: 1440, height: 900 } };
 

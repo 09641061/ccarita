@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { appointment } from '../../../../../testing/booking-fixtures';
@@ -43,7 +43,7 @@ describe('AppointmentDetail', () => {
           ],
           withComponentInputBinding(),
         ),
-        { provide: MatBottomSheet, useValue: sheet },
+        { provide: MatDialog, useValue: sheet },
         {
           provide: CalendarStore,
           useValue: {

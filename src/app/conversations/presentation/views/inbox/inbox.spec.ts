@@ -54,7 +54,7 @@ describe('Inbox', () => {
         provideSpanish(),
         provideRouter(
           [
-            { path: 'bandeja', component: Inbox },
+            { path: 'mensajes', component: Inbox },
             { path: '**', children: [] },
           ],
           withComponentInputBinding(),
@@ -78,7 +78,7 @@ describe('Inbox', () => {
       ],
     });
     const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/bandeja');
+    await harness.navigateByUrl('/mensajes');
     await harness.fixture.whenStable();
     const host = harness.routeNativeElement as HTMLElement;
     return { harness, host, stable: () => harness.fixture.whenStable() };
@@ -121,7 +121,7 @@ describe('Inbox', () => {
     expect(rows[2]).toContain('Asistente pausado hasta las 21:15');
     expect(text(host)).toContain('Necesitan a alguien · 1');
     expect(text(host)).toContain('En vivo');
-    expect(host.querySelector('a[href="/bandeja/c-1"]')).not.toBeNull();
+    expect(host.querySelector('a[href="/mensajes/c-1"]')).not.toBeNull();
 
     await harness.navigateByUrl('/otra');
     expect(store.stop).toHaveBeenCalled();
@@ -153,7 +153,7 @@ describe('Inbox', () => {
     store.line.error.set(new ApiError(404, 'WHATSAPP_LINE_NOT_FOUND', 'x'));
     await stable();
     expect(text(host)).toContain('Este local aún no tiene WhatsApp');
-    expect(host.querySelector('a[href="/ajustes/whatsapp"]')).not.toBeNull();
+    expect(host.querySelector('a[href$="?ajustes=whatsapp"]')).not.toBeNull();
   });
 
   it('W1: asks staff to wait for the owner', async () => {
@@ -162,7 +162,7 @@ describe('Inbox', () => {
     store.line.error.set(new ApiError(404, 'WHATSAPP_LINE_NOT_FOUND', 'x'));
     await stable();
     expect(text(host)).toContain('Cuando el dueño conecte el número');
-    expect(host.querySelector('a[href="/ajustes/whatsapp"]')).toBeNull();
+    expect(host.querySelector('a[href$="?ajustes=whatsapp"]')).toBeNull();
   });
 
   it('warns about a disconnected line', async () => {

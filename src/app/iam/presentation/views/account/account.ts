@@ -23,7 +23,7 @@ import { AccountSession } from '../../../domain/model/account-session';
 const LIMA = 'America/Lima';
 
 /**
- * Cuenta (`/cuenta`), for every role: who is signed in (I1), the devices with an open session and signing one out
+ * Cuenta, a section of the settings center for every role: who is signed in (I1), the devices with an open session and signing one out
  * (I5), another organization, the Takodu team's area for operators, and signing out. pibble has no endpoint to
  * edit the user, so the name is read-only. Times show in the selected establishment's zone, which the app's routes
  * provide.

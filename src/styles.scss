@@ -240,3 +240,50 @@ h3 {
     transition: none !important;
   }
 }
+
+// The settings center (organization's SettingsCenter): a large window on wide screens, the whole screen on phones.
+.tk-profile-menu {
+  min-width: 260px;
+  // Lines between the groups; the default surface-variant matches the menu's own background.
+  @include mat.menu-overrides(
+    (
+      divider-color: color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent),
+      divider-top-spacing: 6px,
+      divider-bottom-spacing: 6px,
+    )
+  );
+
+  .mat-mdc-menu-content {
+    padding: 6px;
+  }
+
+  .mat-mdc-menu-item {
+    min-height: 40px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .mat-mdc-menu-item + .mat-mdc-menu-item {
+    margin-top: 2px;
+  }
+}
+
+.tk-settings-center {
+  width: min(1180px, calc(100vw - 64px));
+  height: min(860px, calc(100dvh - 64px));
+
+  .mat-mdc-dialog-surface {
+    overflow: hidden;
+    border-radius: 24px;
+  }
+
+  @media (max-width: 719.98px) {
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+
+    .mat-mdc-dialog-surface {
+      border-radius: 0;
+    }
+  }
+}

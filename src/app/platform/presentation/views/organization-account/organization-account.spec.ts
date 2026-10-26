@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { fakeResource } from '../../../../../testing/fake-resource';
@@ -13,7 +13,7 @@ import { OrganizationAccountsStore } from '../../../application/organization-acc
 import { OrganizationAccount } from '../../../domain/model/organization-account';
 import { OrganizationUsage } from '../../../domain/model/organization-usage';
 import { PlanChange } from '../../../domain/model/plan-change';
-import { ChangePlanSheet } from '../change-plan-sheet/change-plan-sheet';
+import { ChangePlanDialog } from '../change-plan-dialog/change-plan-dialog';
 import { OrganizationAccountPage } from './organization-account';
 
 const day = (text: string) => LocalDate.parse(text);
@@ -76,7 +76,7 @@ describe('OrganizationAccountPage', () => {
   async function render(dismissed: PlanChange | undefined = undefined) {
     open = vi.fn();
     choose = vi.fn();
-    openSheet = vi.fn(() => ({ afterDismissed: () => of(dismissed) }));
+    openSheet = vi.fn(() => ({ afterClosed: () => of(dismissed) }));
     account = signal<OrganizationAccount | null | undefined>(LUCHO);
     accounts = fakeResource<OrganizationAccount[]>([LUCHO]);
     history = fakeResource<PlanChange[]>([EXTENDED, STOPPED]);
@@ -85,7 +85,7 @@ describe('OrganizationAccountPage', () => {
       providers: [
         provideSpanish(),
         provideRouter([]),
-        { provide: MatBottomSheet, useValue: { open: openSheet } },
+        { provide: MatDialog, useValue: { open: openSheet } },
         { provide: OrganizationAccountsStore, useValue: { accounts } },
         {
           provide: OrganizationAccountStore,
@@ -128,7 +128,7 @@ describe('OrganizationAccountPage', () => {
       .click();
     await fixture.whenStable();
     expect(openSheet).toHaveBeenCalledWith(
-      ChangePlanSheet,
+      ChangePlanDialog,
       expect.objectContaining({ data: LUCHO }),
     );
     expect(host.textContent).toContain('Cambio registrado.');

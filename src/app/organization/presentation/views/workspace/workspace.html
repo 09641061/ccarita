@@ -1,4 +1,3 @@
-@let current = organization.selected();
 @let user = session.user();
 @let timeZone = establishment.timeZone();
 @let until = organization.planActiveUntil();
@@ -9,23 +8,14 @@
     [selected]="establishment.selected()"
     (chosen)="establishment.select($event)"
   />
-  @if (until && timeZone) {
-    <app-plan-card
-      appShellPlan
+  @if (user) {
+    <app-profile-menu
+      appShellProfile
+      [name]="name()"
+      [email]="user.email"
       [plan]="plan()"
-      [until]="until"
-      [timeZone]="timeZone"
-      [active]="organization.planActive()"
-      [showLink]="organization.role() === 'owner'"
-    />
-  }
-  @if (current && user) {
-    <app-account-menu
-      appShellAccount
-      [name]="user.displayName"
-      [role]="current.role"
-      [organizationName]="current.name"
       [canSwitch]="canSwitch()"
+      [platform]="platform.visible()"
       (signOut)="signOut()"
     />
   }
@@ -37,13 +27,14 @@
       [selected]="establishment.selected()"
       (chosen)="establishment.select($event)"
     />
-    @if (current && user) {
-      <app-account-menu
+    @if (user) {
+      <app-profile-menu
         [compact]="true"
-        [name]="user.displayName"
-        [role]="current.role"
-        [organizationName]="current.name"
+        [name]="name()"
+        [email]="user.email"
+        [plan]="plan()"
         [canSwitch]="canSwitch()"
+        [platform]="platform.visible()"
         (signOut)="signOut()"
       />
     }

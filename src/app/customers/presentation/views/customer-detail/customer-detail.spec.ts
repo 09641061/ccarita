@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { Router, provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { of } from 'rxjs';
@@ -26,7 +26,7 @@ describe('CustomerDetail', () => {
 
   async function render(profile: CustomerProfile | undefined = ROSA) {
     store = { profile: fakeResource(profile), open: vi.fn() };
-    open = vi.fn(() => ({ afterDismissed: () => of(true) }));
+    open = vi.fn(() => ({ afterClosed: () => of(true) }));
     TestBed.configureTestingModule({
       providers: [
         provideSpanish(),
@@ -39,7 +39,7 @@ describe('CustomerDetail', () => {
         ),
         { provide: CustomerDetailStore, useValue: store },
         { provide: CUSTOMER_ACCESS, useValue: { canDelete, canBook, chatOf } },
-        { provide: MatBottomSheet, useValue: { open } },
+        { provide: MatDialog, useValue: { open } },
       ],
     });
     const harness = await RouterTestingHarness.create();
@@ -61,7 +61,7 @@ describe('CustomerDetail', () => {
     expect(host.querySelector('a.chat')).toBeNull();
     chat.set('conv-7');
     await harness.fixture.whenStable();
-    expect(host.querySelector('a.chat')!.getAttribute('href')).toBe('/bandeja/conv-7');
+    expect(host.querySelector('a.chat')!.getAttribute('href')).toBe('/mensajes/conv-7');
     expect(host.querySelector('a.chat')!.textContent).toContain('Ver chat');
   });
 

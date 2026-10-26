@@ -81,22 +81,14 @@ describe('roleGuard (Mapa por rol)', () => {
     expect(await allowed()).toEqual(MAIN_NAVIGATION.map((item) => item.path));
   });
 
-  it('keeps the organization from managers', async () => {
+  it('lets managers reach the team too', async () => {
     provide({ role: 'manager' });
-    expect(await allowed()).toEqual([
-      '/agenda',
-      '/bandeja',
-      '/clientes',
-      '/asistente',
-      '/equipo',
-      '/ajustes',
-      '/cuenta',
-    ]);
+    expect(await allowed()).toEqual(['/agenda', '/mensajes', '/clientes', '/equipo']);
   });
 
-  it('keeps staff to calendar, inbox, customers and account', async () => {
+  it('keeps staff to calendar, inbox and customers', async () => {
     provide({ role: 'staff' });
-    expect(await allowed()).toEqual(['/agenda', '/bandeja', '/clientes', '/cuenta']);
+    expect(await allowed()).toEqual(['/agenda', '/mensajes', '/clientes']);
   });
 
   it('sends a disallowed role to the no-permission screen', async () => {

@@ -1,0 +1,88 @@
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  .lead {
+    flex: 1 1 280px;
+  }
+}
+
+.list {
+  gap: 0;
+  margin: 0;
+  padding: 4px 8px 4px 16px;
+  list-style: none;
+
+  li + li {
+    border-top: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  li.editing {
+    padding-right: 8px;
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 8px 0;
+}
+
+.lead-icon {
+  flex: none;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.current {
+  padding: 0 8px;
+  border-radius: 999px;
+  color: var(--mat-sys-on-secondary-container);
+  background: var(--mat-sys-secondary-container);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mat-sys-primary);
+  font-size: 13px;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.row-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.danger-icon {
+  color: var(--mat-sys-error);
+}

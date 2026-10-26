@@ -1,0 +1,88 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--mat-sys-on-surface);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--tk-duration-short) var(--tk-motion-standard);
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background: color-mix(in srgb, var(--mat-sys-on-surface) 8%, transparent);
+  }
+}
+
+:host(.compact) .trigger {
+  justify-content: center;
+  width: 48px;
+  min-height: 48px;
+  padding: 0;
+  border-radius: 24px;
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  font-size: 14px;
+}
+
+.name {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dot,
+.plan {
+  flex: none;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.menu-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 240px;
+  padding: 6px 16px 10px;
+
+  .email {
+    overflow: hidden;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 13px;
+    text-overflow: ellipsis;
+  }
+}
+
+.soon-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.soon {
+  padding: 1px 8px;
+  border-radius: 999px;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-container-high);
+  font-size: 11px;
+  font-weight: 500;
+}

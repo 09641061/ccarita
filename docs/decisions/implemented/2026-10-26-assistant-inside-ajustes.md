@@ -21,3 +21,5 @@ The screens live once, at `/ajustes/asistente` (`AssistantConfiguration`) and `/
 ## Consequences
 
 One route per screen, guarded once by `/ajustes`' role guard. The phone's bar keeps "Asistente" active on both tabs. Staff, who have no Ajustes, reach neither URL (`/sin-permiso`).
+
+Superseded by [the settings center and trimmed navigation](2026-10-26-settings-center-and-trimmed-navigation.md): the assistant has no navigation entry, and its settings and usage are sections of the center.

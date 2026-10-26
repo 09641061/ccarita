@@ -1,0 +1,86 @@
+@if (!organization.can('manageEstablishments')) {
+  <app-state-view kind="forbidden" />
+} @else {
+  <section class="section" aria-labelledby="establishments-title">
+    <h2 id="establishments-title" class="tk-visually-hidden">
+      {{ 'organization.settingsCenter.sections.establishments' | translate }}
+    </h2>
+    <div class="head">
+      <p class="lead">{{ 'organization.establishments.lead' | translate }}</p>
+      <button matButton="tonal" type="button" [disabled]="!canChange()" (click)="open()">
+        <mat-icon aria-hidden="true">add</mat-icon>
+        {{ 'organization.establishments.open' | translate }}
+      </button>
+    </div>
+    @if (establishment.list.error()) {
+      <app-state-view kind="error" (retry)="establishment.list.reload()" />
+    } @else {
+      <ul class="card list">
+        @for (place of establishment.establishments(); track place.id) {
+          <li [class.editing]="editing() === place.id">
+            <div class="row">
+              <mat-icon class="lead-icon" aria-hidden="true">storefront</mat-icon>
+              <span class="info">
+                <span class="name">
+                  {{ place.name }}
+                  @if (establishment.id() === place.id) {
+                    <span class="current">{{
+                      'organization.establishments.current' | translate
+                    }}</span>
+                  }
+                </span>
+                <span class="muted">{{ place.address || place.timeZone }}</span>
+                @if (saved() === place.id) {
+                  <span class="saved" role="status">
+                    <mat-icon aria-hidden="true">check</mat-icon>
+                    {{ 'organization.settings.details.saved' | translate }}
+                  </span>
+                }
+              </span>
+              @if (editing() !== place.id) {
+                <span class="row-actions">
+                  <button
+                    matIconButton
+                    type="button"
+                    [attr.aria-label]="
+                      'organization.establishments.edit' | translate: { name: place.name }
+                    "
+                    (click)="edit(place)"
+                  >
+                    <mat-icon aria-hidden="true">edit</mat-icon>
+                  </button>
+                  <button
+                    matIconButton
+                    type="button"
+                    class="danger-icon"
+                    [attr.aria-label]="
+                      'organization.establishments.archive' | translate: { name: place.name }
+                    "
+                    (click)="archive(place)"
+                  >
+                    <mat-icon aria-hidden="true">archive</mat-icon>
+                  </button>
+                </span>
+              }
+            </div>
+            @if (editing() === place.id) {
+              <app-establishment-details
+                [place]="place"
+                (saved)="done(place)"
+                (cancelled)="editing.set(null)"
+              />
+            }
+          </li>
+        } @empty {
+          <li>
+            <app-state-view
+              kind="empty"
+              title="organization.settingsCenter.noEstablishment.title"
+              message="organization.settingsCenter.noEstablishment.message"
+            />
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}

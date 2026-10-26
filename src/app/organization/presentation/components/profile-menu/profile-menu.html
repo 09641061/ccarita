@@ -1,0 +1,68 @@
+@let planLabel = (plan() ? 'organization.plan.' + plan() : 'organization.plan.current') | translate;
+<button
+  type="button"
+  class="trigger"
+  [matMenuTriggerFor]="menu"
+  [attr.aria-label]="('shared.profile.menu' | translate) + ': ' + name() + ', ' + planLabel"
+>
+  <app-avatar [name]="name()" [size]="compact() ? 32 : 36" />
+  @if (!compact()) {
+    <span class="text">
+      <span class="name">{{ name() }}</span>
+      <span class="dot" aria-hidden="true">·</span>
+      <span class="plan">{{ planLabel }}</span>
+    </span>
+  }
+</button>
+<mat-menu #menu="matMenu" class="tk-profile-menu" [yPosition]="compact() ? 'below' : 'above'">
+  <div class="menu-header">
+    <span class="name">{{ name() }}</span>
+    @if (name() !== email()) {
+      <span class="email">{{ email() }}</span>
+    }
+  </div>
+  <mat-divider />
+  <a mat-menu-item appSettingsLink="">
+    <mat-icon aria-hidden="true">settings</mat-icon>
+    <span>{{ 'shared.profile.settings' | translate }}</span>
+  </a>
+  @if (canSwitch()) {
+    <a mat-menu-item routerLink="/organizaciones">
+      <mat-icon aria-hidden="true">swap_horiz</mat-icon>
+      <span>{{ 'shared.profile.switchOrganization' | translate }}</span>
+    </a>
+  }
+  @if (platform()) {
+    <a mat-menu-item routerLink="/platform">
+      <mat-icon aria-hidden="true">admin_panel_settings</mat-icon>
+      <span>{{ 'platform.entry' | translate }}</span>
+    </a>
+  }
+  <button mat-menu-item type="button" disabled>
+    <mat-icon aria-hidden="true">help</mat-icon>
+    <span class="soon-label">
+      {{ 'shared.profile.help' | translate }}
+      <span class="soon">{{ 'shared.profile.soon' | translate }}</span>
+    </span>
+  </button>
+  <mat-divider />
+  <button mat-menu-item type="button" disabled>
+    <mat-icon aria-hidden="true">workspace_premium</mat-icon>
+    <span class="soon-label">
+      {{ 'shared.profile.upgrade' | translate }}
+      <span class="soon">{{ 'shared.profile.soon' | translate }}</span>
+    </span>
+  </button>
+  <button mat-menu-item type="button" disabled>
+    <mat-icon aria-hidden="true">info</mat-icon>
+    <span class="soon-label">
+      {{ 'shared.profile.learn' | translate }}
+      <span class="soon">{{ 'shared.profile.soon' | translate }}</span>
+    </span>
+  </button>
+  <mat-divider />
+  <button mat-menu-item type="button" (click)="signOut.emit()">
+    <mat-icon aria-hidden="true">logout</mat-icon>
+    <span>{{ 'shared.profile.signOut' | translate }}</span>
+  </button>
+</mat-menu>

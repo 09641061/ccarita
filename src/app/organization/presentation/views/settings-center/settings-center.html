@@ -1,0 +1,89 @@
+@let current = selected();
+<div class="center">
+  @if (wide() || !current) {
+    <nav class="sections" [attr.aria-labelledby]="'settings-title'">
+      <div class="nav-head">
+        <h2 id="settings-title" class="title" tabindex="-1">
+          {{ 'organization.settingsCenter.title' | translate }}
+        </h2>
+      </div>
+      @for (entry of groups(); track entry.group) {
+        <p class="group">{{ 'organization.settingsCenter.groups.' + entry.group | translate }}</p>
+        <ul>
+          @for (section of entry.sections; track section.id) {
+            <li>
+              <button
+                type="button"
+                class="section-link"
+                [class.active]="current?.id === section.id"
+                [attr.aria-current]="current?.id === section.id ? 'page' : null"
+                (click)="open(section)"
+              >
+                <mat-icon aria-hidden="true">{{ section.icon }}</mat-icon>
+                <span>{{ section.label | translate }}</span>
+                @if (!wide()) {
+                  <mat-icon class="chevron" aria-hidden="true">chevron_right</mat-icon>
+                }
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </nav>
+  }
+
+  @if (current) {
+    <section class="content" aria-labelledby="section-title">
+      <header class="content-head">
+        @if (!wide()) {
+          <button
+            matIconButton
+            type="button"
+            [attr.aria-label]="'organization.settingsCenter.back' | translate"
+            (click)="backToList()"
+          >
+            <mat-icon aria-hidden="true">arrow_back</mat-icon>
+          </button>
+        }
+        <div class="heading">
+          <h3 id="section-title" [attr.tabindex]="wide() ? null : -1">
+            {{ current.label | translate }}
+          </h3>
+          @if (current.scope === 'establishment' && establishment.selected(); as place) {
+            <p class="place">{{ place.name }}</p>
+          }
+        </div>
+      </header>
+      <div class="body">
+        @if (current.scope === 'establishment') {
+          @if (!establishment.selected() && !establishment.list.isLoading()) {
+            <app-state-view
+              kind="empty"
+              title="organization.settingsCenter.noEstablishment.title"
+              message="organization.settingsCenter.noEstablishment.message"
+            />
+          } @else {
+            @if (!organization.planActive()) {
+              <p class="notice" role="status">
+                {{ 'organization.settingsCenter.planInactive' | translate }}
+              </p>
+            }
+            <ng-container *ngComponentOutlet="component()" />
+          }
+        } @else {
+          <ng-container *ngComponentOutlet="component()" />
+        }
+      </div>
+    </section>
+  }
+  <!-- One close for the whole window, above both columns, like Claude's settings. -->
+  <button
+    matIconButton
+    type="button"
+    class="close"
+    [attr.aria-label]="'organization.settingsCenter.close' | translate"
+    (click)="close()"
+  >
+    <mat-icon aria-hidden="true">close</mat-icon>
+  </button>
+</div>

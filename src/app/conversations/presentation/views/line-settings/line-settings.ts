@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,7 +27,8 @@ import {
 import { ErrorMessagePipe } from '../../../../shared/presentation/pipes/error-message.pipe';
 import { WhatsappLineStore } from '../../../application/whatsapp-line.store';
 import { ConnectLine, LineMode, SignupResult } from '../../../domain/model/whatsapp-line';
-import { DisconnectLineSheet } from '../disconnect-line-sheet/disconnect-line-sheet';
+import { DisconnectLineDialog } from '../disconnect-line-dialog/disconnect-line-dialog';
+import { DIALOG_OPTIONS } from '../../../../shared/presentation/dialog-options';
 
 interface DevSignupModel {
   code: string;
@@ -72,7 +73,7 @@ export class LineSettings {
   protected readonly store = inject(WhatsappLineStore);
   protected readonly organization = inject(CurrentOrganization);
   protected readonly establishment = inject(CurrentEstablishment);
-  private readonly sheet = inject(MatBottomSheet);
+  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
   protected readonly templates = TEMPLATES;
@@ -159,7 +160,8 @@ export class LineSettings {
   protected disconnect(): void {
     const line = this.line();
     if (!line) return;
-    this.sheet.open(DisconnectLineSheet, {
+    this.dialog.open(DisconnectLineDialog, {
+      ...DIALOG_OPTIONS,
       data: line,
       ariaLabel: this.translate.instant('conversations.line.disconnectSheet.title', {
         phone: line.displayPhone,

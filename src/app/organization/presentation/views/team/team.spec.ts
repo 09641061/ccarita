@@ -1,7 +1,7 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { fakeResource } from '../../../../../testing/fake-resource';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
@@ -14,9 +14,9 @@ import { Establishment } from '../../../domain/model/establishment';
 import { Member } from '../../../domain/model/member';
 import { MemberRole } from '../../../domain/model/member-role';
 import { TeamCaller } from '../../../domain/model/team-caller';
-import { MemberSheet } from '../member-sheet/member-sheet';
-import { RemoveMemberSheet } from '../remove-member-sheet/remove-member-sheet';
-import { TransferOwnershipSheet } from '../transfer-ownership-sheet/transfer-ownership-sheet';
+import { MemberDialog } from '../member-dialog/member-dialog';
+import { RemoveMemberDialog } from '../remove-member-dialog/remove-member-dialog';
+import { TransferOwnershipDialog } from '../transfer-ownership-dialog/transfer-ownership-dialog';
 import { Team } from './team';
 
 const NOW = new Date('2026-10-26T15:00:00Z');
@@ -87,7 +87,7 @@ describe('Team', () => {
     role: MemberRole = 'owner',
     { desktop = true, list = [LUIS, KEVIN, ANDREA, VALERIA, OLD] } = {},
   ) {
-    open = vi.fn(() => ({ afterDismissed: () => of(undefined) }));
+    open = vi.fn(() => ({ afterClosed: () => of(undefined) }));
     renewInvitation = vi.fn(async () => VALERIA);
     members = fakeResource<Member[]>(list);
     const callerId = role === 'owner' ? LUIS.id : role === 'manager' ? KEVIN.id : ANDREA.id;
@@ -114,7 +114,7 @@ describe('Team', () => {
             establishments: signal([MIRAFLORES, SURCO]),
           },
         },
-        { provide: MatBottomSheet, useValue: { open } },
+        { provide: MatDialog, useValue: { open } },
       ],
     });
     const fixture = TestBed.createComponent(Team);
@@ -169,7 +169,7 @@ describe('Team', () => {
 
     items[0].click();
     expect(open).toHaveBeenCalledWith(
-      MemberSheet,
+      MemberDialog,
       expect.objectContaining({
         data: expect.objectContaining({ member: LUIS, canChangeRole: false }),
       }),
@@ -194,7 +194,7 @@ describe('Team', () => {
 
     button('Invitar').click();
     expect(open).toHaveBeenLastCalledWith(
-      MemberSheet,
+      MemberDialog,
       expect.objectContaining({
         data: { member: null, canChangeRole: true, establishments: [MIRAFLORES, SURCO] },
         ariaLabel: 'Invitar a alguien',
@@ -203,14 +203,14 @@ describe('Team', () => {
 
     button('Transferir propiedad').click();
     expect(open).toHaveBeenLastCalledWith(
-      TransferOwnershipSheet,
+      TransferOwnershipDialog,
       expect.objectContaining({ data: [KEVIN, ANDREA] }),
     );
 
     const items = await menu(host, fixture, 'Valeria');
     items.find((b) => b.textContent!.includes('Revocar'))!.click();
     expect(open).toHaveBeenLastCalledWith(
-      RemoveMemberSheet,
+      RemoveMemberDialog,
       expect.objectContaining({
         data: VALERIA,
         ariaLabel: '¿Revocar la invitación de Valeria Castro?',

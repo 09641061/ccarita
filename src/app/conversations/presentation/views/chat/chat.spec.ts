@@ -98,7 +98,7 @@ describe('Chat', () => {
         provideSpanish(),
         provideRouter(
           [
-            { path: 'bandeja/:conversationId', component: Chat },
+            { path: 'mensajes/:conversationId', component: Chat },
             { path: '**', children: [] },
           ],
           withComponentInputBinding(),
@@ -119,7 +119,7 @@ describe('Chat', () => {
       ],
     });
     const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/bandeja/c-1');
+    await harness.navigateByUrl('/mensajes/c-1');
     await harness.fixture.whenStable();
     const host = harness.routeNativeElement as HTMLElement;
     return { host, stable: () => harness.fixture.whenStable() };
