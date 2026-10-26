@@ -49,6 +49,13 @@ describe('LocalDate', () => {
     expect(day.isBefore(day.plusDays(1))).toBe(true);
   });
 
+  it('counts the days between two days', () => {
+    const day = LocalDate.parse('2026-02-27');
+    expect(day.daysUntil(LocalDate.parse('2026-03-02'))).toBe(3);
+    expect(day.daysUntil(day)).toBe(0);
+    expect(day.daysUntil(LocalDate.parse('2025-02-27'))).toBe(-365);
+  });
+
   it('reads the wall-clock time in the zone', () => {
     expect(localTimeOf(new Date('2026-10-23T14:30:00Z'), lima)).toBe('09:30');
   });
