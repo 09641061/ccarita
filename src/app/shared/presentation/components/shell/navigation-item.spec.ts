@@ -4,12 +4,12 @@ describe('navigationFor', () => {
   const paths = (role: 'owner' | 'manager' | 'staff') => navigationFor(role).map((i) => i.path);
 
   it('gives owners and managers the daily work and the team', () => {
-    expect(paths('owner')).toEqual(['/agenda', '/bandeja', '/clientes', '/equipo']);
-    expect(paths('manager')).toEqual(['/agenda', '/bandeja', '/clientes', '/equipo']);
+    expect(paths('owner')).toEqual(['/agenda', '/mensajes', '/clientes', '/equipo']);
+    expect(paths('manager')).toEqual(['/agenda', '/mensajes', '/clientes', '/equipo']);
   });
 
   it('gives staff the daily work only', () => {
-    expect(paths('staff')).toEqual(['/agenda', '/bandeja', '/clientes']);
+    expect(paths('staff')).toEqual(['/agenda', '/mensajes', '/clientes']);
   });
 });
 
@@ -19,7 +19,7 @@ describe('activeItem', () => {
 
   it('picks the destination a URL is inside, settings open or not', () => {
     expect(active('/agenda/citas/a-1')).toBe('/agenda');
-    expect(active('/bandeja?ajustes=whatsapp')).toBe('/bandeja');
+    expect(active('/mensajes?ajustes=whatsapp')).toBe('/mensajes');
   });
 
   it('matches whole segments only', () => {

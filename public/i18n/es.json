@@ -62,7 +62,7 @@
       "main": "Navegación principal",
       "skip": "Saltar al contenido",
       "calendar": "Calendario",
-      "inbox": "Bandeja",
+      "inbox": "Mensajes",
       "customers": "Clientes",
       "team": "Equipo",
       "backToCalendar": "Ir al calendario"
@@ -733,7 +733,7 @@
   },
   "conversations": {
     "inbox": {
-      "title": "Bandeja",
+      "title": "Mensajes",
       "list": "Conversaciones",
       "live": "En vivo",
       "offline": "Reconectando… puede que no esté al día",
@@ -765,7 +765,7 @@
       },
       "noEstablishment": {
         "title": "Aún no hay locales",
-        "message": "Cuando la organización tenga un local, su bandeja aparecerá aquí."
+        "message": "Cuando la organización tenga un local, sus mensajes aparecerán aquí."
       },
       "pick": {
         "title": "Elige una conversación",
@@ -782,7 +782,7 @@
       "windowOpen": "Puedes escribirle hasta el {{time}}"
     },
     "chat": {
-      "back": "Volver a la bandeja",
+      "back": "Volver a Mensajes",
       "profile": "Ver perfil del cliente",
       "book": "Reservar cita",
       "assignedTo": "Asignada a {{name}}",
@@ -890,7 +890,7 @@
       }
     },
     "line": {
-      "lead": "El número de WhatsApp del local. La bandeja y el asistente lo usan.",
+      "lead": "El número de WhatsApp del local. Mensajes y el asistente lo usan.",
       "number": "Número",
       "mode": "Modo",
       "status": "Estado",
@@ -910,12 +910,12 @@
       "billing": "Agrega un método de pago en Meta Business Suite: sin él, las plantillas no se entregan.",
       "none": {
         "title": "Conecta el WhatsApp de {{establishment}}",
-        "message": "La bandeja y el asistente lo necesitan. Meta te pedirá tu cuenta de negocio y el número."
+        "message": "Mensajes y el asistente lo necesitan. Meta te pedirá tu cuenta de negocio y el número."
       },
       "points": {
         "app": {
           "title": "Sigues usando la app WhatsApp Business",
-          "message": "Lo que respondas en el celular también llega a la bandeja."
+          "message": "Lo que respondas en el celular también llega a Mensajes."
         },
         "history": {
           "title": "Traemos tus chats anteriores",
@@ -944,7 +944,7 @@
       "disconnect": "Desconectar",
       "disconnectSheet": {
         "title": "¿Desconectar {{phone}}?",
-        "lead": "Dejan de llegar mensajes a la bandeja y el asistente deja de responder.",
+        "lead": "Dejan de llegar mensajes a Takodu y el asistente deja de responder.",
         "keeps": "Las conversaciones se conservan. Si vuelves a conectar el mismo número, siguen ahí.",
         "confirm": "Desconectar",
         "busy": "Desconectando…",

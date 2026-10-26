@@ -80,7 +80,7 @@ const CONTEXT_ROUTES: Record<string, Route> = {
     loadChildren: () =>
       import('./booking/presentation/booking.routes').then((m) => m.bookingRoutes),
   },
-  '/bandeja': {
+  '/mensajes': {
     loadChildren: () =>
       import('./conversations/presentation/conversations.routes').then(
         (m) => m.conversationsRoutes,

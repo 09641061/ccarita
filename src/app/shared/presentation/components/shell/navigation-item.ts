@@ -23,7 +23,7 @@ export const MAIN_NAVIGATION: readonly NavigationItem[] = [
     roles: ['owner', 'manager', 'staff'],
   },
   {
-    path: '/bandeja',
+    path: '/mensajes',
     label: 'shared.nav.inbox',
     icon: 'inbox',
     roles: ['owner', 'manager', 'staff'],

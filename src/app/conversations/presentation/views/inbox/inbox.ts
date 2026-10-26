@@ -37,7 +37,7 @@ import { SettingsLink } from '../../../../shared/presentation/navigation/setting
 const FILTERS: readonly InboxFilter[] = ['all', 'unread', 'mine'];
 
 /**
- * Bandeja: the selected establishment's conversations, newest activity first (W7), kept live by the inbox stream
+ * Mensajes: the selected establishment's conversations, newest activity first (W7), kept live by the inbox stream
  * while it is open. A conversation opens beside the list on desktops and in its place on phones. Every role sees
  * it, also on an inactive plan (O6); a stream that dropped is a quiet notice, not an error.
  */
@@ -125,7 +125,7 @@ export class Inbox {
     effect(() => {
       const id = this.establishment.id();
       if (shown !== undefined && id !== shown && this.chatOpen())
-        void this.router.navigateByUrl('/bandeja');
+        void this.router.navigateByUrl('/mensajes');
       shown = id;
     });
   }

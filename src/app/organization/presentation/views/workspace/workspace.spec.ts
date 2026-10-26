@@ -109,14 +109,14 @@ describe('Workspace', () => {
   it('shows owners the daily destinations and the team, and no plan card', async () => {
     const { host } = await render('owner');
 
-    expect(drawerLinks(host)).toEqual(['/agenda', '/bandeja', '/clientes', '/equipo']);
+    expect(drawerLinks(host)).toEqual(['/agenda', '/mensajes', '/clientes', '/equipo']);
     expect(host.querySelector('app-plan-card')).toBeNull();
   });
 
   it('gives staff the daily destinations only', async () => {
     const { host } = await render('staff');
 
-    expect(drawerLinks(host)).toEqual(['/agenda', '/bandeja', '/clientes']);
+    expect(drawerLinks(host)).toEqual(['/agenda', '/mensajes', '/clientes']);
   });
 
   it('names the user and, after a dot, the plan', async () => {
@@ -197,14 +197,14 @@ describe('Workspace', () => {
     const { harness } = await render('owner');
     expect(openDialog).not.toHaveBeenCalled();
 
-    await harness.navigateByUrl('/bandeja?ajustes=horario');
+    await harness.navigateByUrl('/mensajes?ajustes=horario');
     expect(openDialog).toHaveBeenCalledTimes(1);
     expect(openDialog.mock.calls[0][0]).toBe(SettingsCenter);
 
-    await harness.navigateByUrl('/bandeja?ajustes=servicios');
+    await harness.navigateByUrl('/mensajes?ajustes=servicios');
     expect(openDialog).toHaveBeenCalledTimes(1);
 
-    await harness.navigateByUrl('/bandeja');
+    await harness.navigateByUrl('/mensajes');
     expect(closeDialog).toHaveBeenCalled();
   });
 

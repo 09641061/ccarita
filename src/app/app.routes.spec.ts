@@ -11,12 +11,12 @@ describe('routes', () => {
     expect(workspace.children!.map((route) => route.path)).toEqual([
       '',
       'agenda',
-      'bandeja',
+      'mensajes',
       'clientes',
       'equipo',
       'sin-permiso',
     ]);
-    for (const path of ['agenda', 'bandeja', 'clientes', 'equipo']) {
+    for (const path of ['agenda', 'mensajes', 'clientes', 'equipo']) {
       expect(child(path).canActivate).toHaveLength(1);
     }
     const tokens = (workspace.providers ?? []).map((p) => (p as { provide: unknown }).provide);

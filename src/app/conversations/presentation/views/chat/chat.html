@@ -9,7 +9,7 @@
       [message]="errorKind() === 'notFound' ? 'conversations.chat.notFound.message' : undefined"
       (retry)="retry()"
     >
-      <a matButton routerLink="/bandeja">{{ 'conversations.chat.back' | translate }}</a>
+      <a matButton routerLink="/mensajes">{{ 'conversations.chat.back' | translate }}</a>
     </app-state-view>
   </div>
 } @else if (c && tz && s) {
@@ -18,7 +18,7 @@
       <a
         matIconButton
         class="back"
-        routerLink="/bandeja"
+        routerLink="/mensajes"
         [attr.aria-label]="'conversations.chat.back' | translate"
       >
         <mat-icon aria-hidden="true">arrow_back</mat-icon>

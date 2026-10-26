@@ -61,7 +61,7 @@ describe('CustomerDetail', () => {
     expect(host.querySelector('a.chat')).toBeNull();
     chat.set('conv-7');
     await harness.fixture.whenStable();
-    expect(host.querySelector('a.chat')!.getAttribute('href')).toBe('/bandeja/conv-7');
+    expect(host.querySelector('a.chat')!.getAttribute('href')).toBe('/mensajes/conv-7');
     expect(host.querySelector('a.chat')!.textContent).toContain('Ver chat');
   });
 

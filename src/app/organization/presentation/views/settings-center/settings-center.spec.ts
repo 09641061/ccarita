@@ -134,7 +134,7 @@ describe('SettingsCenter', () => {
   });
 
   it('opens the linked section, marks it, and switches by replacing the address', async () => {
-    const { fixture, host } = await render('owner', '/bandeja?ajustes=whatsapp');
+    const { fixture, host } = await render('owner', '/mensajes?ajustes=whatsapp');
 
     expect(text(host.querySelector('#section-title'))).toBe('WhatsApp');
     expect(text(host.querySelector('[aria-current="page"]'))).toBe('chatWhatsApp');
@@ -147,7 +147,7 @@ describe('SettingsCenter', () => {
       .click();
     await settle();
     await fixture.whenStable();
-    expect(router.url).toBe('/bandeja?ajustes=asistente');
+    expect(router.url).toBe('/mensajes?ajustes=asistente');
     expect(navigate.mock.calls[0][1]).toEqual({ replaceUrl: true });
   });
 

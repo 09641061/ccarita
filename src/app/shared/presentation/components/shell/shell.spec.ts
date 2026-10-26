@@ -42,7 +42,7 @@ describe('Shell', () => {
     const host = await render('owner');
     const tabs = [...host.querySelectorAll('nav.bar .tab .label')].map((t) => t.textContent);
 
-    expect(tabs).toEqual(['Calendario', 'Bandeja', 'Clientes', 'Equipo']);
+    expect(tabs).toEqual(['Calendario', 'Mensajes', 'Clientes', 'Equipo']);
     expect(host.querySelector('a[href="/mas"]')).toBeNull();
   });
 
@@ -54,9 +54,9 @@ describe('Shell', () => {
   });
 
   it('marks the current destination', async () => {
-    const host = await render('owner', '/bandeja');
+    const host = await render('owner', '/mensajes');
 
-    expect(host.querySelector('nav.bar a[href="/bandeja"]')?.getAttribute('aria-current')).toBe(
+    expect(host.querySelector('nav.bar a[href="/mensajes"]')?.getAttribute('aria-current')).toBe(
       'page',
     );
     expect(host.querySelector('nav.bar a[href="/agenda"]')?.hasAttribute('aria-current')).toBe(

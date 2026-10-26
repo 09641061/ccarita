@@ -54,7 +54,7 @@ describe('Inbox', () => {
         provideSpanish(),
         provideRouter(
           [
-            { path: 'bandeja', component: Inbox },
+            { path: 'mensajes', component: Inbox },
             { path: '**', children: [] },
           ],
           withComponentInputBinding(),
@@ -78,7 +78,7 @@ describe('Inbox', () => {
       ],
     });
     const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/bandeja');
+    await harness.navigateByUrl('/mensajes');
     await harness.fixture.whenStable();
     const host = harness.routeNativeElement as HTMLElement;
     return { harness, host, stable: () => harness.fixture.whenStable() };
@@ -121,7 +121,7 @@ describe('Inbox', () => {
     expect(rows[2]).toContain('Asistente pausado hasta las 21:15');
     expect(text(host)).toContain('Necesitan a alguien · 1');
     expect(text(host)).toContain('En vivo');
-    expect(host.querySelector('a[href="/bandeja/c-1"]')).not.toBeNull();
+    expect(host.querySelector('a[href="/mensajes/c-1"]')).not.toBeNull();
 
     await harness.navigateByUrl('/otra');
     expect(store.stop).toHaveBeenCalled();

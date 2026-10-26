@@ -4,11 +4,11 @@ Status: implemented
 
 ## Problem
 
-The navigation had eight destinations for an owner: Calendario, Bandeja, Clientes and Asistente for daily work, plus Equipo, Ajustes, Organización and Cuenta, which are visited rarely. On phones the last four sat behind a "Más" page, and a plan card filled the foot of the drawer. "Mapa por rol" in `ui-reference` draws that layout, and "Ajustes · Asistente" draws the assistant as a tab of a full Ajustes page. Every visit to a setting left the screen the user was working on, and the assistant had two entries ([earlier decision](2026-10-26-assistant-inside-ajustes.md)). The product owner asked for a Claude-like layout: few destinations, a profile button with a small menu, and settings in a window.
+The navigation had eight destinations for an owner: Calendario, Mensajes, Clientes and Asistente for daily work, plus Equipo, Ajustes, Organización and Cuenta, which are visited rarely. On phones the last four sat behind a "Más" page, and a plan card filled the foot of the drawer. "Mapa por rol" in `ui-reference` draws that layout, and "Ajustes · Asistente" draws the assistant as a tab of a full Ajustes page. Every visit to a setting left the screen the user was working on, and the assistant had two entries ([earlier decision](2026-10-26-assistant-inside-ajustes.md)). The product owner asked for a Claude-like layout: few destinations, a profile button with a small menu, and settings in a window.
 
 ## Decision
 
-The navigation, in the drawer and the phone's bottom bar, is Calendario, Bandeja, Clientes and Equipo (Equipo for owners and managers); "Más" is gone. Asistente leaves the navigation until it becomes a chat of its own.
+The navigation, in the drawer and the phone's bottom bar, is Calendario, Mensajes, Clientes and Equipo (Equipo for owners and managers); "Más" is gone. Asistente leaves the navigation until it becomes a chat of its own.
 
 The foot of the drawer is `ProfileMenu`: the user's name and, after a dot, the organization's plan ("Luis Ramírez · Plan Max"); on phones only the avatar, in the top bar. Its menu has Ajustes, Cambiar de organización and Panel de Takodu when they apply, Cerrar sesión, and "Ayuda", "Subir plan" and "Aprender más" as disabled placeholders marked "Pronto". The plan card is removed; `PlanBanner` still marks an inactive plan.
 

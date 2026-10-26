@@ -42,7 +42,7 @@ export function reconnectDelay(attempt: number): number {
 }
 
 /**
- * Bandeja: the selected establishment's conversations, newest activity first (W7), a page at a time, kept current
+ * Mensajes: the selected establishment's conversations, newest activity first (W7), a page at a time, kept current
  * by the inbox stream. A change reloads that conversation; a reconnection reloads the first page, since changes
  * may have been missed meanwhile. The stream runs while a screen follows it, with the selected organization.
  */

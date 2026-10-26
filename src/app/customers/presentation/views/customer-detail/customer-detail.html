@@ -86,7 +86,7 @@
         <p class="muted">{{ 'customers.detail.bookInactive' | translate }}</p>
       }
       @if (access.chatOf(c.id); as chat) {
-        <a matButton="outlined" class="chat" [routerLink]="['/bandeja', chat]">
+        <a matButton="outlined" class="chat" [routerLink]="['/mensajes', chat]">
           <mat-icon aria-hidden="true">chat</mat-icon>
           {{ 'customers.detail.chat' | translate }}
         </a>
