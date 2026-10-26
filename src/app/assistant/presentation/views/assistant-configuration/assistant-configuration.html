@@ -1,0 +1,103 @@
+@if (!organization.can('editSettings')) {
+  <app-state-view kind="forbidden" />
+} @else if (loadError(); as e) {
+  <app-state-view [kind]="errorKind()" (retry)="store.settings.reload()" />
+} @else if (!settings()) {
+  <app-skeleton [rows]="4" />
+} @else {
+  @let current = settings()!;
+  <section class="card status" aria-labelledby="assistant-status">
+    <app-brand-mark [size]="40" />
+    <div class="status-text">
+      <h2 id="assistant-status">
+        <span class="dot" [class.on]="status() === 'answering'" aria-hidden="true"></span>
+        {{ 'assistant.settings.status.' + (status() ?? 'checking') + '.title' | translate }}
+      </h2>
+      <p class="muted">
+        @if (status() === 'answering' && line(); as l) {
+          {{ l.displayPhone }} ·
+        }
+        {{ 'assistant.settings.status.' + (status() ?? 'checking') + '.message' | translate }}
+      </p>
+      @if (status() === 'noLine' && organization.can('connectWhatsapp')) {
+        <a class="link" routerLink="/ajustes/whatsapp">{{
+          'assistant.settings.status.noLine.action' | translate
+        }}</a>
+      }
+    </div>
+    <mat-slide-toggle
+      [checked]="current.enabled"
+      [disabled]="!canChange() || toggling()"
+      [aria-label]="'assistant.settings.toggle' | translate"
+      (change)="toggle($event)"
+    />
+  </section>
+  @if (toggleError(); as e) {
+    <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+  }
+
+  <form class="section" (submit)="save($event)" novalidate aria-labelledby="info-title">
+    <div class="heading">
+      <h2 id="info-title">{{ 'assistant.settings.info.title' | translate }}</h2>
+      <p class="muted">{{ 'assistant.settings.info.lead' | translate }}</p>
+    </div>
+    <mat-form-field>
+      <mat-label>{{ 'assistant.settings.info.title' | translate }}</mat-label>
+      <textarea
+        matInput
+        rows="7"
+        [placeholder]="'assistant.settings.info.placeholder' | translate"
+        [formField]="infoForm.businessInfo"
+      ></textarea>
+    </mat-form-field>
+    @if (saveError(); as e) {
+      <p class="field-error" role="alert">
+        {{ e | errorMessage }}
+        @if (e.status === 409) {
+          {{ 'assistant.settings.info.conflict' | translate }}
+        }
+      </p>
+    }
+    <div class="actions">
+      <span class="muted counter" aria-live="polite">
+        {{ 'assistant.settings.info.count' | translate: { count: length(), max: max } }}
+      </span>
+      @if (saved()) {
+        <span class="saved" role="status">
+          <mat-icon aria-hidden="true">check</mat-icon>
+          {{ 'assistant.settings.info.saved' | translate }}
+        </span>
+      }
+      <app-busy-button type="submit" [busy]="saving()" [disabled]="!canChange()">
+        {{
+          (saving() ? 'assistant.settings.info.saving' : 'assistant.settings.info.save') | translate
+        }}
+      </app-busy-button>
+    </div>
+  </form>
+
+  <div class="rules">
+    <section class="card rule" aria-labelledby="can-title">
+      <h3 id="can-title">{{ 'assistant.settings.can.title' | translate }}</h3>
+      <ul>
+        @for (item of can; track item) {
+          <li>
+            <mat-icon aria-hidden="true">check_circle</mat-icon>
+            {{ 'assistant.settings.can.' + item | translate }}
+          </li>
+        }
+      </ul>
+    </section>
+    <section class="card rule" aria-labelledby="never-title">
+      <h3 id="never-title">{{ 'assistant.settings.never.title' | translate }}</h3>
+      <ul>
+        @for (item of never; track item) {
+          <li>
+            <mat-icon aria-hidden="true">block</mat-icon>
+            {{ 'assistant.settings.never.' + item | translate }}
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+}

@@ -25,7 +25,10 @@ import { StateView } from '../../../../shared/presentation/components/state-view
 import { ErrorMessagePipe } from '../../../../shared/presentation/pipes/error-message.pipe';
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
 import { CurrentOrganization } from '../../../application/current-organization.store';
-import { ESTABLISHMENT_LINE } from '../../../application/establishment-line';
+import {
+  ESTABLISHMENT_ASSISTANT,
+  ESTABLISHMENT_LINE,
+} from '../../../application/establishment-line';
 import { EstablishmentTeam } from '../../../application/establishment-team.store';
 import { OpeningHoursStore } from '../../../application/opening-hours.store';
 
@@ -38,18 +41,20 @@ interface CreateModel {
 
 /** One step of the checklist, done when pibble reports it. */
 export interface OnboardingStep {
-  readonly path: 'horario' | 'servicios' | 'whatsapp';
-  readonly key: 'hours' | 'services' | 'whatsapp';
+  readonly path: 'horario' | 'servicios' | 'whatsapp' | 'asistente';
+  readonly key: 'hours' | 'services' | 'whatsapp' | 'assistant';
   readonly done: boolean;
   /** How many open days or services, for the step's line. */
   readonly count: number;
+  /** The assistant answers only on a connected line (A2), so its step asks for WhatsApp first. */
+  readonly needsLine?: boolean;
 }
 
 /**
  * Primeros pasos. A user without an organization creates one with its first establishment (O1) and becomes its
  * owner; the owner then walks the steps of the selected establishment, each the screen Ajustes shows: opening
- * hours, services and the WhatsApp line. A step is done when pibble says so; turning on the assistant and inviting
- * the team come in later phases. Creating sends one idempotency key per attempt, reused on a retry after a lost
+ * hours, services, the WhatsApp line and the assistant. A step is done when pibble says so; inviting the team comes
+ * in a later phase. Creating sends one idempotency key per attempt, reused on a retry after a lost
  * answer and renewed when the form changes.
  */
 @Component({
@@ -80,6 +85,7 @@ export class Onboarding {
   private readonly hours = inject(OpeningHoursStore);
   private readonly team = inject(EstablishmentTeam);
   private readonly line = inject(ESTABLISHMENT_LINE);
+  private readonly assistant = inject(ESTABLISHMENT_ASSISTANT);
 
   protected readonly loading = signal(true);
   protected readonly loadError = signal<ApiError | null>(null);
@@ -96,6 +102,13 @@ export class Onboarding {
       },
       { path: 'servicios', key: 'services', done: services.length > 0, count: services.length },
       { path: 'whatsapp', key: 'whatsapp', done: this.line.connected() === true, count: 0 },
+      {
+        path: 'asistente',
+        key: 'assistant',
+        done: this.assistant.enabled() === true,
+        count: 0,
+        needsLine: this.line.connected() !== true,
+      },
     ];
   });
   protected readonly doneCount = computed(() => this.steps().filter((step) => step.done).length);

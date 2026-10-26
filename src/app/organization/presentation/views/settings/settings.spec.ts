@@ -56,11 +56,11 @@ describe('Settings', () => {
     const host = await render('owner');
     expect(text(host)).toContain('Ajustes · Miraflores');
     expect(host.querySelector('h1')!.textContent).toContain('Horario');
-    expect(tabs(host)).toEqual(['Datos', 'Horario', 'Servicios', 'WhatsApp']);
+    expect(tabs(host)).toEqual(['Datos', 'Horario', 'Servicios', 'WhatsApp', 'Asistente', 'Uso']);
   });
 
-  it('03 §5: shows managers the hours and services only', async () => {
-    expect(tabs(await render('manager'))).toEqual(['Horario', 'Servicios']);
+  it('03 §5: shows managers the hours, services, assistant and usage', async () => {
+    expect(tabs(await render('manager'))).toEqual(['Horario', 'Servicios', 'Asistente', 'Uso']);
   });
 
   it('O6: says changes wait for the renewal while the plan is inactive', async () => {

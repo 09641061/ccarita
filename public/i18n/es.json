@@ -187,11 +187,17 @@
           "title": "Conectar WhatsApp",
           "pending": "Tu número de negocio",
           "done": "Conectado"
+        },
+        "assistant": {
+          "title": "Activar el asistente",
+          "pending": "Que Tako responda a tus clientes",
+          "needsLine": "Primero conecta WhatsApp",
+          "done": "Respondiendo"
         }
       },
       "allDone": {
         "title": "Todo listo",
-        "message": "Tu local ya recibe citas y mensajes. Activa el asistente y suma a tu equipo cuando quieras."
+        "message": "Tu local ya recibe citas y mensajes, y el asistente responde. Suma a tu equipo cuando quieras."
       },
       "notOwner": {
         "title": "El dueño deja listo el negocio",
@@ -234,7 +240,9 @@
         "details": "Datos",
         "hours": "Horario",
         "services": "Servicios",
-        "whatsapp": "WhatsApp"
+        "whatsapp": "WhatsApp",
+        "assistant": "Asistente",
+        "usage": "Uso"
       },
       "planInactive": "Tu plan terminó: puedes ver los ajustes, pero cambiarlos vuelve cuando renueves.",
       "details": {
@@ -826,6 +834,84 @@
       }
     }
   },
+  "assistant": {
+    "settings": {
+      "toggle": "El asistente responde en WhatsApp",
+      "status": {
+        "checking": {
+          "title": "Encendido",
+          "message": "Revisando la línea de WhatsApp…"
+        },
+        "answering": {
+          "title": "Respondiendo en WhatsApp",
+          "message": "Calla en chats pausados, traspasados o con la ventana cerrada."
+        },
+        "off": {
+          "title": "Asistente apagado",
+          "message": "Tus clientes solo reciben respuestas de tu equipo."
+        },
+        "noLine": {
+          "title": "Encendido, pero sin WhatsApp",
+          "message": "Responde cuando la línea del local esté conectada.",
+          "action": "Conectar WhatsApp"
+        },
+        "planInactive": {
+          "title": "Encendido, pero en pausa",
+          "message": "Tu plan terminó: vuelve a responder cuando renueves."
+        }
+      },
+      "info": {
+        "title": "Información del negocio",
+        "lead": "Ya conoce servicios, precios y horario. Agrega lo demás: cómo llegar, pagos, políticas y preguntas frecuentes.",
+        "placeholder": "Ej.: Aceptamos Yape y Plin. Hay estacionamiento en la calle.",
+        "count": "{{count}} / {{max}} caracteres",
+        "save": "Guardar cambios",
+        "saving": "Guardando…",
+        "saved": "Cambios guardados.",
+        "conflict": "Revisa lo que ves ahora y vuelve a guardar: tu texto sigue aquí."
+      },
+      "can": {
+        "title": "Lo que puede hacer",
+        "explain": "Explicar servicios, precios, horario y tu información",
+        "book": "Buscar horarios libres y reservar",
+        "appointments": "Mostrar, reprogramar y cancelar las citas del cliente, hasta 2 horas antes",
+        "handOff": "Pasarte la conversación cuando hace falta una persona"
+      },
+      "never": {
+        "title": "Lo que nunca hace",
+        "discounts": "Dar descuentos ni cambiar precios",
+        "invent": "Inventar información que no le diste",
+        "offTopic": "Conversar de temas ajenos a tu negocio"
+      }
+    },
+    "usage": {
+      "title": "Uso del asistente",
+      "lead": "Por día, en la hora del local ({{timeZone}}). Hasta {{max}} días por consulta.",
+      "period": "Periodo",
+      "from": "Desde",
+      "to": "Hasta",
+      "problem": {
+        "format": "Elige el primer y el último día.",
+        "order": "El último día no puede ser antes del primero.",
+        "length": "Elige como máximo {{max}} días."
+      },
+      "caption": "Uso del asistente del {{from}} al {{to}}",
+      "columns": {
+        "day": "Día",
+        "turns": "Respuestas",
+        "input": "Tokens de entrada",
+        "cached": "En caché",
+        "output": "Tokens de salida",
+        "tools": "Herramientas"
+      },
+      "total": "Total",
+      "note": "Solo aparecen los días en que respondió. Takodu muestra tokens, no costos.",
+      "empty": {
+        "title": "Sin respuestas en estos días",
+        "message": "Cuando el asistente responda a tus clientes, verás aquí cuánto usó cada día."
+      }
+    }
+  },
   "pageNotFound": {
     "title": "Página no encontrada",
     "back": "Ir al inicio"
@@ -882,6 +968,7 @@
     "MESSAGE_NOT_FOUND": "No encontramos este mensaje.",
     "WHATSAPP_LINE_NOT_FOUND": "Este local aún no tiene una línea de WhatsApp.",
     "LINE_ALREADY_CONNECTED": "Este local ya tiene una línea, o ese número ya está conectado a otro local.",
-    "SIGNUP_CANCELLED": "Cerraste la ventana de Meta antes de terminar. Inténtalo de nuevo."
+    "SIGNUP_CANCELLED": "Cerraste la ventana de Meta antes de terminar. Inténtalo de nuevo.",
+    "ASSISTANT_SETTINGS_CONFLICT": "Alguien más guardó los ajustes del asistente al mismo tiempo."
   }
 }
