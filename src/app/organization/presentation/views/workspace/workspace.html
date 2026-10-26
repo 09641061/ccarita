@@ -11,7 +11,7 @@
   @if (user) {
     <app-profile-menu
       appShellProfile
-      [name]="user.displayName"
+      [name]="name()"
       [email]="user.email"
       [plan]="plan()"
       [canSwitch]="canSwitch()"
@@ -30,7 +30,7 @@
     @if (user) {
       <app-profile-menu
         [compact]="true"
-        [name]="user.displayName"
+        [name]="name()"
         [email]="user.email"
         [plan]="plan()"
         [canSwitch]="canSwitch()"

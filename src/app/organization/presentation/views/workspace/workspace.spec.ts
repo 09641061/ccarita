@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 import { PLATFORM_ENTRY, SessionStore, SessionUser } from '../../../../iam/public-api';
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
 import { CurrentOrganization } from '../../../application/current-organization.store';
+import { EstablishmentTeam } from '../../../application/establishment-team.store';
 import { Establishment } from '../../../domain/model/establishment';
 import { JoinedOrganization } from '../../../domain/model/joined-organization';
 import { MemberRole } from '../../../domain/model/member-role';
@@ -59,7 +60,7 @@ describe('Workspace', () => {
           useValue: {
             isSignedIn: signedIn,
             signedOut,
-            user: signal(new SessionUser('u-1', 'luis@donlucho.pe', 'Luis Ramírez')),
+            user: signal(new SessionUser('u-1', 'luis@donlucho.pe', null)),
             signOut,
           },
         },
@@ -67,6 +68,7 @@ describe('Workspace', () => {
           provide: CurrentOrganization,
           useValue: {
             selected: signal(joined),
+            memberId: signal('m-1'),
             role: signal(role),
             organizations: signal(Array.from({ length: organizations }, () => joined)),
             planActive: signal(planActive),
@@ -76,6 +78,10 @@ describe('Workspace', () => {
               value: () => ({ id: 'org-1', plan: 'standard' }),
             },
           },
+        },
+        {
+          provide: EstablishmentTeam,
+          useValue: { members: { value: signal([{ id: 'm-1', name: 'Luis Ramírez' }]) } },
         },
         { provide: MatDialog, useValue: { open: openDialog } },
         { provide: PLATFORM_ENTRY, useValue: { visible: signal(operator) } },
@@ -119,7 +125,7 @@ describe('Workspace', () => {
     expect(drawerLinks(host)).toEqual(['/agenda', '/mensajes', '/clientes']);
   });
 
-  it('names the user and, after a dot, the plan', async () => {
+  it('names the user as the organization knows them, not by email, and then the plan', async () => {
     const { host } = await render('manager');
 
     expect(

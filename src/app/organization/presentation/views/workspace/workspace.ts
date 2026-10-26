@@ -20,6 +20,7 @@ import { Shell } from '../../../../shared/presentation/components/shell/shell';
 import { SETTINGS_PARAM } from '../../../../shared/presentation/navigation/settings-link';
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
 import { CurrentOrganization } from '../../../application/current-organization.store';
+import { EstablishmentTeam } from '../../../application/establishment-team.store';
 import { EstablishmentSwitcher } from '../../components/establishment-switcher/establishment-switcher';
 import { ProfileMenu } from '../../components/profile-menu/profile-menu';
 import { SettingsCenter } from '../settings-center/settings-center';
@@ -46,6 +47,7 @@ export class Workspace {
   protected readonly organization = inject(CurrentOrganization);
   protected readonly establishment = inject(CurrentEstablishment);
   protected readonly platform = inject(PLATFORM_ENTRY);
+  private readonly team = inject(EstablishmentTeam);
   protected readonly renewalContact = environment.renewalContact;
 
   protected readonly navigation = computed(() =>
@@ -54,6 +56,12 @@ export class Workspace {
   protected readonly canSwitch = computed(
     () => (this.organization.organizations()?.length ?? 0) > 1,
   );
+  /** The name the organization knows the user by; the account's name or email until the members load. */
+  protected readonly name = computed(() => {
+    const memberId = this.organization.memberId();
+    const member = this.team.members.value().find((m) => m.id === memberId);
+    return member?.name ?? this.session.user()?.displayName ?? '';
+  });
   protected readonly plan = computed(() => {
     const details = this.organization.details;
     if (details.hasValue() && details.value().id === this.organization.selected()?.id)
