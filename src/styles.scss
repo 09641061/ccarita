@@ -240,3 +240,24 @@ h3 {
     transition: none !important;
   }
 }
+
+// The settings center (organization's SettingsCenter): a large window on wide screens, the whole screen on phones.
+.tk-settings-center {
+  width: min(1040px, calc(100vw - 48px));
+  height: min(760px, calc(100dvh - 48px));
+
+  .mat-mdc-dialog-surface {
+    overflow: hidden;
+    border-radius: 24px;
+  }
+
+  @media (max-width: 719.98px) {
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+
+    .mat-mdc-dialog-surface {
+      border-radius: 0;
+    }
+  }
+}

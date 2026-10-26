@@ -20,6 +20,7 @@ import { ApiError } from '../../../../shared/domain/model/api-error';
 import { BusyButton } from '../../../../shared/presentation/components/busy-button/busy-button';
 import { StateView } from '../../../../shared/presentation/components/state-view/state-view';
 import { ErrorMessagePipe } from '../../../../shared/presentation/pipes/error-message.pipe';
+import { settingsUrl } from '../../../../shared/presentation/navigation/settings-link';
 import { ZonedDatePipe } from '../../../../shared/presentation/pipes/zoned-date.pipe';
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
 import { CurrentOrganization } from '../../../application/current-organization.store';
@@ -30,7 +31,7 @@ import { OpenEstablishmentSheet } from '../open-establishment-sheet/open-establi
 const LIMA = 'America/Lima';
 
 /**
- * Organización (`/organizacion`), for the owner (03 §5): the business name (O2), the plan and how to renew it (O5),
+ * Organización, a section of the settings center for the owner (03 §5): the business name (O2), the plan and how to renew it (O5),
  * and its establishments, opening (O4) and archiving them. Renaming and opening wait for an active plan; archiving
  * does not (O6). pibble has no self-service payment, so renewing is a message to the Takodu team.
  */
@@ -49,7 +50,7 @@ const LIMA = 'America/Lima';
     ZonedDatePipe,
   ],
   templateUrl: './organization-page.html',
-  styleUrls: ['../settings/section.scss', './organization-page.scss'],
+  styleUrls: ['../section.scss', './organization-page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrganizationPage {
@@ -115,10 +116,10 @@ export class OrganizationPage {
     });
   }
 
-  /** Its name, address and time zone are edited in Ajustes › Datos, for the selected establishment. */
+  /** Its name, address and time zone are edited in the Datos section, for the selected establishment. */
   protected edit(target: Establishment): void {
     this.establishment.select(target.id);
-    void this.router.navigate(['/ajustes/datos']);
+    void this.router.navigateByUrl(settingsUrl(this.router, 'datos'), { replaceUrl: true });
   }
 
   protected archive(target: Establishment): void {

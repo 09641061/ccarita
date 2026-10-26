@@ -20,7 +20,7 @@
         {{ 'assistant.settings.status.' + (status() ?? 'checking') + '.message' | translate }}
       </p>
       @if (status() === 'noLine' && organization.can('connectWhatsapp')) {
-        <a class="link" routerLink="/ajustes/whatsapp">{{
+        <a class="link" appSettingsLink="whatsapp">{{
           'assistant.settings.status.noLine.action' | translate
         }}</a>
       }

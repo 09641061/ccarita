@@ -62,7 +62,7 @@ const DEFAULT_RANGE: TypedRange = { opensAt: '09:00', closesAt: '19:00' };
     TranslatePipe,
   ],
   templateUrl: './opening-hours-editor.html',
-  styleUrls: ['../settings/section.scss', './opening-hours-editor.scss'],
+  styleUrls: ['../section.scss', './opening-hours-editor.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OpeningHoursEditor {

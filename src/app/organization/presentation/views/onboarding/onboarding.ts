@@ -31,6 +31,7 @@ import {
 } from '../../../application/establishment-line';
 import { EstablishmentTeam } from '../../../application/establishment-team.store';
 import { OpeningHoursStore } from '../../../application/opening-hours.store';
+import { SETTINGS_PARAM } from '../../../../shared/presentation/navigation/settings-link';
 
 interface CreateModel {
   name: string;
@@ -157,6 +158,22 @@ export class Onboarding {
       if (this.loading() || !this.isOwner() || this.current() !== -1 || !this.known()) return;
       const pending = this.steps().find((step) => !step.done);
       if (pending) untracked(() => this.go(pending.path));
+    });
+    // A screen's link to a settings section (`?ajustes=whatsapp`) opens that step here; there is no center outside
+    // the signed-in frame.
+    effect(() => {
+      const tree = this.router.parseUrl(this.url());
+      const section = tree.queryParams[SETTINGS_PARAM] as string | undefined;
+      if (section === undefined) return;
+      untracked(() => {
+        const step = this.steps().find((candidate) => candidate.path === section);
+        void this.router.navigate(
+          step ? ['/primeros-pasos', step.path] : [this.url().split('?')[0]],
+          {
+            replaceUrl: true,
+          },
+        );
+      });
     });
   }
 

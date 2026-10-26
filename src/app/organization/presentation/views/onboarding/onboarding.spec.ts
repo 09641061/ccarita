@@ -181,6 +181,21 @@ describe('Onboarding', () => {
     expect(router.url).toBe('/primeros-pasos/asistente');
   });
 
+  it("follows a screen's link to a settings section to its own step", async () => {
+    const { stable, router } = await render({
+      organizations: [joined('owner')],
+      hours: WEEK,
+      services: [CUT],
+    });
+    await router.navigateByUrl('/primeros-pasos/asistente?ajustes=whatsapp');
+    await stable();
+    expect(router.url).toBe('/primeros-pasos/whatsapp');
+
+    await router.navigateByUrl('/primeros-pasos/servicios?ajustes=cuenta');
+    await stable();
+    expect(router.url).toBe('/primeros-pasos/servicios');
+  });
+
   it('A1: turning on the assistant is the last step, once WhatsApp is connected', async () => {
     const { host, stable, router } = await render({
       organizations: [joined('owner')],

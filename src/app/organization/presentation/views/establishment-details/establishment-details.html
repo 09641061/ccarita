@@ -3,7 +3,7 @@
 } @else {
   <section class="section" aria-labelledby="details-title">
     <h2 id="details-title" class="tk-visually-hidden">
-      {{ 'organization.settings.tabs.details' | translate }}
+      {{ 'organization.settingsCenter.sections.details' | translate }}
     </h2>
     <p class="lead">{{ 'organization.settings.details.lead' | translate }}</p>
     <form class="card" (submit)="save($event)" novalidate>
@@ -52,7 +52,7 @@
     <h2 id="others-title">{{ 'organization.settings.details.others' | translate }}</h2>
     <div class="card row">
       <p class="muted">{{ 'organization.settings.details.othersLead' | translate }}</p>
-      <a matButton="outlined" routerLink="/organizacion">
+      <a matButton="outlined" appSettingsLink="organizacion">
         {{ 'organization.settings.details.toOrganization' | translate }}
       </a>
     </div>

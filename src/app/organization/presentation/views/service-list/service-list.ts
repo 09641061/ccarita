@@ -41,7 +41,7 @@ import { ServiceForm } from '../../components/service-form/service-form';
     TranslatePipe,
   ],
   templateUrl: './service-list.html',
-  styleUrls: ['../settings/section.scss', './service-list.scss'],
+  styleUrls: ['../section.scss', './service-list.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ServiceList {

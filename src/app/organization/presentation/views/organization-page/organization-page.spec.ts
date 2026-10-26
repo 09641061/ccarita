@@ -129,7 +129,7 @@ describe('OrganizationPage', () => {
     button('Editar datos de Surco').click();
     await settle();
     expect(select).toHaveBeenCalledWith('est-2');
-    expect(TestBed.inject(Router).url).toBe('/ajustes/datos');
+    expect(TestBed.inject(Router).url).toBe('/?ajustes=datos');
   });
 
   it('03 §5: is the owner’s', async () => {

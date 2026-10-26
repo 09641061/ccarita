@@ -1,10 +1,10 @@
 import { computed, inject } from '@angular/core';
 import { AssistantSettingsStore } from './assistant/public-api';
-import { ResolveFn, Route, Routes } from '@angular/router';
+import { Route, Routes } from '@angular/router';
 import { InboxStore, WhatsappLineStore } from './conversations/public-api';
 import { CUSTOMER_ACCESS } from './customers/public-api';
 import { devRoutes } from './dev.routes';
-import { ACCOUNT_WORKSPACE, accountRoutes, authGuard } from './iam/public-api';
+import { ACCOUNT_WORKSPACE, authGuard } from './iam/public-api';
 import {
   CurrentEstablishment,
   CurrentOrganization,
@@ -13,43 +13,30 @@ import {
   onboardingRoutes,
   organizationEntryRoutes,
   organizationGuard,
-  organizationPageRoutes,
   roleGuard,
+  SETTINGS_SCREENS,
   SettingsScreens,
-  settingsRoutes,
   teamRoutes,
 } from './organization/public-api';
 import { operatorGuard } from './platform/public-api';
 import { ApiError } from './shared/domain/model/api-error';
-import {
-  MAIN_NAVIGATION,
-  NavigationItem,
-  navigationFor,
-} from './shared/presentation/components/shell/navigation-item';
+import { MAIN_NAVIGATION } from './shared/presentation/components/shell/navigation-item';
 
 const pageNotFound = () =>
   import('./shared/presentation/views/page-not-found/page-not-found').then((m) => m.PageNotFound);
-const placeholder = () =>
-  import('./shared/presentation/views/placeholder/placeholder').then((m) => m.Placeholder);
 
-/** The screens of `conversations` and `assistant` inside Ajustes and Primeros pasos. */
-const SETTINGS_SCREENS: SettingsScreens = {
-  whatsapp: {
-    loadComponent: () =>
-      import('./conversations/presentation/views/line-settings/line-settings').then(
-        (m) => m.LineSettings,
-      ),
-  },
-  assistant: {
-    loadComponent: () =>
-      import('./assistant/presentation/views/assistant-configuration/assistant-configuration').then(
-        (m) => m.AssistantConfiguration,
-      ),
-  },
-  usage: {
-    loadComponent: () =>
-      import('./assistant/presentation/views/usage-report/usage-report').then((m) => m.UsageReport),
-  },
+/** The screens of `conversations` and `assistant` inside the settings center and Primeros pasos. */
+const SCREENS: SettingsScreens = {
+  whatsapp: () =>
+    import('./conversations/presentation/views/line-settings/line-settings').then(
+      (m) => m.LineSettings,
+    ),
+  assistant: () =>
+    import('./assistant/presentation/views/assistant-configuration/assistant-configuration').then(
+      (m) => m.AssistantConfiguration,
+    ),
+  usage: () =>
+    import('./assistant/presentation/views/usage-report/usage-report').then((m) => m.UsageReport),
 };
 
 /** Primeros pasos' WhatsApp step is done once the line is connected; a line never connected is not. */
@@ -75,7 +62,7 @@ const ESTABLISHMENT_ASSISTANT_PROVIDER = {
   },
 };
 
-/** Cuenta shows times in the selected establishment's zone and offers another organization when there is one. */
+/** Cuenta, in the settings center, shows times in the selected establishment's zone and offers another organization. */
 const ACCOUNT_WORKSPACE_PROVIDER = {
   provide: ACCOUNT_WORKSPACE,
   useFactory: () => {
@@ -87,7 +74,7 @@ const ACCOUNT_WORKSPACE_PROVIDER = {
   },
 };
 
-/** The destinations a context already serves; the others show a placeholder until their phase. */
+/** Each destination's context routes. */
 const CONTEXT_ROUTES: Record<string, Route> = {
   '/agenda': {
     loadChildren: () =>
@@ -99,12 +86,7 @@ const CONTEXT_ROUTES: Record<string, Route> = {
         (m) => m.conversationsRoutes,
       ),
   },
-  '/ajustes': { children: settingsRoutes(SETTINGS_SCREENS) },
-  // The assistant lives in Ajustes; its navigation item opens it there and stays active.
-  '/asistente': { pathMatch: 'full', redirectTo: '/ajustes/asistente' },
   '/equipo': { children: teamRoutes },
-  '/organizacion': { children: organizationPageRoutes },
-  '/cuenta': { providers: [ACCOUNT_WORKSPACE_PROVIDER], children: accountRoutes },
   '/clientes': {
     providers: [
       {
@@ -125,19 +107,11 @@ const CONTEXT_ROUTES: Record<string, Route> = {
   },
 };
 
-/** The destinations of the signed-in member's role, for the phone's "Más". */
-const roleNavigation: ResolveFn<readonly NavigationItem[]> = async () => {
-  const organization = inject(CurrentOrganization);
-  await organization.load();
-  return navigationFor(organization.role() ?? 'staff');
-};
-
 /**
  * Sign-in, the organization picker, invitations and the Takodu team's area (`/platform`, behind pibble's operator
- * check, with no organization) stand alone; everything else is inside `Workspace`, behind a
- * session and a selected organization, and each destination behind the roles that see it (Mapa por rol, 03 §5).
- * Each context replaces its placeholder with one lazy entry
- * (`loadChildren: () => import('./<context>/presentation/<context>.routes')`).
+ * check, with no organization) stand alone; everything else is inside `Workspace`, behind a session and a selected
+ * organization, and each destination behind the roles that see it (03 §5). Settings, the organization and the
+ * account are not routes: `?ajustes=<section>` opens the settings center over any of these screens.
  */
 export const routes: Routes = [
   ...devRoutes,
@@ -152,33 +126,21 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./platform/presentation/platform.routes').then((m) => m.platformRoutes),
   },
-  ...onboardingRoutes(SETTINGS_SCREENS, [
-    ESTABLISHMENT_LINE_PROVIDER,
-    ESTABLISHMENT_ASSISTANT_PROVIDER,
-  ]),
+  ...onboardingRoutes(SCREENS, [ESTABLISHMENT_LINE_PROVIDER, ESTABLISHMENT_ASSISTANT_PROVIDER]),
   {
     path: '',
     canActivate: [authGuard, organizationGuard],
+    // The settings center opens over the frame's screens and shows these contexts' screens and state.
+    providers: [{ provide: SETTINGS_SCREENS, useValue: SCREENS }, ACCOUNT_WORKSPACE_PROVIDER],
     loadComponent: () =>
       import('./organization/presentation/views/workspace/workspace').then((m) => m.Workspace),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'agenda' },
       ...MAIN_NAVIGATION.map((item) => ({
         path: item.path.slice(1),
-        // Redirects run before guards, and Angular refuses both on one route; the target is guarded.
-        ...(CONTEXT_ROUTES[item.path]?.redirectTo ? {} : { canActivate: [roleGuard(item.roles)] }),
-        ...(CONTEXT_ROUTES[item.path] ?? {
-          loadComponent: placeholder,
-          data: { label: item.label },
-          title: 'Takodu',
-        }),
+        canActivate: [roleGuard(item.roles)],
+        ...CONTEXT_ROUTES[item.path],
       })),
-      {
-        path: 'mas',
-        loadComponent: () => import('./shared/presentation/views/more/more').then((m) => m.More),
-        resolve: { navigation: roleNavigation },
-        title: 'Takodu',
-      },
       {
         path: 'sin-permiso',
         loadComponent: () =>

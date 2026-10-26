@@ -13,7 +13,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ApiError } from '../../../../shared/domain/model/api-error';
 import { BusyButton } from '../../../../shared/presentation/components/busy-button/busy-button';
@@ -23,6 +22,7 @@ import { CurrentEstablishment } from '../../../application/current-establishment
 import { CurrentOrganization } from '../../../application/current-organization.store';
 import { EstablishmentDetails as Details } from '../../../domain/model/establishment';
 import { DEFAULT_TIME_ZONE, timeZoneOptions } from './time-zones';
+import { SettingsLink } from '../../../../shared/presentation/navigation/settings-link';
 
 const EMPTY: Details = { name: '', address: '', timeZone: DEFAULT_TIME_ZONE };
 
@@ -42,12 +42,12 @@ const EMPTY: Details = { name: '', address: '', timeZone: DEFAULT_TIME_ZONE };
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    RouterLink,
+    SettingsLink,
     StateView,
     TranslatePipe,
   ],
   templateUrl: './establishment-details.html',
-  styleUrl: '../settings/section.scss',
+  styleUrl: '../section.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EstablishmentDetails {

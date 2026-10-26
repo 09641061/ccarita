@@ -64,14 +64,18 @@
       "calendar": "Calendario",
       "inbox": "Bandeja",
       "customers": "Clientes",
-      "assistant": "Asistente",
       "team": "Equipo",
-      "settings": "Ajustes del local",
-      "organization": "Organización",
-      "account": "Cuenta",
-      "more": "Más",
-      "comingSoon": "Esta sección todavía no está lista.",
       "backToCalendar": "Ir al calendario"
+    },
+    "profile": {
+      "menu": "Perfil",
+      "settings": "Ajustes",
+      "switchOrganization": "Cambiar de organización",
+      "help": "Ayuda",
+      "upgrade": "Subir plan",
+      "learn": "Aprender más",
+      "soon": "Pronto",
+      "signOut": "Cerrar sesión"
     }
   },
   "iam": {
@@ -102,7 +106,6 @@
       "useAnotherEmail": "Ingresar con otro correo"
     },
     "account": {
-      "title": "Cuenta",
       "you": "Tus datos",
       "noName": "Sin nombre",
       "identityHint": "Ingresas con este correo. Tu nombre en cada equipo lo cambia quien lo administra.",
@@ -130,19 +133,12 @@
       "max": "Plan Max",
       "current": "Plan",
       "activeUntil": "Activo hasta el {{date}}",
-      "endedOn": "Terminó el {{date}}",
-      "see": "Ver plan"
+      "endedOn": "Terminó el {{date}}"
     },
     "establishment": {
       "label": "Local",
       "change": "Cambiar de local",
       "current": "Local actual"
-    },
-    "account": {
-      "menu": "Cuenta y organización",
-      "account": "Cuenta",
-      "switchOrganization": "Cambiar de organización",
-      "signOut": "Salir"
     },
     "picker": {
       "title": "Elige una organización",
@@ -247,21 +243,6 @@
       "7": "Domingo"
     },
     "settings": {
-      "title": "Ajustes · {{establishment}}",
-      "sections": "Secciones del local",
-      "noEstablishment": {
-        "title": "Aún no hay locales",
-        "message": "Abre un local para configurar su horario, servicios y WhatsApp."
-      },
-      "tabs": {
-        "details": "Datos",
-        "hours": "Horario",
-        "services": "Servicios",
-        "whatsapp": "WhatsApp",
-        "assistant": "Asistente",
-        "usage": "Uso"
-      },
-      "planInactive": "Tu plan terminó: puedes ver los ajustes, pero cambiarlos vuelve cuando renueves.",
       "details": {
         "lead": "Así aparece el local para tu equipo y en los mensajes a tus clientes.",
         "name": "Nombre del local",
@@ -352,6 +333,31 @@
         }
       }
     },
+    "settingsCenter": {
+      "title": "Ajustes",
+      "close": "Cerrar ajustes",
+      "back": "Volver a la lista",
+      "groups": {
+        "account": "Tu cuenta",
+        "establishment": "Este local",
+        "organization": "Organización"
+      },
+      "sections": {
+        "account": "Cuenta",
+        "details": "Datos del local",
+        "hours": "Horario",
+        "services": "Servicios",
+        "whatsapp": "WhatsApp",
+        "assistant": "Asistente",
+        "usage": "Uso del asistente",
+        "organization": "Organización"
+      },
+      "noEstablishment": {
+        "title": "Aún no hay locales",
+        "message": "Abre un local para configurar su horario, servicios y WhatsApp."
+      },
+      "planInactive": "Tu plan terminó: puedes ver los ajustes, pero cambiarlos vuelve cuando renueves."
+    },
     "team": {
       "title": "Equipo",
       "summary": "Personas: {{count}} · {{organization}}",
@@ -436,7 +442,6 @@
       }
     },
     "page": {
-      "title": "Organización",
       "nameTitle": "Nombre",
       "nameLead": "Así aparece tu negocio para tu equipo.",
       "name": "Nombre del negocio",

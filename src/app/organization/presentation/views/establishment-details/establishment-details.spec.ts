@@ -85,9 +85,9 @@ describe('EstablishmentDetails', () => {
     expect(host.querySelector('[role="alert"]')).not.toBeNull();
   });
 
-  it('sends opening and archiving establishments to Organización', async () => {
+  it('sends opening and archiving establishments to the Organización section', async () => {
     const { host } = await render();
-    expect(host.querySelector('a[href="/organizacion"]')?.textContent).toContain(
+    expect(host.querySelector('a[href$="?ajustes=organizacion"]')?.textContent).toContain(
       'Ir a Organización',
     );
   });

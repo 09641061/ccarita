@@ -14,7 +14,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { map } from 'rxjs';
 import {
@@ -32,6 +32,7 @@ import { ConversationStore } from '../../../application/conversation.store';
 import { InboxFilter, InboxStore } from '../../../application/inbox.store';
 import { ConversationRow } from '../../components/conversation-row/conversation-row';
 import { memberNames } from '../../member-names';
+import { SettingsLink } from '../../../../shared/presentation/navigation/settings-link';
 
 const FILTERS: readonly InboxFilter[] = ['all', 'unread', 'mine'];
 
@@ -47,7 +48,7 @@ const FILTERS: readonly InboxFilter[] = ['all', 'unread', 'mine'];
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
-    RouterLink,
+    SettingsLink,
     RouterOutlet,
     Skeleton,
     StateView,

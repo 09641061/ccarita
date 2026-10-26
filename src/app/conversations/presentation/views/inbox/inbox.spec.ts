@@ -153,7 +153,7 @@ describe('Inbox', () => {
     store.line.error.set(new ApiError(404, 'WHATSAPP_LINE_NOT_FOUND', 'x'));
     await stable();
     expect(text(host)).toContain('Este local aún no tiene WhatsApp');
-    expect(host.querySelector('a[href="/ajustes/whatsapp"]')).not.toBeNull();
+    expect(host.querySelector('a[href$="?ajustes=whatsapp"]')).not.toBeNull();
   });
 
   it('W1: asks staff to wait for the owner', async () => {
@@ -162,7 +162,7 @@ describe('Inbox', () => {
     store.line.error.set(new ApiError(404, 'WHATSAPP_LINE_NOT_FOUND', 'x'));
     await stable();
     expect(text(host)).toContain('Cuando el dueño conecte el número');
-    expect(host.querySelector('a[href="/ajustes/whatsapp"]')).toBeNull();
+    expect(host.querySelector('a[href$="?ajustes=whatsapp"]')).toBeNull();
   });
 
   it('warns about a disconnected line', async () => {

@@ -13,7 +13,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { WhatsappLineStore } from '../../../../conversations/public-api';
 import { CurrentEstablishment, CurrentOrganization } from '../../../../organization/public-api';
@@ -28,6 +27,7 @@ import {
 import { ErrorMessagePipe } from '../../../../shared/presentation/pipes/error-message.pipe';
 import { AssistantSettingsStore } from '../../../application/assistant-settings.store';
 import { MAX_BUSINESS_INFO } from '../../../domain/model/assistant-settings';
+import { SettingsLink } from '../../../../shared/presentation/navigation/settings-link';
 
 /** What the status card says (A2), from what pibble lets the app know: the switch, the line and the plan. */
 export type AssistantStatus = 'off' | 'answering' | 'noLine' | 'planInactive';
@@ -55,7 +55,7 @@ const NEVER = ['discounts', 'invent', 'offTopic'] as const;
     MatIconModule,
     MatInputModule,
     MatSlideToggleModule,
-    RouterLink,
+    SettingsLink,
     Skeleton,
     StateView,
     TranslatePipe,

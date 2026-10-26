@@ -1,28 +1,27 @@
 import { Route } from '@angular/router';
 import { routes } from './app.routes';
-import { MAIN_NAVIGATION } from './shared/presentation/components/shell/navigation-item';
+import { ACCOUNT_WORKSPACE } from './iam/public-api';
+import { SETTINGS_SCREENS } from './organization/public-api';
 
 describe('routes', () => {
   const workspace = routes.find((route) => route.path === '' && route.children)!;
   const child = (path: string): Route => workspace.children!.find((route) => route.path === path)!;
 
-  it('opens the assistant inside Ajustes, which the role guard protects', () => {
-    expect(child('asistente')).toMatchObject({ redirectTo: '/ajustes/asistente' });
-    expect(child('asistente').canActivate).toBeUndefined();
-    expect(child('ajustes').canActivate).toHaveLength(1);
-  });
-
-  it('mounts Equipo, Organización and Cuenta behind their roles, with no placeholder left', () => {
-    for (const path of ['equipo', 'organizacion', 'cuenta']) {
-      expect(child(path).children ?? child(path).loadChildren).toBeDefined();
-      expect(child(path).loadComponent).toBeUndefined();
+  it('mounts each destination behind its roles, with the settings center outside the routes', () => {
+    expect(workspace.children!.map((route) => route.path)).toEqual([
+      '',
+      'agenda',
+      'bandeja',
+      'clientes',
+      'equipo',
+      'sin-permiso',
+    ]);
+    for (const path of ['agenda', 'bandeja', 'clientes', 'equipo']) {
       expect(child(path).canActivate).toHaveLength(1);
     }
-    const roles = (path: string) => MAIN_NAVIGATION.find((item) => item.path === path)!.roles;
-    expect(roles('/equipo')).toEqual(['owner', 'manager']);
-    expect(roles('/organizacion')).toEqual(['owner']);
-    expect(roles('/cuenta')).toEqual(['owner', 'manager', 'staff']);
-    expect(child('cuenta').providers).toHaveLength(1);
+    const tokens = (workspace.providers ?? []).map((p) => (p as { provide: unknown }).provide);
+    expect(tokens).toContain(SETTINGS_SCREENS);
+    expect(tokens).toContain(ACCOUNT_WORKSPACE);
   });
 
   it('mounts the Takodu team area outside the workspace, behind sign-in and the operator check', () => {
