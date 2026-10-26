@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { LocalDate } from '../../shared/domain/model/local-date';
 import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
 import { idempotencyInterceptor } from '../../shared/infrastructure/http/idempotency';
-import { UsagePeriod } from '../domain/model/usage-period';
+import { UsagePeriod } from '../../shared/domain/model/usage-period';
 import { AssistantUsageApi } from './assistant-usage.api';
 import { AssistantApi } from './assistant.api';
 

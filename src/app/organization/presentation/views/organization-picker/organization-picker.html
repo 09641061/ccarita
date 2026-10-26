@@ -38,6 +38,12 @@
       }}</a>
     </app-state-view>
   }
+  @if (platform.visible()) {
+    <a matButton="tonal" routerLink="/platform">
+      <mat-icon aria-hidden="true">admin_panel_settings</mat-icon>
+      {{ 'platform.entry' | translate }}
+    </a>
+  }
   <div class="end">
     @if (session.user(); as user) {
       <p class="tk-muted">

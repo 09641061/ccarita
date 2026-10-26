@@ -1,5 +1,5 @@
 import { LocalDate } from '../../../shared/domain/model/local-date';
-import { UsagePeriod } from './usage-period';
+import { UsagePeriod } from '../../../shared/domain/model/usage-period';
 
 /** A9: answered turns and what they used. Tokens, never money: prices live outside Takodu. */
 export interface UsageTotals {

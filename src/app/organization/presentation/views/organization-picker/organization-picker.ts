@@ -5,7 +5,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SessionStore } from '../../../../iam/public-api';
+import { PLATFORM_ENTRY, SessionStore } from '../../../../iam/public-api';
 import { ApiError } from '../../../../shared/domain/model/api-error';
 import { StateView } from '../../../../shared/presentation/components/state-view/state-view';
 import { safeReturnUrl } from '../../../../shared/presentation/navigation/return-url';
@@ -13,7 +13,7 @@ import { CurrentOrganization } from '../../../application/current-organization.s
 
 /**
  * Mapa por rol, "Elegir organización (si hay varias)": with one organization it is selected without asking; with
- * none it explains how to get one. Onboarding (`/primeros-pasos`) is not built yet.
+ * none it explains how to get one. The Takodu team also finds its area here, since an operator may own no business.
  */
 @Component({
   selector: 'app-organization-picker',
@@ -34,6 +34,7 @@ export class OrganizationPicker {
   private readonly router = inject(Router);
   protected readonly session = inject(SessionStore);
   protected readonly store = inject(CurrentOrganization);
+  protected readonly platform = inject(PLATFORM_ENTRY);
 
   /** Where to go once an organization is selected, from `?volver=`. */
   readonly volver = input<string>();

@@ -6,6 +6,7 @@ import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { settle } from '../../../../../testing/settle';
 import { ApiError } from '../../../../shared/domain/model/api-error';
 import { ACCOUNT_WORKSPACE } from '../../../application/account-workspace';
+import { PLATFORM_ENTRY } from '../../../application/platform-entry';
 import { AccountSessionsStore } from '../../../application/account-sessions.store';
 import { SessionStore } from '../../../application/session.store';
 import { AccountSession } from '../../../domain/model/account-session';
@@ -30,7 +31,7 @@ describe('Account', () => {
   let signOutDevice: ReturnType<typeof vi.fn>;
   let sessions: ReturnType<typeof fakeResource<AccountSession[]>>;
 
-  async function render({ several = false } = {}) {
+  async function render({ several = false, operator = false } = {}) {
     signOut = vi.fn(async () => undefined);
     signOutDevice = vi.fn(async () => undefined);
     sessions = fakeResource<AccountSession[]>([PHONE, LAPTOP]);
@@ -50,6 +51,7 @@ describe('Account', () => {
           provide: ACCOUNT_WORKSPACE,
           useValue: { timeZone: signal('America/Lima'), canSwitchOrganization: signal(several) },
         },
+        { provide: PLATFORM_ENTRY, useValue: { visible: signal(operator) } },
       ],
     });
     const fixture = TestBed.createComponent(Account);
@@ -108,6 +110,15 @@ describe('Account', () => {
     TestBed.resetTestingModule();
     const several = await render({ several: true });
     expect(several.host.querySelector('a[href="/organizaciones"]')).not.toBeNull();
+  });
+
+  it('offers the Takodu team its area', async () => {
+    const member = await render();
+    expect(member.host.querySelector('a[href="/platform"]')).toBeNull();
+
+    TestBed.resetTestingModule();
+    const operator = await render({ operator: true });
+    expect(text(operator.host.querySelector('a[href="/platform"]')!)).toContain('Panel de Takodu');
   });
 
   it('renders the loading, error and offline states', async () => {

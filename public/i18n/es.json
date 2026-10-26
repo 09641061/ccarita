@@ -1029,6 +1029,129 @@
       }
     }
   },
+  "platform": {
+    "frame": {
+      "team": "Equipo Takodu",
+      "myBusinesses": "Mis negocios",
+      "signOut": "Salir"
+    },
+    "entry": "Panel de Takodu",
+    "plan": {
+      "standard": "Standard",
+      "max": "Max",
+      "active": "Activo",
+      "ended": "Vencido",
+      "until": "vence el {{date}}",
+      "endedOn": "venció el {{date}}",
+      "untilLong": "Activo hasta el {{date}} (hora de Lima)",
+      "endedOnLong": "Venció el {{date}} (hora de Lima)"
+    },
+    "accounts": {
+      "title": "Organizaciones",
+      "lead": "{{count}} en Takodu. Primero las que vencen antes; fechas en hora de Lima.",
+      "search": "Buscar por negocio o correo del dueño",
+      "organization": "Negocio",
+      "plan": "Plan",
+      "status": "Estado",
+      "establishments": "Locales",
+      "places": "{{count}} de {{limit}} locales",
+      "placesUnlimited": "{{count}} locales, sin límite",
+      "overLimit": "Sobre el límite",
+      "empty": {
+        "title": "Aún no hay organizaciones",
+        "message": "Aparecerán aquí cuando un dueño cree su negocio."
+      },
+      "noMatch": {
+        "title": "Nada coincide con la búsqueda",
+        "message": "Prueba con otra parte del nombre o del correo."
+      }
+    },
+    "account": {
+      "back": "Organizaciones",
+      "owner": "Dueño: {{email}}",
+      "changePlan": "Registrar pago o cambio",
+      "recorded": "Cambio registrado. El negocio ya ve su nuevo plan.",
+      "planTitle": "Plan",
+      "historyTitle": "Historial del plan",
+      "overLimit": "Tiene {{count}} locales abiertos y su plan permite 1. Siguen abiertos, pero no podrá abrir otro hasta archivar alguno o pasar a Max.",
+      "by": "por {{email}}",
+      "planMoved": "Plan: {{from}} → {{to}}",
+      "endMoved": "Fin: {{from}} → {{to}}",
+      "stopped": "Plan detenido",
+      "noHistory": "Sin cambios registrados todavía.",
+      "notFound": {
+        "title": "No encontramos esta organización",
+        "message": "Puede que el enlace esté mal. Vuelve a la lista."
+      }
+    },
+    "changeSheet": {
+      "title": "Registrar pago o cambio de plan",
+      "lead": "{{name}}. Queda en el historial con tu correo y la nota.",
+      "plan": "Plan",
+      "planHint": {
+        "standard": "1 local abierto",
+        "max": "Locales sin límite"
+      },
+      "overLimit": "Tiene {{count}} locales abiertos. Seguirán abiertos, pero no podrá abrir otro con Standard.",
+      "period": "Periodo pagado",
+      "mode": {
+        "extend": "Sumar días",
+        "until": "Fijar fecha de fin",
+        "end": "Detener ahora (pago revertido)",
+        "keep": "No cambiar la fecha"
+      },
+      "days": "Días",
+      "daysSuffix": "días",
+      "until": "Activo hasta",
+      "untilHint": "Hasta las 23:59 de ese día, hora de Lima.",
+      "preview": {
+        "until": "Quedará activo hasta el {{date}} (hora de Lima).",
+        "ends": "El plan quedará vencido desde el {{date}} (hora de Lima).",
+        "keep": "La fecha de fin no cambia.",
+        "unknown": "Escribe una fecha o un número de días válido."
+      },
+      "note": "Nota",
+      "noteHint": "Cómo y cuándo pagó, por ejemplo «Yape 2026-10-23».",
+      "problem": {
+        "note": "Escribe una nota.",
+        "noteLength": "La nota tiene más de 500 caracteres.",
+        "days": "Entre 1 y {{max}} días, sin decimales.",
+        "nothing": "Elige otro plan o cambia la fecha: así no cambia nada.",
+        "date": "Escribe una fecha válida."
+      },
+      "back": "Cancelar",
+      "confirm": "Registrar",
+      "busy": "Registrando…"
+    },
+    "usage": {
+      "title": "Uso del asistente",
+      "lead": "Respuestas, tokens y herramientas por local, cada uno en sus propios días. Hasta {{max}} días; sin precios.",
+      "period": "Periodo",
+      "from": "Desde",
+      "to": "Hasta",
+      "problem": {
+        "format": "Escribe las dos fechas.",
+        "order": "La fecha final es anterior a la inicial.",
+        "length": "El periodo puede tener hasta {{max}} días."
+      },
+      "empty": {
+        "title": "Sin respuestas del asistente",
+        "message": "Nadie usó el asistente en estos días."
+      },
+      "caption": "Uso del {{from}} al {{to}}",
+      "columns": {
+        "establishment": "Local",
+        "turns": "Respuestas",
+        "input": "Tokens de entrada",
+        "cached": "De caché",
+        "output": "Tokens de salida",
+        "tools": "Herramientas"
+      },
+      "days": "Días con uso: {{count}} · {{zone}}",
+      "total": "Total",
+      "note": "«De caché» es parte de los tokens de entrada. Takodu no guarda precios: calcula el costo con la tarifa del proveedor."
+    }
+  },
   "pageNotFound": {
     "title": "Página no encontrada",
     "back": "Ir al inicio"
@@ -1091,6 +1214,7 @@
     "MEMBER_NOT_FOUND": "Esta persona ya no está en tu equipo.",
     "OWNER_CONFLICT": "La propiedad cambió mientras tanto. Recarga e inténtalo de nuevo.",
     "SESSION_NOT_FOUND": "Esa sesión ya estaba cerrada.",
-    "ESTABLISHMENT_NOT_FOUND": "Ese local ya no existe o fue archivado."
+    "ESTABLISHMENT_NOT_FOUND": "Ese local ya no existe o fue archivado.",
+    "ORGANIZATION_NOT_FOUND": "No encontramos esta organización."
   }
 }

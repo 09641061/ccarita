@@ -46,7 +46,7 @@ One pull request into `develop` per step, built from the designs in `../ui-refer
 - **F7** onboarding and establishment settings (done).
 - **F8** assistant settings and usage (done).
 - **F9** team, invitations, ownership transfer, account sessions, organization and plan (done).
-- **F10** Takodu team area.
+- **F10** Takodu team area (done).
 
 Where pibble's API serves less than a design shows, the design adapts:
 
@@ -77,6 +77,7 @@ Where pibble's API serves less than a design shows, the design adapts:
 - The booking footer says the confirmation goes by WhatsApp only when the establishment has a line (W12); it promises no reminder, which depends on how far ahead the appointment is (W11).
 - Customer search shows the first 20 matches and asks to keep typing when there are more.
 - The account button shows the user's name, or the email when the user has none: `JoinedOrganization` carries no member display name.
+- The Takodu team area (`/platform`) has no design; it follows Organización and Equipo. Operators reach it from Cuenta and the organization picker, outside the workspace, and read plan dates in Lima ([decision](docs/decisions/implemented/2026-10-26-takodu-team-area-outside-the-workspace.md)). pibble serves no single organization, so its page comes from the list, and usage shows each establishment's totals with its count of days, not each day.
 - The plan card and Organización name the plan (`standard` or `max`) and its end; pibble has no trial flag, so they never say "Prueba gratis", and no self-service payment, so renewing is a message to `environment.renewalContact`.
 - Equipo shows "Todos los locales" for owners and managers, whom pibble assigns to none (O13), and states in the establishment's zone. A manager may invite and edit managers and staff, as pibble allows; the page leaves the owner's row to the owner, and nobody changes their own role or removes themselves there, which pibble would allow.
 - Cuenta shows the user's email and the name they signed in with, read-only: pibble has no endpoint to edit the user, and member names are changed in Equipo. Devices are "Este dispositivo" or "Otro dispositivo": pibble names no device or browser.

@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { CurrentEstablishment } from '../../organization/public-api';
-import { UsagePeriod } from '../domain/model/usage-period';
+import { UsagePeriod } from '../../shared/domain/model/usage-period';
 import { AssistantUsageApi } from '../infrastructure/assistant-usage.api';
 
 /** The days the usage screen opens with. */

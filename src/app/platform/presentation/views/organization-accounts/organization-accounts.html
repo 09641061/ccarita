@@ -1,0 +1,127 @@
+<div class="page wide">
+  <header>
+    <div class="heading">
+      <h1 id="accounts-title">{{ 'platform.accounts.title' | translate }}</h1>
+      <p class="muted">
+        {{ 'platform.accounts.lead' | translate: { count: store.accounts.value().length } }}
+      </p>
+    </div>
+    <mat-form-field class="search" subscriptSizing="dynamic">
+      <mat-label>{{ 'platform.accounts.search' | translate }}</mat-label>
+      <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+      <input
+        matInput
+        type="search"
+        autocomplete="off"
+        [value]="store.query()"
+        (input)="search($any($event.target).value)"
+      />
+    </mat-form-field>
+  </header>
+
+  <div class="results">
+    @if (store.accounts.isLoading()) {
+      <mat-progress-bar
+        mode="indeterminate"
+        class="progress"
+        [attr.aria-label]="'shared.state.loading' | translate"
+      />
+    }
+    @let accounts = store.visible();
+    @if (loadError()) {
+      <app-state-view [kind]="errorKind()" (retry)="store.accounts.reload()" />
+    } @else if (store.accounts.isLoading() && store.accounts.value().length === 0) {
+      <app-skeleton [rows]="5" />
+    } @else if (store.accounts.value().length === 0) {
+      <app-state-view
+        kind="empty"
+        title="platform.accounts.empty.title"
+        message="platform.accounts.empty.message"
+      />
+    } @else if (accounts.length === 0) {
+      <app-state-view
+        kind="empty"
+        title="platform.accounts.noMatch.title"
+        message="platform.accounts.noMatch.message"
+      />
+    } @else if (desktop()) {
+      <div class="card flush">
+        <table aria-labelledby="accounts-title">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'platform.accounts.organization' | translate }}</th>
+              <th scope="col">{{ 'platform.accounts.plan' | translate }}</th>
+              <th scope="col">{{ 'platform.accounts.status' | translate }}</th>
+              <th scope="col">{{ 'platform.accounts.establishments' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (account of accounts; track account.id) {
+              <tr>
+                <td>
+                  <a class="who" [routerLink]="account.id">
+                    <span class="name">{{ account.name }}</span>
+                    <span class="muted">{{ account.ownerEmail }}</span>
+                  </a>
+                </td>
+                <td>{{ 'platform.plan.' + account.plan | translate }}</td>
+                <td><ng-container *ngTemplateOutlet="status; context: { account }" /></td>
+                <td><ng-container *ngTemplateOutlet="places; context: { account }" /></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <ul class="cards" aria-labelledby="accounts-title">
+        @for (account of accounts; track account.id) {
+          <li>
+            <a class="card link" [routerLink]="account.id">
+              <span class="who">
+                <span class="name">{{ account.name }}</span>
+                <span class="muted">{{ account.ownerEmail }}</span>
+              </span>
+              <span class="line">
+                {{ 'platform.plan.' + account.plan | translate }} ·
+                <ng-container *ngTemplateOutlet="places; context: { account }" />
+              </span>
+              <ng-container *ngTemplateOutlet="status; context: { account }" />
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>
+
+<ng-template #status let-account="account">
+  <span class="status">
+    <span class="badge" [class.ok]="account.planActive" [class.warn]="!account.planActive">
+      <mat-icon aria-hidden="true">{{ account.planActive ? 'check' : 'error' }}</mat-icon>
+      {{ (account.planActive ? 'platform.plan.active' : 'platform.plan.ended') | translate }}
+    </span>
+    @if (account.planActiveUntil) {
+      <span class="muted">{{
+        (account.planActive ? 'platform.plan.until' : 'platform.plan.endedOn')
+          | translate: { date: account.planActiveUntil | zonedDate: timeZone }
+      }}</span>
+    }
+  </span>
+</ng-template>
+
+<ng-template #places let-account="account">
+  <span class="places" [class.over]="account.overLimit">
+    {{
+      (account.establishmentLimit === null
+        ? 'platform.accounts.placesUnlimited'
+        : 'platform.accounts.places'
+      ) | translate: { count: account.activeEstablishments, limit: account.establishmentLimit }
+    }}
+    @if (account.overLimit) {
+      <span class="over-note">
+        <mat-icon aria-hidden="true">warning</mat-icon>
+        {{ 'platform.accounts.overLimit' | translate }}
+      </span>
+    }
+  </span>
+</ng-template>

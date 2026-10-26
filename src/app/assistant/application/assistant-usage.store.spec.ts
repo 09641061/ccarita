@@ -6,7 +6,7 @@ import { settle } from '../../../testing/settle';
 import { CurrentEstablishment } from '../../organization/public-api';
 import { LocalDate } from '../../shared/domain/model/local-date';
 import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
-import { UsagePeriod } from '../domain/model/usage-period';
+import { UsagePeriod } from '../../shared/domain/model/usage-period';
 import { AssistantUsageStore } from './assistant-usage.store';
 
 const API = 'http://api.test';

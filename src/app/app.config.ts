@@ -17,7 +17,8 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { META_SIGNUP } from './conversations/public-api';
-import { authInterceptor } from './iam/public-api';
+import { PLATFORM_ENTRY, authInterceptor } from './iam/public-api';
+import { OperatorStore } from './platform/public-api';
 import { API_BASE_URL } from './shared/infrastructure/http/api-base-url';
 import { apiErrorInterceptor } from './shared/infrastructure/http/api-error.interceptor';
 import { idempotencyInterceptor } from './shared/infrastructure/http/idempotency';
@@ -49,6 +50,8 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: 'es-PE' },
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
     { provide: META_SIGNUP, useValue: environment.metaSignup },
+    // Cuenta and the organization picker offer /platform to operators; iam and organization cannot import platform.
+    { provide: PLATFORM_ENTRY, useFactory: () => ({ visible: inject(OperatorStore).isOperator }) },
     {
       provide: MAT_RIPPLE_GLOBAL_OPTIONS,
       useFactory: (): RippleGlobalOptions => ({

@@ -15,6 +15,7 @@ import {
 import { ErrorMessagePipe } from '../../../../shared/presentation/pipes/error-message.pipe';
 import { ZonedDatePipe } from '../../../../shared/presentation/pipes/zoned-date.pipe';
 import { ACCOUNT_WORKSPACE } from '../../../application/account-workspace';
+import { PLATFORM_ENTRY } from '../../../application/platform-entry';
 import { AccountSessionsStore } from '../../../application/account-sessions.store';
 import { SessionStore } from '../../../application/session.store';
 import { AccountSession } from '../../../domain/model/account-session';
@@ -23,8 +24,9 @@ const LIMA = 'America/Lima';
 
 /**
  * Cuenta (`/cuenta`), for every role: who is signed in (I1), the devices with an open session and signing one out
- * (I5), another organization and signing out. pibble has no endpoint to edit the user, so the name is read-only.
- * Times show in the selected establishment's zone, which the app's routes provide.
+ * (I5), another organization, the Takodu team's area for operators, and signing out. pibble has no endpoint to
+ * edit the user, so the name is read-only. Times show in the selected establishment's zone, which the app's routes
+ * provide.
  */
 @Component({
   selector: 'app-account',
@@ -49,6 +51,7 @@ export class Account {
   protected readonly session = inject(SessionStore);
   protected readonly store = inject(AccountSessionsStore);
   protected readonly workspace = inject(ACCOUNT_WORKSPACE);
+  protected readonly platform = inject(PLATFORM_ENTRY);
 
   protected readonly timeZone = computed(() => this.workspace.timeZone() ?? LIMA);
   protected readonly loadError = computed(() => {

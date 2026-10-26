@@ -44,7 +44,7 @@ Functional guards in `presentation/guards`, since they read stores; each returns
 - `authGuard` (`iam`): signed in or restored, else `/ingresar?volver=…`.
 - `organizationGuard` (`organization`): an organization is selected, else `/organizaciones?volver=…`. It leaves signed-out users to `authGuard`.
 - `roleGuard(roles)` (`organization`): the selected role is one of `roles`, else `/sin-permiso`.
-- `/platform` will add an operator guard on `GET /internal/v1/operator` (F10).
+- `operatorGuard` (`platform`): `GET /internal/v1/operator`, else `/sin-permiso`, outside `Workspace` ([decision](../../../docs/decisions/implemented/2026-10-26-takodu-team-area-outside-the-workspace.md)).
 
 ## Inactive plan (O6)
 
