@@ -25,7 +25,7 @@
           <mat-slide-toggle
             [checked]="ranges.length > 0"
             [disabled]="!canChange()"
-            [attr.aria-label]="'organization.settings.hours.toggle' | translate: { day: dayName }"
+            [aria-label]="'organization.settings.hours.toggle' | translate: { day: dayName }"
             (change)="toggle(day, $event.checked)"
           >
             <span class="name">{{ dayName }}</span>

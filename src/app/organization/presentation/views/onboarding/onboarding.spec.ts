@@ -161,8 +161,8 @@ describe('Onboarding', () => {
     });
     expect(router.url).toBe('/primeros-pasos/whatsapp');
     expect(text(host)).toContain('2 de 3');
-    expect(text(host)).toContain('1 días a la semana');
-    expect(text(host)).toContain('1 servicios');
+    expect(text(host)).toContain('Días abiertos: 1');
+    expect(text(host)).toContain('Servicios: 1');
 
     [...host.querySelectorAll('button')]
       .find((b) => b.textContent!.includes('Hacerlo después'))!

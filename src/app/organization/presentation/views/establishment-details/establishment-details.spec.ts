@@ -18,8 +18,17 @@ describe('EstablishmentDetails', () => {
   let describeEstablishment: ReturnType<typeof vi.fn>;
   let open: ReturnType<typeof vi.fn>;
 
+  const selected = signal(MIRAFLORES);
+
   async function render(role: MemberRole = 'owner', planActive = true) {
-    describeEstablishment = vi.fn(async () => MIRAFLORES);
+    selected.set(MIRAFLORES);
+    // pibble answers and the list reloads with a new object for the same establishment.
+    describeEstablishment = vi.fn(async () => {
+      selected.set(
+        new Establishment('est-1', 'Sede Miraflores', 'Av. Larco 345', 'America/Lima', null),
+      );
+      return selected();
+    });
     open = vi.fn();
     TestBed.configureTestingModule({
       providers: [
@@ -34,7 +43,7 @@ describe('EstablishmentDetails', () => {
         {
           provide: CurrentEstablishment,
           useValue: {
-            selected: signal(MIRAFLORES),
+            selected,
             id: signal('est-1'),
             describe: describeEstablishment,
           },

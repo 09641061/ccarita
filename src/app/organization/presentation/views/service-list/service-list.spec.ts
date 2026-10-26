@@ -83,7 +83,7 @@ describe('ServiceList', () => {
     const { host } = await render();
     expect(text(host)).toContain('Activos');
     expect(text(host)).toContain('Corte clásico');
-    expect(text(host)).toContain('45 min · S/ 35.00 · 1 personas');
+    expect(text(host)).toContain('45 min · S/ 35.00 · Lo hacen: 1');
     expect(text(host)).toContain('Desactivados');
     expect(text(host)).toContain('Nadie lo hace aún');
   });

@@ -176,12 +176,12 @@
         "hours": {
           "title": "Horario de atención",
           "pending": "Cuándo se puede reservar",
-          "done": "{{count}} días a la semana"
+          "done": "Días abiertos: {{count}}"
         },
         "services": {
           "title": "Servicios y quién los hace",
           "pending": "Lo que ofreces",
-          "done": "{{count}} servicios"
+          "done": "Servicios: {{count}}"
         },
         "whatsapp": {
           "title": "Conectar WhatsApp",
@@ -295,7 +295,7 @@
         "active": "Activos",
         "inactive": "Desactivados",
         "minutes": "{{count}} min",
-        "performers": "{{count}} personas",
+        "performers": "Lo hacen: {{count}}",
         "nobody": "Nadie lo hace aún",
         "empty": {
           "title": "Aún no hay servicios",

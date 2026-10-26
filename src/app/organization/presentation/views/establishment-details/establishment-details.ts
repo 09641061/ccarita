@@ -70,9 +70,11 @@ export class EstablishmentDetails {
   protected readonly canChange = computed(() => this.organization.planActive());
 
   constructor() {
+    // Refills when another establishment is selected, not when the list reloads after saving.
     effect(() => {
-      const selected = this.establishment.selected();
+      this.establishment.id();
       untracked(() => {
+        const selected = this.establishment.selected();
         this.model.set(
           selected
             ? { name: selected.name, address: selected.address, timeZone: selected.timeZone }
