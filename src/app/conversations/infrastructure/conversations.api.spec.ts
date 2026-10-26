@@ -135,6 +135,69 @@ describe('conversations endpoints', () => {
     expect((await result).status).toBe('pending');
   });
 
+  it('W11, W12: sends an appointment template with its idempotency key', async () => {
+    const result = firstValueFrom(
+      TestBed.inject(MessagesApi).sendTemplate(
+        'c-1',
+        { template: 'reminder', appointmentId: 'a-1' },
+        'k-2',
+      ),
+    );
+    const request = backend.expectOne(`${API}/api/v1/conversations/c-1/templates`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ template: 'reminder', appointmentId: 'a-1' });
+    expect(request.request.headers.get('Idempotency-Key')).toBe('k-2');
+    request.flush(
+      messageResource('m-10', {
+        direction: 'out',
+        origin: 'staff',
+        kind: 'template',
+        templateName: 'takodu_appointment_reminder',
+        status: 'pending',
+      }),
+      { status: 201, statusText: 'Created' },
+    );
+    expect((await result).kind).toBe('template');
+  });
+
+  it('W9: assigns with a member and unassigns without one, with no idempotency key', async () => {
+    const api = TestBed.inject(ConversationsApi);
+    const assigned = firstValueFrom(api.assign('c-1', 'mem-2'));
+    const assign = backend.expectOne(`${API}/api/v1/conversations/c-1/assignee`);
+    expect(assign.request.method).toBe('PUT');
+    expect(assign.request.body).toEqual({ memberId: 'mem-2' });
+    expect(assign.request.headers.has('Idempotency-Key')).toBe(false);
+    assign.flush(conversationResource('c-1', { assignedMemberId: 'mem-2' }));
+    expect((await assigned).assignedMemberId).toBe('mem-2');
+
+    const unassigned = firstValueFrom(api.assign('c-1', null));
+    const unassign = backend.expectOne(`${API}/api/v1/conversations/c-1/assignee`);
+    expect(unassign.request.body).toEqual({});
+    unassign.flush(conversationResource('c-1'));
+    expect((await unassigned).assignedMemberId).toBeNull();
+  });
+
+  it('A3, A7: pauses and resumes the assistant with idempotency keys', async () => {
+    const api = TestBed.inject(ConversationsApi);
+    const paused = firstValueFrom(api.pauseAssistant('c-1', 'k-3'));
+    const pause = backend.expectOne(`${API}/api/v1/conversations/c-1/assistant/pause`);
+    expect(pause.request.method).toBe('POST');
+    expect(pause.request.headers.get('Idempotency-Key')).toBe('k-3');
+    pause.flush(
+      conversationResource('c-1', {
+        assistantPausedManually: true,
+        assistantPausedByMemberId: 'mem-1',
+      }),
+    );
+    expect((await paused).assistantPausedByMemberId).toBe('mem-1');
+
+    const resumed = firstValueFrom(api.resumeAssistant('c-1', 'k-4'));
+    const resume = backend.expectOne(`${API}/api/v1/conversations/c-1/assistant/resume`);
+    expect(resume.request.headers.get('Idempotency-Key')).toBe('k-4');
+    resume.flush(conversationResource('c-1'));
+    expect((await resumed).assistantPausedManually).toBe(false);
+  });
+
   it('downloads media as a blob and keeps pibble’s code on failure', async () => {
     const api = TestBed.inject(MediaApi);
     const ok = firstValueFrom(api.download('m-1'));

@@ -63,13 +63,59 @@
             }
           </span>
           @if (assignee(); as a) {
-            <span>{{ 'conversations.chat.assignedTo' | translate: { name: a } }}</span>
+            <span class="narrow-only">{{
+              'conversations.chat.assignedTo' | translate: { name: a }
+            }}</span>
           }
         </span>
       </div>
+      <button
+        matButton="outlined"
+        type="button"
+        class="assign wide-only"
+        [matMenuTriggerFor]="assignMenu"
+        [disabled]="acting() === 'assign'"
+        [attr.aria-label]="
+          ('conversations.chat.assign.label' | translate) +
+          ': ' +
+          (assignee() ?? ('conversations.chat.assign.none' | translate))
+        "
+      >
+        <mat-icon aria-hidden="true">person</mat-icon>
+        <span class="assignee">{{
+          assignee() ?? ('conversations.chat.assign.none' | translate)
+        }}</span>
+        <mat-icon aria-hidden="true" iconPositionEnd>arrow_drop_down</mat-icon>
+      </button>
+      @if (!c.customerDeleted && !c.assistantHandedOff) {
+        @if (assistantActive()) {
+          <button
+            matIconButton
+            type="button"
+            [disabled]="acting() !== null"
+            [attr.aria-label]="'conversations.chat.assistant.pause' | translate"
+            [attr.title]="'conversations.chat.assistant.pause' | translate"
+            (click)="assistant('pause')"
+          >
+            <mat-icon aria-hidden="true">pause_circle</mat-icon>
+          </button>
+        } @else {
+          <button
+            matIconButton
+            type="button"
+            [disabled]="acting() !== null"
+            [attr.aria-label]="'conversations.chat.assistant.resume' | translate"
+            [attr.title]="'conversations.chat.assistant.resume' | translate"
+            (click)="assistant('resume')"
+          >
+            <app-brand-mark [size]="24" />
+          </button>
+        }
+      }
       @if (!c.customerDeleted) {
         <a
           matIconButton
+          class="wide-only"
           routerLink="/agenda/reservar"
           [queryParams]="{ cliente: c.customerId }"
           [disabled]="!organization.planActive()"
@@ -80,6 +126,7 @@
         </a>
         <a
           matIconButton
+          class="wide-only"
           [routerLink]="['/clientes', c.customerId]"
           [attr.aria-label]="'conversations.chat.profile' | translate"
           [attr.title]="'conversations.chat.profile' | translate"
@@ -87,7 +134,86 @@
           <mat-icon aria-hidden="true">person</mat-icon>
         </a>
       }
+      <button
+        matIconButton
+        type="button"
+        class="narrow-only"
+        [matMenuTriggerFor]="moreMenu"
+        [attr.aria-label]="'conversations.chat.more' | translate"
+        [attr.title]="'conversations.chat.more' | translate"
+      >
+        <mat-icon aria-hidden="true">more_vert</mat-icon>
+      </button>
+      <mat-menu #assignMenu="matMenu">
+        <button
+          mat-menu-item
+          type="button"
+          [attr.aria-current]="c.assignedMemberId ? null : 'true'"
+          (click)="assign(null)"
+        >
+          <mat-icon aria-hidden="true">{{ c.assignedMemberId ? 'person_off' : 'check' }}</mat-icon>
+          <span>{{ 'conversations.chat.assign.none' | translate }}</span>
+        </button>
+        @for (member of assignees(); track member.id) {
+          <button
+            mat-menu-item
+            type="button"
+            [attr.aria-current]="member.id === c.assignedMemberId ? 'true' : null"
+            (click)="assign(member.id)"
+          >
+            <mat-icon aria-hidden="true">{{
+              member.id === c.assignedMemberId ? 'check' : 'person'
+            }}</mat-icon>
+            <span>{{ member.name }}</span>
+          </button>
+        }
+      </mat-menu>
+      <mat-menu #moreMenu="matMenu">
+        <button
+          mat-menu-item
+          type="button"
+          [matMenuTriggerFor]="assignMenu"
+          [disabled]="acting() === 'assign'"
+        >
+          <mat-icon aria-hidden="true">assignment_ind</mat-icon>
+          <span>{{ 'conversations.chat.assign.label' | translate }}</span>
+        </button>
+        @if (!c.customerDeleted) {
+          <a
+            mat-menu-item
+            routerLink="/agenda/reservar"
+            [queryParams]="{ cliente: c.customerId }"
+            [disabled]="!organization.planActive()"
+          >
+            <mat-icon aria-hidden="true">event</mat-icon>
+            <span>{{ 'conversations.chat.book' | translate }}</span>
+          </a>
+          <a mat-menu-item [routerLink]="['/clientes', c.customerId]">
+            <mat-icon aria-hidden="true">person</mat-icon>
+            <span>{{ 'conversations.chat.profile' | translate }}</span>
+          </a>
+        }
+      </mat-menu>
     </header>
+
+    @if (failure(); as f) {
+      <div class="action-error" role="alert">
+        <span>{{ f.error | errorMessage }}</span>
+        @if (f.error.retryable) {
+          <button matButton type="button" (click)="retryAction(f)">
+            {{ 'shared.state.retry' | translate }}
+          </button>
+        }
+        <button
+          matIconButton
+          type="button"
+          [attr.aria-label]="'conversations.chat.dismiss' | translate"
+          (click)="failure.set(null)"
+        >
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </div>
+    }
 
     @if (c.assistantHandedOff) {
       <div class="handoff" role="status">
@@ -96,6 +222,18 @@
           <strong>{{ 'conversations.chat.handedOff' | translate }}</strong>
           · {{ c.handoffSummary || ('conversations.chat.handedOffWaiting' | translate) }}
         </span>
+        @if (!c.customerDeleted) {
+          <button
+            matButton="outlined"
+            type="button"
+            class="resume"
+            [disabled]="acting() !== null"
+            (click)="assistant('resume')"
+          >
+            <app-brand-mark [size]="18" />
+            {{ 'conversations.chat.assistant.resume' | translate }}
+          </button>
+        }
       </div>
     }
 
@@ -172,6 +310,22 @@
             </p>
           </div>
         </div>
+        @if (b === 'windowClosed') {
+          <ng-container *ngTemplateOutlet="templates" />
+        }
+      } @else if (templatesShown()) {
+        <div class="templates-head">
+          <h3>{{ 'conversations.templates.title' | translate }}</h3>
+          <button
+            matIconButton
+            type="button"
+            [attr.aria-label]="'conversations.templates.close' | translate"
+            (click)="showTemplates.set(false)"
+          >
+            <mat-icon aria-hidden="true">close</mat-icon>
+          </button>
+        </div>
+        <ng-container *ngTemplateOutlet="templates" />
       } @else {
         <form class="reply" (submit)="$event.preventDefault(); send()">
           <mat-form-field subscriptSizing="dynamic" class="field">
@@ -216,9 +370,42 @@
             }
           </p>
         } @else {
-          <p class="hint">{{ 'conversations.chat.pausesAssistant' | translate }}</p>
+          <div class="hint-row">
+            <p class="hint">
+              {{
+                (c.assistantHandedOff || c.assistantPausedManually
+                  ? 'conversations.chat.assistant.resumeHint'
+                  : 'conversations.chat.pausesAssistant'
+                ) | translate
+              }}
+            </p>
+            <button
+              matButton
+              type="button"
+              class="open-templates"
+              (click)="showTemplates.set(true)"
+            >
+              <mat-icon aria-hidden="true">event_note</mat-icon>
+              {{ 'conversations.templates.open' | translate }}
+            </button>
+          </div>
         }
       }
+      <ng-template #templates>
+        <app-template-picker
+          [choices]="choices()"
+          [appointments]="upcomingAppointments()"
+          [appointmentsError]="upcomingError()"
+          [timeZone]="tz"
+          [memberNames]="names()"
+          [serviceNames]="serviceNames()"
+          [customerId]="c.customerId"
+          [busy]="templateBusy()"
+          [error]="templateError()"
+          (send)="sendTemplate($event)"
+          (reload)="upcoming.reload()"
+        />
+      </ng-template>
     </footer>
   </section>
 } @else {

@@ -3,6 +3,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { Conversation } from '../domain/model/conversation';
 import { Message } from '../domain/model/message';
+import { SendTemplate } from '../domain/model/template-choice';
 import { ConversationsApi } from '../infrastructure/conversations.api';
 import { MediaApi } from '../infrastructure/media.api';
 import { MessagesApi } from '../infrastructure/messages.api';
@@ -115,17 +116,63 @@ export class ConversationStore {
   async send(body: string, idempotencyKey: string): Promise<Message> {
     const id = this.openedId();
     if (!id) throw new Error('No conversation is open');
-    const message = await firstValueFrom(this.messagesApi.send(id, body, idempotencyKey));
-    if (this.openedId() === id) {
+    return this.queued(id, await firstValueFrom(this.messagesApi.send(id, body, idempotencyKey)));
+  }
+
+  /**
+   * W6, W11, W12, A3: queues an upcoming appointment's reminder or confirmation, which reaches the customer
+   * outside the window and pauses the assistant for 12 hours.
+   * @throws ApiError `TEMPLATE_NOT_APPROVED`, `APPOINTMENT_NOT_UPCOMING`, `LINE_DISCONNECTED`, `CUSTOMER_DELETED`,
+   * `PLAN_INACTIVE`.
+   */
+  async sendTemplate(command: SendTemplate, idempotencyKey: string): Promise<Message> {
+    const id = this.openedId();
+    if (!id) throw new Error('No conversation is open');
+    return this.queued(
+      id,
+      await firstValueFrom(this.messagesApi.sendTemplate(id, command, idempotencyKey)),
+    );
+  }
+
+  /** W9: informative; `null` unassigns. @throws ApiError `MEMBER_NOT_AT_ESTABLISHMENT`. */
+  async assign(memberId: string | null): Promise<void> {
+    const id = this.openedId();
+    if (!id) throw new Error('No conversation is open');
+    this.applied(await firstValueFrom(this.api.assign(id, memberId)));
+  }
+
+  /** A3: keeps the assistant quiet on this chat until someone resumes it; allowed on an inactive plan (O6). */
+  async pauseAssistant(idempotencyKey: string): Promise<void> {
+    const id = this.openedId();
+    if (!id) throw new Error('No conversation is open');
+    this.applied(await firstValueFrom(this.api.pauseAssistant(id, idempotencyKey)));
+  }
+
+  /** A3, A7: clears the pauses and the handoff; the assistant answers the customer's next message. */
+  async resumeAssistant(idempotencyKey: string): Promise<void> {
+    const id = this.openedId();
+    if (!id) throw new Error('No conversation is open');
+    this.applied(await firstValueFrom(this.api.resumeAssistant(id, idempotencyKey)));
+  }
+
+  /** A file a customer sent. @throws ApiError `MEDIA_NOT_READY`, `MEDIA_DOWNLOAD_FAILED`, `MEDIA_REMOVED`. */
+  media(messageId: string): Promise<Blob> {
+    return firstValueFrom(this.mediaApi.download(messageId));
+  }
+
+  /** Shows a message queued from this screen until the newest page includes it. */
+  private queued(conversationId: string, message: Message): Message {
+    if (this.openedId() === conversationId) {
       this.sent.update((sent) => [...sent, message]);
       this.conversation.reload();
     }
     return message;
   }
 
-  /** A file a customer sent. @throws ApiError `MEDIA_NOT_READY`, `MEDIA_DOWNLOAD_FAILED`, `MEDIA_REMOVED`. */
-  media(messageId: string): Promise<Blob> {
-    return firstValueFrom(this.mediaApi.download(messageId));
+  /** The conversation pibble returned after a command, here and in the inbox. */
+  private applied(conversation: Conversation): void {
+    if (this.openedId() === conversation.id) this.conversation.set(conversation);
+    this.inbox.upsert(conversation);
   }
 
   /** W8: shows it read at once; pibble's answer replaces it. A failure leaves the count for the next open. */

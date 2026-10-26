@@ -34,6 +34,13 @@ describe('Appointment', () => {
     expect(appointment('confirmed').canMarkNoShow(atStart)).toBe(true);
   });
 
+  it('W11, W12: upcoming means confirmed and not started', () => {
+    expect(appointment('confirmed').isUpcoming(beforeStart)).toBe(true);
+    expect(appointment('confirmed').isUpcoming(atStart)).toBe(false);
+    expect(appointment('in_progress').isUpcoming(beforeStart)).toBe(false);
+    expect(appointment('cancelled').isUpcoming(beforeStart)).toBe(false);
+  });
+
   it('B13: only confirmed appointments are rescheduled', () => {
     expect(appointment('confirmed').canReschedule).toBe(true);
     expect(appointment('in_progress').canReschedule).toBe(false);

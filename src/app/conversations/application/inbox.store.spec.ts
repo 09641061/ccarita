@@ -110,6 +110,15 @@ describe('InboxStore', () => {
     expect(shown()).toEqual(['c-2']);
   });
 
+  it('W3: finds a customer’s conversation among the loaded pages', async () => {
+    await flushFirstPage([
+      conversationResource('c-1', { customerId: 'cu-1' }),
+      conversationResource('c-2', { customerId: 'cu-2' }),
+    ]);
+    expect(store.conversationOf('cu-2')).toBe('c-2');
+    expect(store.conversationOf('cu-9')).toBeNull();
+  });
+
   it('reloads a changed conversation of the establishment and ignores other establishments', async () => {
     await flushFirstPage([
       conversationResource('c-1', { lastMessageAt: '2026-10-24T14:00:00Z' }),

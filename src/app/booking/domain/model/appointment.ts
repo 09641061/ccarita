@@ -60,6 +60,11 @@ export class Appointment {
     return this.status === 'confirmed';
   }
 
+  /** W11, W12: a confirmed appointment that has not started, whose reminder or confirmation can still go. */
+  isUpcoming(now: Date): boolean {
+    return this.status === 'confirmed' && this.start > now;
+  }
+
   overlaps(start: Date, end: Date): boolean {
     return this.start < end && start < this.end;
   }

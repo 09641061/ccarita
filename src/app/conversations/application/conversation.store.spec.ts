@@ -114,6 +114,63 @@ describe('ConversationStore', () => {
     backend.expectOne(CONVERSATION).flush(conversationResource('c-1', { unreadCount: 0 }));
   });
 
+  it('W11: shows a sent template at once and reloads the conversation', async () => {
+    await open();
+    const sending = store.sendTemplate({ template: 'reminder', appointmentId: 'a-1' }, 'k-2');
+    const post = backend.expectOne(`${CONVERSATION}/templates`);
+    expect(post.request.body).toEqual({ template: 'reminder', appointmentId: 'a-1' });
+    expect(post.request.headers.get('Idempotency-Key')).toBe('k-2');
+    post.flush(
+      messageResource('m-4', {
+        direction: 'out',
+        origin: 'staff',
+        kind: 'template',
+        status: 'pending',
+        occurredAt: '2026-10-24T14:06:00Z',
+      }),
+    );
+    await sending;
+    expect(store.messages()!.at(-1)!.kind).toBe('template');
+    TestBed.tick();
+    backend.expectOne(CONVERSATION).flush(conversationResource('c-1', { unreadCount: 0 }));
+  });
+
+  it('W9: puts the assigned conversation in the chat and the inbox', async () => {
+    await open();
+    const assigning = store.assign('mem-2');
+    backend
+      .expectOne(`${CONVERSATION}/assignee`)
+      .flush(conversationResource('c-1', { unreadCount: 0, assignedMemberId: 'mem-2' }));
+    await assigning;
+    expect(store.conversation.value()!.assignedMemberId).toBe('mem-2');
+    expect(upserted.at(-1)!.assignedMemberId).toBe('mem-2');
+  });
+
+  it('A3, A7: puts the paused and resumed conversation in the chat and the inbox', async () => {
+    await open();
+    const pausing = store.pauseAssistant('k-3');
+    const pause = backend.expectOne(`${CONVERSATION}/assistant/pause`);
+    expect(pause.request.headers.get('Idempotency-Key')).toBe('k-3');
+    pause.flush(
+      conversationResource('c-1', {
+        unreadCount: 0,
+        assistantPausedManually: true,
+        assistantPausedByMemberId: 'mem-1',
+      }),
+    );
+    await pausing;
+    expect(store.conversation.value()!.assistantPausedManually).toBe(true);
+    expect(upserted.at(-1)!.assistantPausedManually).toBe(true);
+
+    const resuming = store.resumeAssistant('k-4');
+    const resume = backend.expectOne(`${CONVERSATION}/assistant/resume`);
+    expect(resume.request.headers.get('Idempotency-Key')).toBe('k-4');
+    resume.flush(conversationResource('c-1', { unreadCount: 0 }));
+    await resuming;
+    expect(store.conversation.value()!.assistantPausedManually).toBe(false);
+    expect(upserted.at(-1)!.assistantPausedManually).toBe(false);
+  });
+
   it('W10: reloads the open chat when the stream says it changed, keeping the newest version', async () => {
     await open();
     changed.next('c-other');

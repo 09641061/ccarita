@@ -2,16 +2,20 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { appointment } from '../../../../../testing/booking-fixtures';
 import { conversation, message } from '../../../../../testing/conversation-fixtures';
 import { fakeResource } from '../../../../../testing/fake-resource';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { settle } from '../../../../../testing/settle';
+import { Appointment, UpcomingAppointments } from '../../../../booking/public-api';
 import {
   CurrentEstablishment,
   CurrentOrganization,
   EstablishmentTeam,
   Member,
+  Service,
 } from '../../../../organization/public-api';
+import { Money } from '../../../../shared/domain/model/money';
 import { ApiError } from '../../../../shared/domain/model/api-error';
 import { ConversationStore } from '../../../application/conversation.store';
 import { InboxStore } from '../../../application/inbox.store';
@@ -22,11 +26,39 @@ import { Chat } from './chat';
 
 const NOW = new Date('2026-10-24T15:00:00Z');
 const KEVIN = new Member('m-2', 'kevin@example.com', 'Kevin', 'staff', true, 'active', ['est-1']);
-const LINE = new WhatsappLine('l-1', 'est-1', '+51 900 000 000', 'coexistence', true, {});
+const LUIS = new Member('m-1', 'luis@example.com', 'Luis', 'owner', true, 'active', []);
+const ANDREA = new Member('m-3', 'andrea@example.com', 'Andrea', 'staff', true, 'active', [
+  'est-2',
+]);
+const CUT = new Service('s-1', 'est-1', 'Corte + barba', 60, new Money(4500, 'PEN'), true, ['m-2']);
+const LINE = new WhatsappLine('l-1', 'est-1', '+51 900 000 000', 'coexistence', true, {
+  reminder: 'approved',
+  confirmation: 'pending',
+});
+const CLOSED = { lastInboundAt: new Date('2026-10-22T23:04:00Z') };
+const MONDAY = appointment('confirmed', {
+  id: 'a-1',
+  customerId: 'cu-1',
+  staffMemberId: 'm-2',
+  start: '2026-10-26T15:00:00Z',
+  end: '2026-10-26T16:00:00Z',
+});
+const LATER = appointment('confirmed', {
+  id: 'a-2',
+  customerId: 'cu-1',
+  staffMemberId: 'm-2',
+  start: '2026-11-02T15:00:00Z',
+  end: '2026-11-02T16:00:00Z',
+});
 
 describe('Chat', () => {
   let store: ReturnType<typeof fakeStore>;
   let line: ReturnType<typeof fakeResource<WhatsappLine>>;
+  let upcoming: {
+    appointments: ReturnType<typeof fakeResource<readonly Appointment[]>>;
+    select: ReturnType<typeof vi.fn>;
+    reload: ReturnType<typeof vi.fn>;
+  };
   const planActive = signal(true);
 
   function fakeStore(c: Conversation, messages: Message[]) {
@@ -40,14 +72,27 @@ describe('Chat', () => {
       open: vi.fn(),
       loadOlder: vi.fn(),
       send: vi.fn(),
+      sendTemplate: vi.fn(),
+      assign: vi.fn<(memberId: string | null) => Promise<void>>().mockResolvedValue(undefined),
+      pauseAssistant: vi.fn<(key: string) => Promise<void>>().mockResolvedValue(undefined),
+      resumeAssistant: vi.fn<(key: string) => Promise<void>>().mockResolvedValue(undefined),
       media: vi.fn(() => new Promise<Blob>(() => undefined)),
     };
   }
 
-  async function render(c: Conversation = conversation(), messages: Message[] = []) {
+  async function render(
+    c: Conversation = conversation(),
+    messages: Message[] = [],
+    appointments: readonly Appointment[] = [MONDAY],
+  ) {
     vi.useFakeTimers({ toFake: ['Date'], now: NOW });
     store = fakeStore(c, messages);
     line = fakeResource<WhatsappLine>(LINE);
+    upcoming = {
+      appointments: fakeResource<readonly Appointment[]>(appointments),
+      select: vi.fn(),
+      reload: vi.fn(),
+    };
     TestBed.configureTestingModule({
       providers: [
         provideSpanish(),
@@ -64,8 +109,13 @@ describe('Chat', () => {
         { provide: CurrentEstablishment, useValue: { timeZone: signal('America/Lima') } },
         {
           provide: EstablishmentTeam,
-          useValue: { membersById: signal(new Map([[KEVIN.id, KEVIN]])) },
+          useValue: {
+            members: { value: signal([LUIS, KEVIN, ANDREA]) },
+            membersById: signal(new Map([LUIS, KEVIN, ANDREA].map((m) => [m.id, m]))),
+            servicesById: signal(new Map([[CUT.id, CUT]])),
+          },
         },
+        { provide: UpcomingAppointments, useValue: upcoming },
       ],
     });
     const harness = await RouterTestingHarness.create();
@@ -83,6 +133,15 @@ describe('Chat', () => {
   const type = (host: HTMLElement, value: string) => {
     textarea(host)!.value = value;
     textarea(host)!.dispatchEvent(new Event('input'));
+  };
+  const button = (host: HTMLElement, label: string) =>
+    [...host.querySelectorAll<HTMLButtonElement>('button')].find(
+      (b) => b.textContent!.includes(label) || b.getAttribute('aria-label')?.startsWith(label),
+    );
+  const press = async (target: HTMLElement | undefined, stable: () => Promise<void>) => {
+    target!.click();
+    await settle();
+    await stable();
   };
   const submit = async (host: HTMLElement, stable: () => Promise<void>) => {
     host.querySelector('form')!.dispatchEvent(new Event('submit'));
@@ -225,5 +284,120 @@ describe('Chat', () => {
       .find((b) => b.textContent!.includes('Ver mensajes anteriores'))!
       .click();
     expect(store.loadOlder).toHaveBeenCalled();
+  });
+
+  it('W6, W11: outside the window sends an approved reminder of the next appointment', async () => {
+    const { host, stable } = await render(conversation(CLOSED));
+    expect(upcoming.select).toHaveBeenLastCalledWith('cu-1');
+    expect(text(host)).toContain('Recordatorio de su cita');
+    expect(text(host)).toContain('Aprobada');
+    expect(text(host)).toMatch(/lun\.? 26 oct\.? · 10:00 – 11:00 · Corte \+ barba con Kevin/);
+    expect(text(host)).toContain('En revisión');
+    expect(text(host)).toContain('Meta aún no la aprueba');
+    const radios = host.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+    expect(radios[1].disabled).toBe(true);
+
+    store.sendTemplate.mockRejectedValueOnce(new ApiError(0, 'NETWORK_ERROR', 'x'));
+    await press(button(host, 'Enviar recordatorio'), stable);
+    expect(text(host)).toContain('Reintentar');
+    store.sendTemplate.mockResolvedValueOnce(message({ id: 'm-9', kind: 'template' }));
+    await press(button(host, 'Reintentar'), stable);
+    const [[command, first], [, retry]] = store.sendTemplate.mock.calls;
+    expect(command).toEqual({ template: 'reminder', appointmentId: 'a-1' });
+    expect(retry).toBe(first);
+  });
+
+  it('sends another appointment’s reminder after a lost answer with a new key', async () => {
+    const { host, stable } = await render(conversation(CLOSED), [], [MONDAY, LATER]);
+    store.sendTemplate.mockRejectedValueOnce(new ApiError(0, 'NETWORK_ERROR', 'x'));
+    await press(button(host, 'Enviar recordatorio'), stable);
+    host.querySelector<HTMLElement>('mat-select')!.click();
+    await stable();
+    await press(
+      [...document.querySelectorAll<HTMLElement>('mat-option')].find((o) =>
+        o.textContent!.includes('2 nov'),
+      ),
+      stable,
+    );
+    store.sendTemplate.mockResolvedValueOnce(message({ id: 'm-9', kind: 'template' }));
+    await press(button(host, 'Enviar recordatorio'), stable);
+    const [[, first], [command, second]] = store.sendTemplate.mock.calls;
+    expect(command).toEqual({ template: 'reminder', appointmentId: 'a-2' });
+    expect(second).not.toBe(first);
+  });
+
+  it('says when the customer has no upcoming appointment and links to booking', async () => {
+    const { host } = await render(conversation(CLOSED), [], []);
+    expect(text(host)).toContain('No tiene citas próximas');
+    expect(
+      host.querySelector('app-template-picker a[href="/agenda/reservar?cliente=cu-1"]'),
+    ).not.toBeNull();
+    expect(button(host, 'Enviar recordatorio')).toBeUndefined();
+  });
+
+  it('W6: inside the window opens the templates on request, a confirmation as normal text', async () => {
+    const { host, stable } = await render();
+    expect(upcoming.select).toHaveBeenLastCalledWith(null);
+    await press(button(host, 'Recordatorio o confirmación'), stable);
+    expect(upcoming.select).toHaveBeenLastCalledWith('cu-1');
+    expect(text(host)).toContain('Como mensaje normal');
+    const radios = host.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+    expect(radios[1].disabled).toBe(false);
+  });
+
+  it('O6: an inactive plan offers no templates but still assigns and pauses', async () => {
+    planActive.set(false);
+    const { host, stable } = await render(conversation(CLOSED));
+    expect(button(host, 'Enviar recordatorio')).toBeUndefined();
+    expect(button(host, 'Pausar asistente')!.disabled).toBe(false);
+    await press(button(host, 'Pausar asistente'), stable);
+    expect(store.pauseAssistant).toHaveBeenCalled();
+    expect(button(host, 'Asignar conversación')!.disabled).toBe(false);
+  });
+
+  it('W9: assigns to a member of the establishment or to nobody', async () => {
+    const { host, stable } = await render(conversation({ assignedMemberId: 'm-1' }));
+    await press(button(host, 'Asignar conversación: Luis'), stable);
+    const items = [...document.querySelectorAll<HTMLElement>('[mat-menu-item]')].map((i) =>
+      i.textContent!.replace(/\s+/g, ''),
+    );
+    expect(items).toEqual(['person_offSinasignar', 'checkLuis', 'personKevin']);
+    expect(items.some((i) => i.includes('Andrea'))).toBe(false);
+    await press(
+      [...document.querySelectorAll<HTMLElement>('[mat-menu-item]')].find((i) =>
+        i.textContent!.includes('Kevin'),
+      ),
+      stable,
+    );
+    expect(store.assign).toHaveBeenCalledWith('m-2');
+  });
+
+  it('A3: pauses with a key, and retries a lost answer with the same key', async () => {
+    const { host, stable } = await render();
+    store.pauseAssistant.mockRejectedValueOnce(new ApiError(0, 'NETWORK_ERROR', 'x'));
+    await press(button(host, 'Pausar asistente'), stable);
+    await press(button(host, 'Reintentar'), stable);
+    const [[first], [retry]] = store.pauseAssistant.mock.calls;
+    expect(retry).toBe(first);
+  });
+
+  it('A3: offers resuming a paused assistant and names who paused it', async () => {
+    const { host, stable } = await render(
+      conversation({ assistantPausedManually: true, assistantPausedByMemberId: 'm-1' }),
+    );
+    expect(text(host)).toContain('Asistente pausado por Luis');
+    expect(text(host)).toContain('el asistente responde desde el próximo mensaje');
+    await press(button(host, 'Retomar asistente'), stable);
+    expect(store.resumeAssistant).toHaveBeenCalled();
+  });
+
+  it('A7: resumes the assistant from the handoff banner', async () => {
+    const { host, stable } = await render(
+      conversation({ assistantHandedOff: true, handoffSummary: 'Pidió hablar con alguien' }),
+    );
+    const resume = host.querySelector<HTMLButtonElement>('.handoff button');
+    expect(resume!.textContent).toContain('Retomar asistente');
+    await press(resume!, stable);
+    expect(store.resumeAssistant).toHaveBeenCalled();
   });
 });
