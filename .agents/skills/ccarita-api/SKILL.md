@@ -57,7 +57,7 @@ Show errors with `ErrorMessagePipe`, which reads `errors.<CODE>` from `public/i1
 
 ## Inbox stream
 
-`GET /api/v1/inbox/stream` is server-sent events that need `Authorization` and `X-Organization-Id`, which `EventSource` cannot send. `conversations` reads it with `fetch` and a `ReadableStream` text decoder, parsing `data:` lines as `InboxChange` (`type`, `conversationId`, `establishmentId`). The first event is a `ping` meaning subscribed; pings repeat every 25 seconds. On each change the store reloads that conversation; on a drop or a missing ping for 60 seconds it reconnects with backoff and reloads the list. It refreshes the token through the session before reconnecting.
+`GET /api/v1/inbox/stream` is server-sent events that need `Authorization` and `X-Organization-Id`, which `EventSource` cannot send. `InboxStreamApi` reads it through `HttpClient` with progress events, so the interceptors refresh the token and add the tenant ([decision](../../../docs/decisions/implemented/2026-10-24-inbox-stream-through-http-client.md)); `ServerSentEvents` parses `data:` lines as `InboxChange` (`type`, `conversationId`, `establishmentId`). The first event is a `ping` meaning subscribed; pings repeat every 25 seconds. `InboxStore` reloads each changed conversation, and on a drop or 60 seconds without an event reconnects with backoff and reloads the first page and the open chat.
 
 ## Tests
 

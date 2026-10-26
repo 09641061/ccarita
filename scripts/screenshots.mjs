@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Screenshots the style guide, sign-in, the calendar and an appointment at phone and desktop sizes, light
+// Screenshots the style guide, sign-in, the calendar, customers and the inbox at phone and desktop sizes, light
 // and dark, for the pull request's Proof block. Needs `pnpm start`; screenshots are not committed.
 // Usage: pnpm screenshots [base-url]   (default http://localhost:5173, output in screenshots/)
 // Signed-in pages need pibble in dev mode and a user with an organization:
@@ -43,6 +43,8 @@ const signedIn = {
     },
   ],
   'customer-new': '/clientes/nuevo',
+  inbox: '/bandeja',
+  chat: ['/bandeja', (page) => page.locator('app-conversation-row').first().click()],
   more: '/mas',
 };
 const viewports = { phone: { width: 390, height: 844 }, desktop: { width: 1440, height: 900 } };
@@ -61,10 +63,11 @@ async function capture(pages) {
       for (const [name, target] of Object.entries(pages)) {
         if (name === 'more' && device === 'desktop') continue;
         const [path, step] = Array.isArray(target) ? target : [target];
-        await page.goto(baseUrl + path, { waitUntil: 'networkidle' });
+        await page.goto(baseUrl + path, { waitUntil: 'load' });
+        await idle();
         if (step) {
           await step(page);
-          await page.waitForLoadState('networkidle');
+          await idle();
           // In-app navigation runs a view transition; let it finish.
           await page.waitForTimeout(600);
         }
@@ -75,6 +78,11 @@ async function capture(pages) {
       }
     }
   }
+}
+
+/** The network goes quiet, except for the inbox stream, which never ends. */
+async function idle() {
+  await page.waitForLoadState('networkidle', { timeout: 4000 }).catch(() => undefined);
 }
 
 async function signIn() {

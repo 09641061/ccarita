@@ -41,7 +41,8 @@ One pull request into `develop` per step, built from the designs in `../ui-refer
 - **F3** calendar day and week, appointment detail and actions, cancel sheet, time blocks (done).
 - **F4** booking flow, customer search and registration, rescheduling (done).
 - **F5** customers: list, detail, registration, editing and deletion (done).
-- **F6** inbox and chat.
+- **F6a** inbox, live stream, reading and replying, media (done).
+- **F6b** templates in a closed window, assignment, assistant pause and resume, "Ver chat" from the customer.
 - **F7** onboarding and establishment settings.
 - **F8** assistant settings and usage.
 - **F9** team, invitations, ownership transfer, account sessions, plan.
@@ -53,10 +54,11 @@ Where pibble's API serves less than a design shows, the design adapts:
 - The calendar has no appointment search: pibble has no endpoint for it.
 - The cancel sheet says the customer gets a WhatsApp only when the business cancels and the establishment has a line; pibble sends nothing when the customer asked.
 - The customer panel shows no appointments, and there is no "Próxima cita" column: pibble lists appointments only per establishment and date range.
-- The customer panel has no "Ver chat" until the inbox exists (F6).
+- The customer panel has no "Ver chat" until F6b.
 - The customers list follows pibble's order by display name, so customers without a name (shown as "Sin nombre") come first, by phone.
 - Appointments show no notification status.
-- The inbox shows a status line instead of a message preview, has no search and no "replying" state, and filters only loaded conversations.
+- The inbox shows a status line instead of a message preview, has no search and no "replying" state, and filters only loaded conversations, 30 at a time with "Cargar más". It never says the assistant is answering: pibble does not say whether it is on, so an active conversation shows until when the customer can be written to.
+- Until F6b, a closed window explains itself and offers nothing to send, the assignee is shown but not chosen, and a handoff shows its summary without "Retomar asistente".
 - The customers page has previous and next without a total.
 - Staff send text and templates only.
 - The navigation shows no unread count.

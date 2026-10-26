@@ -1,0 +1,226 @@
+@let c = conversation();
+@let tz = establishment.timeZone();
+@let s = status();
+@if (loadError()) {
+  <div class="state">
+    <app-state-view
+      [kind]="errorKind()"
+      [title]="errorKind() === 'notFound' ? 'conversations.chat.notFound.title' : undefined"
+      [message]="errorKind() === 'notFound' ? 'conversations.chat.notFound.message' : undefined"
+      (retry)="retry()"
+    >
+      <a matButton routerLink="/bandeja">{{ 'conversations.chat.back' | translate }}</a>
+    </app-state-view>
+  </div>
+} @else if (c && tz && s) {
+  <section class="chat" aria-labelledby="chat-title">
+    <header class="header">
+      <a
+        matIconButton
+        class="back"
+        routerLink="/bandeja"
+        [attr.aria-label]="'conversations.chat.back' | translate"
+      >
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      </a>
+      @if (named()) {
+        <app-avatar [name]="name()!" [size]="40" />
+      }
+      <div class="titles">
+        <h2 id="chat-title">
+          {{ name() ?? ('conversations.inbox.deletedCustomer' | translate) }}
+        </h2>
+        <span class="subtitle">
+          @if (c.customerPhone && c.customerName && c.customerName !== c.customerPhone) {
+            <span>{{ c.customerPhone }}</span>
+          }
+          <span class="status" [class.warning]="s.warning">
+            <mat-icon aria-hidden="true">{{ s.icon }}</mat-icon>
+            @switch (s.key) {
+              @case ('pausedManually') {
+                {{
+                  (pausedBy()
+                    ? 'conversations.status.pausedBy'
+                    : 'conversations.status.pausedManually'
+                  ) | translate: { name: pausedBy() }
+                }}
+              }
+              @case ('pausedForHuman') {
+                {{
+                  'conversations.status.pausedForHuman'
+                    | translate: { time: (s.until! | zonedDate: tz : 'time') }
+                }}
+              }
+              @case ('windowOpen') {
+                {{
+                  'conversations.status.windowOpen'
+                    | translate: { time: (s.until! | zonedDate: tz : 'dayTime') }
+                }}
+              }
+              @default {
+                {{ 'conversations.status.' + s.key | translate }}
+              }
+            }
+          </span>
+          @if (assignee(); as a) {
+            <span>{{ 'conversations.chat.assignedTo' | translate: { name: a } }}</span>
+          }
+        </span>
+      </div>
+      @if (!c.customerDeleted) {
+        <a
+          matIconButton
+          routerLink="/agenda/reservar"
+          [queryParams]="{ cliente: c.customerId }"
+          [disabled]="!organization.planActive()"
+          [attr.aria-label]="'conversations.chat.book' | translate"
+          [attr.title]="'conversations.chat.book' | translate"
+        >
+          <mat-icon aria-hidden="true">event</mat-icon>
+        </a>
+        <a
+          matIconButton
+          [routerLink]="['/clientes', c.customerId]"
+          [attr.aria-label]="'conversations.chat.profile' | translate"
+          [attr.title]="'conversations.chat.profile' | translate"
+        >
+          <mat-icon aria-hidden="true">person</mat-icon>
+        </a>
+      }
+    </header>
+
+    @if (c.assistantHandedOff) {
+      <div class="handoff" role="status">
+        <mat-icon aria-hidden="true">support_agent</mat-icon>
+        <span>
+          <strong>{{ 'conversations.chat.handedOff' | translate }}</strong>
+          · {{ c.handoffSummary || ('conversations.chat.handedOffWaiting' | translate) }}
+        </span>
+      </div>
+    }
+
+    <div class="messages" #scroller (scroll)="scrolled(scroller)">
+      @if (store.latest.isLoading()) {
+        <mat-progress-bar mode="indeterminate" class="progress" />
+      }
+      @if (store.hasOlder()) {
+        <div class="older">
+          <button
+            matButton="tonal"
+            type="button"
+            [disabled]="store.loadingOlder()"
+            (click)="store.loadOlder()"
+          >
+            {{ 'conversations.chat.older' | translate }}
+          </button>
+        </div>
+      }
+      @if (store.messages()) {
+        <div
+          #log
+          class="log"
+          role="log"
+          [attr.aria-label]="'conversations.chat.messages' | translate"
+        >
+          @for (group of days(); track group.day.toString()) {
+            <h3 class="day">
+              @if (isToday(group.day)) {
+                {{ 'conversations.chat.today' | translate }}
+              } @else if (isYesterday(group.day)) {
+                {{ 'conversations.chat.yesterday' | translate }}
+              } @else {
+                <span class="capitalize">{{ group.day | zonedDate: tz : 'longDay' }}</span>
+              }
+            </h3>
+            @for (m of group.messages; track m.id) {
+              <app-message-bubble
+                [message]="m"
+                [timeZone]="tz"
+                [memberName]="m.sentByMemberId ? names().get(m.sentByMemberId) : undefined"
+              >
+                @if (m.carriesMedia) {
+                  <app-message-media [message]="m" />
+                }
+              </app-message-bubble>
+            }
+          } @empty {
+            <p class="day">{{ 'conversations.chat.noMessages' | translate }}</p>
+          }
+        </div>
+      } @else {
+        <app-skeleton [rows]="4" />
+      }
+    </div>
+
+    <footer class="composer">
+      @if (block(); as b) {
+        <div class="blocked" [class.closed]="b === 'windowClosed'">
+          <mat-icon aria-hidden="true">{{
+            b === 'windowClosed' ? 'lock_clock' : b === 'customerDeleted' ? 'person_off' : 'block'
+          }}</mat-icon>
+          <div>
+            <h3>{{ 'conversations.chat.blocked.' + b + '.title' | translate }}</h3>
+            <p>
+              @if (b === 'windowClosed' && c.windowClosesAt; as closed) {
+                {{
+                  'conversations.chat.blocked.windowClosed.since'
+                    | translate: { time: (closed | zonedDate: tz : 'dayTime') }
+                }}
+              } @else {
+                {{ 'conversations.chat.blocked.' + b + '.message' | translate }}
+              }
+            </p>
+          </div>
+        </div>
+      } @else {
+        <form class="reply" (submit)="$event.preventDefault(); send()">
+          <mat-form-field subscriptSizing="dynamic" class="field">
+            <mat-label>{{ 'conversations.chat.reply' | translate }}</mat-label>
+            <textarea
+              matInput
+              rows="1"
+              cdkTextareaAutosize
+              [formField]="reply.body"
+              [placeholder]="'conversations.chat.placeholder' | translate"
+              (keydown.control.enter)="send()"
+              (keydown.meta.enter)="send()"
+            ></textarea>
+            @if (model().body.length > maxLength - 200) {
+              <mat-hint align="end">{{ model().body.length }} / {{ maxLength }}</mat-hint>
+            }
+            @if (reply.body().invalid()) {
+              <mat-error>{{
+                'conversations.chat.tooLong' | translate: { max: maxLength }
+              }}</mat-error>
+            }
+          </mat-form-field>
+          <app-busy-button
+            type="submit"
+            class="send"
+            [busy]="busy()"
+            [disabled]="!model().body.trim()"
+          >
+            <mat-icon aria-hidden="true">send</mat-icon>
+            <span class="tk-visually-hidden">{{
+              (busy() ? 'conversations.chat.sending' : 'conversations.chat.send') | translate
+            }}</span>
+          </app-busy-button>
+        </form>
+        @if (error(); as e) {
+          <p class="error" role="alert">
+            {{ e | errorMessage }}
+            @if (e.retryable) {
+              <button matButton type="button" (click)="send()">
+                {{ 'shared.state.retry' | translate }}
+              </button>
+            }
+          </p>
+        } @else {
+          <p class="hint">{{ 'conversations.chat.pausesAssistant' | translate }}</p>
+        }
+      }
+    </footer>
+  </section>
+} @else {
+  <div class="state"><app-skeleton [rows]="5" /></div>
+}
