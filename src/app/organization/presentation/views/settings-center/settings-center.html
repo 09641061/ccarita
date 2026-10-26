@@ -6,16 +6,6 @@
         <h2 id="settings-title" class="title" tabindex="-1">
           {{ 'organization.settingsCenter.title' | translate }}
         </h2>
-        @if (!wide()) {
-          <button
-            matIconButton
-            type="button"
-            [attr.aria-label]="'organization.settingsCenter.close' | translate"
-            (click)="close()"
-          >
-            <mat-icon aria-hidden="true">close</mat-icon>
-          </button>
-        }
       </div>
       @for (entry of groups(); track entry.group) {
         <p class="group">{{ 'organization.settingsCenter.groups.' + entry.group | translate }}</p>
@@ -63,15 +53,6 @@
             <p class="place">{{ place.name }}</p>
           }
         </div>
-        <button
-          matIconButton
-          type="button"
-          class="close"
-          [attr.aria-label]="'organization.settingsCenter.close' | translate"
-          (click)="close()"
-        >
-          <mat-icon aria-hidden="true">close</mat-icon>
-        </button>
       </header>
       <div class="body">
         @if (current.scope === 'establishment') {
@@ -95,4 +76,14 @@
       </div>
     </section>
   }
+  <!-- One close for the whole window, above both columns, like Claude's settings. -->
+  <button
+    matIconButton
+    type="button"
+    class="close"
+    [attr.aria-label]="'organization.settingsCenter.close' | translate"
+    (click)="close()"
+  >
+    <mat-icon aria-hidden="true">close</mat-icon>
+  </button>
 </div>

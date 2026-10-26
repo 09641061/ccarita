@@ -1,0 +1,10 @@
+// A small dialog over the settings center, not a sheet from the bottom.
+:host {
+  display: block;
+}
+
+.sheet {
+  max-width: none;
+  margin: 0;
+  padding: 24px;
+}

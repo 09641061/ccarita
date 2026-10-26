@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -9,7 +10,7 @@ import { CurrentOrganization } from '../../../application/current-organization.s
 import { Establishment } from '../../../domain/model/establishment';
 import { ArchiveEstablishmentSheet } from '../archive-establishment-sheet/archive-establishment-sheet';
 import { EstablishmentDetails } from '../establishment-details/establishment-details';
-import { OpenEstablishmentSheet } from '../open-establishment-sheet/open-establishment-sheet';
+import { OpenEstablishmentDialog } from '../open-establishment-dialog/open-establishment-dialog';
 
 /**
  * Ajustes › Locales, for the owner (03 §5): every open establishment, each edited in its own row (O7), opening
@@ -24,6 +25,7 @@ import { OpenEstablishmentSheet } from '../open-establishment-sheet/open-establi
 })
 export class EstablishmentList {
   private readonly sheet = inject(MatBottomSheet);
+  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   protected readonly organization = inject(CurrentOrganization);
   protected readonly establishment = inject(CurrentEstablishment);
@@ -45,7 +47,9 @@ export class EstablishmentList {
   }
 
   protected open(): void {
-    this.sheet.open(OpenEstablishmentSheet, {
+    this.dialog.open(OpenEstablishmentDialog, {
+      width: 'min(480px, calc(100vw - 32px))',
+      autoFocus: 'first-tabbable',
       ariaLabel: this.translate.instant('organization.settings.openSheet.title'),
     });
   }

@@ -12,7 +12,6 @@
       <span class="dot" aria-hidden="true">·</span>
       <span class="plan">{{ planLabel }}</span>
     </span>
-    <mat-icon class="unfold" aria-hidden="true">unfold_more</mat-icon>
   }
 </button>
 <mat-menu #menu="matMenu" class="tk-profile-menu" [yPosition]="compact() ? 'below' : 'above'">
@@ -39,17 +38,28 @@
       <span>{{ 'platform.entry' | translate }}</span>
     </a>
   }
-  @for (soon of ['help', 'upgrade', 'learn']; track soon) {
-    <button mat-menu-item type="button" disabled>
-      <mat-icon aria-hidden="true">{{
-        soon === 'help' ? 'help' : soon === 'upgrade' ? 'workspace_premium' : 'school'
-      }}</mat-icon>
-      <span class="soon-label">
-        {{ 'shared.profile.' + soon | translate }}
-        <span class="soon">{{ 'shared.profile.soon' | translate }}</span>
-      </span>
-    </button>
-  }
+  <button mat-menu-item type="button" disabled>
+    <mat-icon aria-hidden="true">help</mat-icon>
+    <span class="soon-label">
+      {{ 'shared.profile.help' | translate }}
+      <span class="soon">{{ 'shared.profile.soon' | translate }}</span>
+    </span>
+  </button>
+  <mat-divider />
+  <button mat-menu-item type="button" disabled>
+    <mat-icon aria-hidden="true">workspace_premium</mat-icon>
+    <span class="soon-label">
+      {{ 'shared.profile.upgrade' | translate }}
+      <span class="soon">{{ 'shared.profile.soon' | translate }}</span>
+    </span>
+  </button>
+  <button mat-menu-item type="button" disabled>
+    <mat-icon aria-hidden="true">info</mat-icon>
+    <span class="soon-label">
+      {{ 'shared.profile.learn' | translate }}
+      <span class="soon">{{ 'shared.profile.soon' | translate }}</span>
+    </span>
+  </button>
   <mat-divider />
   <button mat-menu-item type="button" (click)="signOut.emit()">
     <mat-icon aria-hidden="true">logout</mat-icon>

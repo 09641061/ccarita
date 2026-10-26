@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormField, form, maxLength, required } from '@angular/forms/signals';
-import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -19,7 +19,7 @@ import { DEFAULT_TIME_ZONE, timeZoneOptions } from '../establishment-details/tim
  * One idempotency key per attempt, reused on a retry after a lost answer and renewed when the form changes.
  */
 @Component({
-  selector: 'app-open-establishment-sheet',
+  selector: 'app-open-establishment-dialog',
   imports: [
     BusyButton,
     ErrorMessagePipe,
@@ -30,13 +30,13 @@ import { DEFAULT_TIME_ZONE, timeZoneOptions } from '../establishment-details/tim
     MatSelectModule,
     TranslatePipe,
   ],
-  templateUrl: './open-establishment-sheet.html',
-  styleUrl: '../sheet.scss',
+  templateUrl: './open-establishment-dialog.html',
+  styleUrls: ['../sheet.scss', './open-establishment-dialog.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OpenEstablishmentSheet {
+export class OpenEstablishmentDialog {
   private readonly establishment = inject(CurrentEstablishment);
-  private readonly ref = inject(MatBottomSheetRef<OpenEstablishmentSheet, boolean>);
+  private readonly ref = inject(MatDialogRef<OpenEstablishmentDialog, boolean>);
 
   protected readonly model = signal<EstablishmentDetails>({
     name: '',
@@ -65,7 +65,7 @@ export class OpenEstablishmentSheet {
     this.error.set(null);
     try {
       await this.establishment.open(this.model(), this.key);
-      this.ref.dismiss(true);
+      this.ref.close(true);
     } catch (error) {
       const failure = ApiError.of(error);
       this.error.set(failure);
@@ -79,6 +79,6 @@ export class OpenEstablishmentSheet {
   }
 
   protected back(): void {
-    this.ref.dismiss(false);
+    this.ref.close(false);
   }
 }

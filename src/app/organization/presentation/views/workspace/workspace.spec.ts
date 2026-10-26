@@ -131,6 +131,8 @@ describe('Workspace', () => {
     expect(
       host.querySelector('aside app-profile-menu .text')?.textContent?.replace(/\s+/g, ' ').trim(),
     ).toBe('Luis Ramírez·Plan Standard');
+    // One account, so no up-and-down arrows.
+    expect(host.querySelector('aside app-profile-menu mat-icon')).toBeNull();
   });
 
   it('shows the plan banner on every screen while the plan is inactive (O6)', async () => {
@@ -155,20 +157,28 @@ describe('Workspace', () => {
     expect(select).toHaveBeenCalledWith('est-2');
   });
 
-  it('opens a Claude-like menu: settings, placeholders and sign-out', async () => {
+  it('opens a Claude-like menu: settings, placeholders and sign-out, in groups', async () => {
     const { harness, host } = await render('owner');
     const panel = await openMenu(harness, host);
 
     expect(menuText(panel)).toBe(
-      'Luis Ramírezluis@donlucho.pesettingsAjusteshelp Ayuda Prontoworkspace_premium Subir plan Prontoschool Aprender más ProntologoutCerrar sesión',
+      'Luis Ramírezluis@donlucho.pesettingsAjusteshelp Ayuda Prontoworkspace_premium Subir plan Prontoinfo Aprender más ProntologoutCerrar sesión',
     );
     expect(panel.querySelector('a[href="/agenda?ajustes="]')).not.toBeNull();
     const disabled = [...panel.querySelectorAll<HTMLButtonElement>('button[disabled]')];
     expect(disabled.map((b) => b.textContent!.replace(/\s+/g, ' ').trim())).toEqual([
       'help Ayuda Pronto',
       'workspace_premium Subir plan Pronto',
-      'school Aprender más Pronto',
+      'info Aprender más Pronto',
     ]);
+    // Lines after the header, before Subir plan and Aprender más, and before signing out.
+    const groups = [...panel.querySelector('.mat-mdc-menu-content')!.children].map((child) =>
+      child.tagName === 'MAT-DIVIDER' ? '|' : child.textContent!.replace(/\s+/g, ' ').trim(),
+    );
+    expect(groups.join(' ').split(' | ').length).toBe(4);
+    expect(groups.indexOf('|', groups.indexOf('help Ayuda Pronto'))).toBe(
+      groups.indexOf('workspace_premium Subir plan Pronto') - 1,
+    );
   });
 
   it('offers another organization and the Takodu area only when they apply', async () => {

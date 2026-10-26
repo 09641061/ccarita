@@ -65,7 +65,7 @@ Visual design comes from the designs made for Takodu; this skill fixes how they 
 
 ## Accessibility
 
-Template lint includes the accessibility rules. Every control has a visible label or `aria-label`, icon buttons have `aria-label`, errors use `role="alert"`, dialogs move focus to their title, and interactive targets are at least 48 px. Do not convey state by color alone: add a text or icon (appointment status, message delivery).
+Template lint checks accessibility. Controls and icon buttons have a label or `aria-label`, errors use `role="alert"`, dialogs move focus to their title, and targets are 48 px on phones; desktop lists (drawer, menus, settings) use 40 px rows, 4 px apart. State is never shown by color alone.
 
 ## Tests
 

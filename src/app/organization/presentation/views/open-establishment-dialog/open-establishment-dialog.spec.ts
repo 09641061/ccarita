@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatDialogRef } from '@angular/material/dialog';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { settle } from '../../../../../testing/settle';
 import { ApiError } from '../../../../shared/domain/model/api-error';
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
-import { OpenEstablishmentSheet } from './open-establishment-sheet';
+import { OpenEstablishmentDialog } from './open-establishment-dialog';
 
-describe('OpenEstablishmentSheet', () => {
+describe('OpenEstablishmentDialog', () => {
   let open: ReturnType<typeof vi.fn>;
   let dismiss: ReturnType<typeof vi.fn>;
 
@@ -17,10 +17,10 @@ describe('OpenEstablishmentSheet', () => {
       providers: [
         provideSpanish(),
         { provide: CurrentEstablishment, useValue: { open } },
-        { provide: MatBottomSheetRef, useValue: { dismiss } },
+        { provide: MatDialogRef, useValue: { close: dismiss } },
       ],
     });
-    const fixture = TestBed.createComponent(OpenEstablishmentSheet);
+    const fixture = TestBed.createComponent(OpenEstablishmentDialog);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
     const type = (value: string) => {

@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { settle } from '../../../../../testing/settle';
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
@@ -8,7 +9,7 @@ import { CurrentOrganization } from '../../../application/current-organization.s
 import { Establishment } from '../../../domain/model/establishment';
 import { MemberAction, MemberRole, canPerform } from '../../../domain/model/member-role';
 import { ArchiveEstablishmentSheet } from '../archive-establishment-sheet/archive-establishment-sheet';
-import { OpenEstablishmentSheet } from '../open-establishment-sheet/open-establishment-sheet';
+import { OpenEstablishmentDialog } from '../open-establishment-dialog/open-establishment-dialog';
 import { EstablishmentList } from './establishment-list';
 
 const MIRAFLORES = new Establishment('est-1', 'Miraflores', 'Av. Larco 345', 'America/Lima', null);
@@ -16,11 +17,13 @@ const SURCO = new Establishment('est-2', 'Surco', '', 'America/Lima', null);
 
 describe('EstablishmentList', () => {
   let open: ReturnType<typeof vi.fn>;
+  let openDialog: ReturnType<typeof vi.fn>;
   let describeEstablishment: ReturnType<typeof vi.fn>;
   let select: ReturnType<typeof vi.fn>;
 
   async function render(role: MemberRole = 'owner', planActive = true) {
     open = vi.fn();
+    openDialog = vi.fn();
     select = vi.fn();
     describeEstablishment = vi.fn(async () => SURCO);
     TestBed.configureTestingModule({
@@ -44,6 +47,7 @@ describe('EstablishmentList', () => {
           },
         },
         { provide: MatBottomSheet, useValue: { open } },
+        { provide: MatDialog, useValue: { open: openDialog } },
       ],
     });
     const fixture = TestBed.createComponent(EstablishmentList);
@@ -58,13 +62,13 @@ describe('EstablishmentList', () => {
 
   const text = (host: HTMLElement) => host.textContent!.replace(/\s+/g, ' ');
 
-  it('O4: lists the establishments, marking the selected one, and opens and archives them', async () => {
+  it('O4: lists the establishments, marking the selected one, opens one in a dialog and archives them', async () => {
     const { host, button } = await render();
     expect(text(host)).toContain('Miraflores Seleccionado');
     expect(text(host)).toContain('Surco');
 
     button('Abrir local').click();
-    expect(open).toHaveBeenCalledWith(OpenEstablishmentSheet, expect.anything());
+    expect(openDialog).toHaveBeenCalledWith(OpenEstablishmentDialog, expect.anything());
     button('Archivar Surco').click();
     expect(open).toHaveBeenCalledWith(
       ArchiveEstablishmentSheet,
