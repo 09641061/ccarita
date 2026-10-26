@@ -162,4 +162,63 @@ describe('CurrentOrganization and CurrentEstablishment', () => {
 
     expect(establishment.id()).toBe('est-1');
   });
+
+  it('O1: creates an organization with the key and selects it', async () => {
+    await load([]);
+    const done = store.create(
+      {
+        name: 'Barbería',
+        establishment: { name: 'Miraflores', address: '', timeZone: '' },
+        ownerDisplayName: 'Luis',
+      },
+      'key-1',
+    );
+    const post = backend.expectOne(`${API}/api/v1/organizations`);
+    expect(post.request.method).toBe('POST');
+    post.flush({
+      id: 'org-9',
+      name: 'Barbería',
+      plan: 'standard',
+      planActiveUntil: PLAN_ACTIVE_UNTIL,
+    });
+    await settle();
+    backend.expectOne(`${API}/api/v1/organizations`).flush([joinedResource('org-9')]);
+    await done;
+
+    expect(tenant.organizationId()).toBe('org-9');
+    expect(store.role()).toBe('owner');
+  });
+
+  it('selects an opened establishment and falls back after archiving it', async () => {
+    tenant.selectOrganization('org-1');
+    const establishment = TestBed.inject(CurrentEstablishment);
+    await load([joinedResource('org-1')]);
+    TestBed.tick();
+    backend.expectOne(`${API}/api/v1/establishments`).flush([establishmentResource('est-1')]);
+    await settle();
+
+    const details = { name: 'Barranco', address: '', timeZone: '' };
+    const opened = establishment.open(details, 'key-2');
+    backend.expectOne(`${API}/api/v1/establishments`).flush(establishmentResource('est-2'), {
+      status: 201,
+      statusText: '',
+    });
+    await opened;
+    TestBed.tick();
+    backend
+      .expectOne(`${API}/api/v1/establishments`)
+      .flush([establishmentResource('est-1'), establishmentResource('est-2')]);
+    await settle();
+    expect(establishment.id()).toBe('est-2');
+
+    const archived = establishment.archive('est-2');
+    backend
+      .expectOne(`${API}/api/v1/establishments/est-2/archivals`)
+      .flush(establishmentResource('est-2', '2026-10-25T10:00:00Z'));
+    await archived;
+    TestBed.tick();
+    backend.expectOne(`${API}/api/v1/establishments`).flush([establishmentResource('est-1')]);
+    await settle();
+    expect(establishment.id()).toBe('est-1');
+  });
 });

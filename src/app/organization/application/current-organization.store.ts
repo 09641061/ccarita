@@ -5,6 +5,7 @@ import { SessionStore } from '../../iam/public-api';
 import { TenantContext } from '../../shared/infrastructure/tenancy/tenant-context';
 import { JoinedOrganization } from '../domain/model/joined-organization';
 import { MemberAction, MemberRole, canPerform } from '../domain/model/member-role';
+import { CreateOrganization, Organization } from '../domain/model/organization';
 import { InvitationAcceptancesApi } from '../infrastructure/invitation-acceptances.api';
 import { OrganizationsApi } from '../infrastructure/organizations.api';
 
@@ -92,6 +93,17 @@ export class CurrentOrganization {
     await this.load(true);
     this.select(joined.id);
     return joined;
+  }
+
+  /**
+   * O1: creates the business with its first establishment, the caller as owner, and selects it.
+   * @throws ApiError `VALIDATION_ERROR`, `NETWORK_ERROR`.
+   */
+  async create(command: CreateOrganization, idempotencyKey: string): Promise<Organization> {
+    const organization = await firstValueFrom(this.api.create(command, idempotencyKey));
+    await this.load(true);
+    this.select(organization.id);
+    return organization;
   }
 
   private async fetch(): Promise<readonly JoinedOrganization[]> {

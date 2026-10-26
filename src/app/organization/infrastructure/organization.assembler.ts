@@ -1,5 +1,9 @@
 import type {
+  CreateOrganizationRequest,
+  EstablishmentDetailsRequest,
   Establishment as EstablishmentResource,
+  OpeningHours as OpeningHoursResource,
+  ServiceDetailsRequest,
   JoinedOrganization as JoinedOrganizationResource,
   Member as MemberResource,
   Organization as OrganizationResource,
@@ -7,11 +11,13 @@ import type {
 } from '../../shared/infrastructure/api/pibble.schema';
 import { Money } from '../../shared/domain/model/money';
 import { required } from '../../shared/infrastructure/api/required';
-import { Establishment } from '../domain/model/establishment';
+import { Establishment, EstablishmentDetails } from '../domain/model/establishment';
 import { JoinedOrganization } from '../domain/model/joined-organization';
 import { Member } from '../domain/model/member';
-import { Organization } from '../domain/model/organization';
+import { IsoWeekday, OpeningHours } from '../domain/model/opening-hours';
+import { CreateOrganization, Organization } from '../domain/model/organization';
 import { Service } from '../domain/model/service';
+import { ServiceDetails } from '../domain/model/service-details';
 
 export function toJoinedOrganization(resource: JoinedOrganizationResource): JoinedOrganization {
   return new JoinedOrganization(
@@ -64,5 +70,58 @@ export function toService(resource: ServiceResource): Service {
     new Money(required(resource.priceCents, 'Service.priceCents'), resource.currency ?? 'PEN'),
     resource.active ?? true,
     resource.performerIds ?? [],
+    resource.instructions ?? '',
   );
+}
+
+export function toCreateOrganizationRequest(
+  command: CreateOrganization,
+): CreateOrganizationRequest {
+  return {
+    name: command.name.trim(),
+    establishmentName: command.establishment.name.trim(),
+    ...optional('address', command.establishment.address),
+    ...optional('timeZone', command.establishment.timeZone),
+    ownerDisplayName: command.ownerDisplayName.trim(),
+  };
+}
+
+/** A blank address or time zone is left out: pibble then keeps none, and America/Lima (O7). */
+export function toEstablishmentDetailsRequest(
+  details: EstablishmentDetails,
+): EstablishmentDetailsRequest {
+  return {
+    name: details.name.trim(),
+    ...optional('address', details.address),
+    ...optional('timeZone', details.timeZone),
+  };
+}
+
+export function toOpeningHours(resource: OpeningHoursResource): OpeningHours {
+  return new OpeningHours(
+    required(resource.ranges, 'OpeningHours.ranges').map((range) => ({
+      weekday: required(range.weekday, 'OpeningRange.weekday') as IsoWeekday,
+      opensAt: required(range.opensAt, 'OpeningRange.opensAt').slice(0, 5),
+      closesAt: required(range.closesAt, 'OpeningRange.closesAt').slice(0, 5),
+    })),
+  );
+}
+
+export function toOpeningHoursResource(hours: OpeningHours): OpeningHoursResource {
+  return { ranges: hours.ranges.map((range) => ({ ...range })) };
+}
+
+export function toServiceDetailsRequest(details: ServiceDetails): ServiceDetailsRequest {
+  return {
+    name: details.name.trim(),
+    durationMinutes: details.durationMinutes,
+    priceCents: details.priceCents,
+    ...optional('instructions', details.instructions),
+    performerIds: [...details.performerIds],
+  };
+}
+
+function optional<K extends string>(key: K, value: string): Partial<Record<K, string>> {
+  const trimmed = value.trim();
+  return trimmed ? ({ [key]: trimmed } as Record<K, string>) : {};
 }
