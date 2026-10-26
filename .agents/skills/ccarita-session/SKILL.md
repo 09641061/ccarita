@@ -15,7 +15,7 @@ Product rules: I1–I6 (sign-in), O9, O10 and O13 (roles, invitations, visibilit
 4. A refused refresh clears tokens and `TenantContext`; `Workspace` then returns to `/ingresar?volver=…`. Sign-out deletes the session in pibble and clears both, even offline.
 5. After sign-in, `volver` passes through `safeReturnUrl`, so only paths inside the app are followed.
 
-Cuenta (`/cuenta`) lists devices through `AccountSessionsStore` (`/api/v1/auth/sessions`); this device signs out through `SessionStore.signOut()`. The app's routes provide `ACCOUNT_WORKSPACE` (time zone, several organizations), since `iam` imports no context.
+Cuenta, a settings section, lists devices through `AccountSessionsStore` (`/api/v1/auth/sessions`); this device signs out through `SessionStore.signOut()`. The `Workspace` route provides `ACCOUNT_WORKSPACE`, since `iam` imports no context.
 
 ## Organization and establishment (`organization`)
 
@@ -26,7 +26,7 @@ Cuenta (`/cuenta`) lists devices through `AccountSessionsStore` (`/api/v1/auth/s
 
 ## The frame
 
-`Workspace` fills `Shell`: `navigationFor(role)`, the establishment switcher, the plan card, and the account menu (Cuenta, Cambiar de organización with several, Salir). Below 1024 px the switcher and account go in the top bar. While `planActive()` is false, `PlanBanner` sits above every screen with `environment.renewalContact`.
+`Workspace` fills `Shell`: `navigationFor(role)`, the establishment switcher, and `ProfileMenu` (name · plan; Ajustes, other organization, Panel de Takodu, sign-out). `?ajustes=<section>` opens `SettingsCenter` over the screen. Below 1024 px they go in the top bar. While `planActive()` is false, `PlanBanner` sits above every screen with `environment.renewalContact`.
 
 ## Roles in the UI
 

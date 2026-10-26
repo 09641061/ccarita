@@ -47,6 +47,7 @@ One pull request into `develop` per step, built from the designs in `../ui-refer
 - **F8** assistant settings and usage (done).
 - **F9** team, invitations, ownership transfer, account sessions, organization and plan (done).
 - **F10** Takodu team area (done).
+- **Alignment** settings center and profile menu, Claude-like (done).
 
 Where pibble's API serves less than a design shows, the design adapts:
 
@@ -61,9 +62,10 @@ Where pibble's API serves less than a design shows, the design adapts:
 - Reminders and confirmations offer the customer's confirmed appointments of the next 42 days, the most pibble's calendar lists at once, since it has no per-customer read for members. With several, a menu picks the appointment instead of one card per appointment. Inside the window a confirmation goes as normal text, so it needs no approval.
 - The assistant button pauses an active assistant and resumes a paused one, offered whether or not the assistant is turned on: its settings are readable only by owners and managers, while staff use the chat too.
 - Primeros pasos has four steps (hours, services, WhatsApp, assistant) instead of five: inviting the team is done from Equipo. A step is done when pibble reports it, and only owners walk it.
-- Opening and archiving establishments are in Organización, and Ajustes › Datos edits only the selected establishment ([decision](docs/decisions/implemented/2026-10-26-establishments-managed-in-organizacion.md)); managers see Horario, Servicios, Asistente and Uso (Mapa por rol).
+- Settings, the organization and the account are sections of a settings center opened from the profile menu over the current screen (`?ajustes=<section>`), and the navigation shows only Calendario, Bandeja, Clientes and Equipo, unlike Mapa por rol ([decision](docs/decisions/implemented/2026-10-26-settings-center-and-trimmed-navigation.md)). Managers see Cuenta, Horario, Servicios, Asistente and Uso; staff, Cuenta.
+- Opening and archiving establishments are in the Organización section, and Datos edits only the selected establishment ([decision](docs/decisions/implemented/2026-10-26-establishments-managed-in-organizacion.md)).
 - Connecting WhatsApp needs Takodu's Meta app (`environment.metaSignup`), which is not set up: the screen says so, and development builds offer a labelled form with the values pibble's dev mode accepts ([decision](docs/decisions/implemented/2026-10-26-embedded-signup-behind-a-setting.md)).
-- The assistant lives in Ajustes (Asistente and Uso tabs); the "Asistente" navigation item opens it there ([decision](docs/decisions/implemented/2026-10-26-assistant-inside-ajustes.md)).
+- The assistant has no navigation entry until it becomes a chat; its settings and usage are sections of the settings center.
 - The assistant's status card says "Respondiendo en WhatsApp" from the switch, the line and the plan; pibble tells nothing more, so it cannot say which chats it is quiet in.
 - Assistant usage lists only the days with answered turns, newest first, as pibble sends them, with the period's total; tokens, never costs. The period is two date inputs instead of a range button.
 - The time zone of an establishment is chosen among the Americas' IANA zones.
@@ -76,14 +78,14 @@ Where pibble's API serves less than a design shows, the design adapts:
 - Booking has three steps instead of the design's four: the third ends with the design's "Reservar" button.
 - The booking footer says the confirmation goes by WhatsApp only when the establishment has a line (W12); it promises no reminder, which depends on how far ahead the appointment is (W11).
 - Customer search shows the first 20 matches and asks to keep typing when there are more.
-- The account button shows the user's name, or the email when the user has none: `JoinedOrganization` carries no member display name.
-- The Takodu team area (`/platform`) has no design; it follows Organización and Equipo. Operators reach it from Cuenta and the organization picker, outside the workspace, and read plan dates in Lima ([decision](docs/decisions/implemented/2026-10-26-takodu-team-area-outside-the-workspace.md)). pibble serves no single organization, so its page comes from the list, and usage shows each establishment's totals with its count of days, not each day.
-- The plan card and Organización name the plan (`standard` or `max`) and its end; pibble has no trial flag, so they never say "Prueba gratis", and no self-service payment, so renewing is a message to `environment.renewalContact`.
+- The profile button shows the user's name, or the email when the user has none (`JoinedOrganization` carries no member display name), and the plan. Its menu's "Ayuda", "Subir plan" and "Aprender más" are disabled placeholders: Takodu has no help center, self-service payment or learning page yet.
+- The Takodu team area (`/platform`) has no design; it follows Organización and Equipo. Operators reach it from the profile menu, Cuenta and the organization picker, outside the workspace, and read plan dates in Lima ([decision](docs/decisions/implemented/2026-10-26-takodu-team-area-outside-the-workspace.md)). pibble serves no single organization, so its page comes from the list, and usage shows each establishment's totals with its count of days, not each day.
+- The profile button and Organización name the plan (`standard` or `max`), and Organización its end; pibble has no trial flag, so they never say "Prueba gratis", and no self-service payment, so renewing is a message to `environment.renewalContact`.
 - Equipo shows "Todos los locales" for owners and managers, whom pibble assigns to none (O13), and states in the establishment's zone. A manager may invite and edit managers and staff, as pibble allows; the page leaves the owner's row to the owner, and nobody changes their own role or removes themselves there, which pibble would allow.
 - Cuenta shows the user's email and the name they signed in with, read-only: pibble has no endpoint to edit the user, and member names are changed in Equipo. Devices are "Este dispositivo" or "Otro dispositivo": pibble names no device or browser.
 - An invitation for another email shows only the signed-in email; pibble does not return the invited one.
 
-Defaults for the designs' open questions: navigation says "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel sheet says "El cliente"; the renewal contact is `environment.renewalContact`, a placeholder; there is no floating assistant button; sign-in shows the "Takodu" wordmark, because the mascot marks only the assistant; a user without an organization sees an explanation and a link to `/primeros-pasos`, where they create one; "Cualquiera" in booking lets pibble choose the least busy member (B17), and in rescheduling it is "Mantener a …"; the desktop calendar grid shows 08:00 to 20:00, widened to fit what it draws.
+Defaults for the designs' open questions: the assistant's settings say "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel sheet says "El cliente"; the renewal contact is `environment.renewalContact`, a placeholder; there is no floating assistant button; sign-in shows the "Takodu" wordmark, because the mascot marks only the assistant; a user without an organization sees an explanation and a link to `/primeros-pasos`, where they create one; "Cualquiera" in booking lets pibble choose the least busy member (B17), and in rescheduling it is "Mantener a …"; the desktop calendar grid shows 08:00 to 20:00, widened to fit what it draws.
 
 ## API contract
 
