@@ -16,6 +16,8 @@ import { CustomerDetail } from './customer-detail';
 describe('CustomerDetail', () => {
   const canDelete = signal(true);
   const canBook = signal(true);
+  const chat = signal<string | null>(null);
+  const chatOf = (customerId: string) => (customerId === 'c-1' ? chat() : null);
   let store: {
     profile: ReturnType<typeof fakeResource<CustomerProfile>>;
     open: ReturnType<typeof vi.fn>;
@@ -36,7 +38,7 @@ describe('CustomerDetail', () => {
           withComponentInputBinding(),
         ),
         { provide: CustomerDetailStore, useValue: store },
-        { provide: CUSTOMER_ACCESS, useValue: { canDelete, canBook } },
+        { provide: CUSTOMER_ACCESS, useValue: { canDelete, canBook, chatOf } },
         { provide: MatBottomSheet, useValue: { open } },
       ],
     });
@@ -51,6 +53,16 @@ describe('CustomerDetail', () => {
   beforeEach(() => {
     canDelete.set(true);
     canBook.set(true);
+    chat.set(null);
+  });
+
+  it('W3: opens the customer’s chat when the inbox has it', async () => {
+    const { harness, host } = await render();
+    expect(host.querySelector('a.chat')).toBeNull();
+    chat.set('conv-7');
+    await harness.fixture.whenStable();
+    expect(host.querySelector('a.chat')!.getAttribute('href')).toBe('/bandeja/conv-7');
+    expect(host.querySelector('a.chat')!.textContent).toContain('Ver chat');
   });
 
   it('shows the phone, WhatsApp name, document and notes (C1, C2, C4)', async () => {

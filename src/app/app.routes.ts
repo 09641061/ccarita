@@ -1,5 +1,6 @@
 import { computed, inject } from '@angular/core';
 import { ResolveFn, Route, Routes } from '@angular/router';
+import { InboxStore } from './conversations/public-api';
 import { CUSTOMER_ACCESS } from './customers/public-api';
 import { devRoutes } from './dev.routes';
 import { authGuard } from './iam/public-api';
@@ -38,9 +39,11 @@ const CONTEXT_ROUTES: Record<string, Route> = {
         provide: CUSTOMER_ACCESS,
         useFactory: () => {
           const organization = inject(CurrentOrganization);
+          const inbox = inject(InboxStore);
           return {
             canDelete: computed(() => organization.can('deleteCustomers')),
             canBook: organization.planActive,
+            chatOf: (customerId: string) => inbox.conversationOf(customerId),
           };
         },
       },
