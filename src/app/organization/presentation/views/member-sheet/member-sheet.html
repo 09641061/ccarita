@@ -1,0 +1,122 @@
+<form class="sheet" (submit)="submit($event)" novalidate>
+  <header>
+    @if (editing; as member) {
+      <h2>{{ 'organization.team.sheet.editTitle' | translate: { name: member.name } }}</h2>
+      <p class="muted">{{ member.email }}</p>
+    } @else {
+      <h2>{{ 'organization.team.sheet.inviteTitle' | translate }}</h2>
+      <p class="muted">{{ 'organization.team.sheet.inviteLead' | translate }}</p>
+    }
+  </header>
+
+  <div class="pair">
+    @if (!editing) {
+      <mat-form-field>
+        <mat-label>{{ 'organization.team.sheet.email' | translate }}</mat-label>
+        <input matInput type="email" autocomplete="off" [formField]="memberForm.email" />
+        @if (memberForm.email().touched() && memberForm.email().invalid()) {
+          <mat-error>{{
+            (model().email.trim()
+              ? 'organization.team.sheet.emailInvalid'
+              : 'organization.team.sheet.emailRequired'
+            ) | translate
+          }}</mat-error>
+        }
+      </mat-form-field>
+    }
+    <mat-form-field>
+      <mat-label>{{ 'organization.team.sheet.name' | translate }}</mat-label>
+      <input matInput autocomplete="off" [formField]="memberForm.displayName" />
+      @if (memberForm.displayName().touched() && !model().displayName.trim()) {
+        <mat-error>{{ 'organization.team.sheet.nameRequired' | translate }}</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  @if (role() === 'owner') {
+    <p class="notice">{{ 'organization.team.sheet.ownerLocked' | translate }}</p>
+  } @else if (!data.canChangeRole) {
+    <p class="notice">{{ 'organization.team.sheet.selfLocked' | translate }}</p>
+  } @else {
+    <div class="field">
+      <span id="member-role" class="label">{{ 'organization.team.sheet.role' | translate }}</span>
+      <mat-radio-group
+        class="roles"
+        aria-labelledby="member-role"
+        [value]="role()"
+        (change)="chooseRole($event.value)"
+      >
+        @for (option of ['manager', 'staff']; track option) {
+          <mat-radio-button class="role" [class.on]="role() === option" [value]="option">
+            <span class="role-name">{{ 'organization.team.sheet.' + option | translate }}</span>
+            <span class="muted">{{
+              'organization.team.sheet.' + option + 'Hint' | translate
+            }}</span>
+          </mat-radio-button>
+        }
+      </mat-radio-group>
+    </div>
+  }
+
+  <div class="switch-row">
+    <span class="text">
+      <span id="member-bookable" class="label">{{
+        'organization.team.sheet.bookable' | translate
+      }}</span>
+      <span class="muted">{{ 'organization.team.sheet.bookableHint' | translate }}</span>
+    </span>
+    <mat-slide-toggle
+      [checked]="bookable()"
+      aria-labelledby="member-bookable"
+      (change)="bookable.set($event.checked)"
+    />
+  </div>
+
+  @if (picksEstablishments()) {
+    <fieldset>
+      <legend class="label">{{ 'organization.team.sheet.worksAt' | translate }}</legend>
+      <div class="places">
+        @for (establishment of data.establishments; track establishment.id) {
+          <mat-checkbox
+            class="place"
+            [checked]="chosen().has(establishment.id)"
+            (change)="toggle(establishment.id, $event.checked)"
+          >
+            {{ establishment.name }}
+          </mat-checkbox>
+        }
+      </div>
+      @if (attempted() && problem()) {
+        <p class="field-error" role="alert">
+          {{ 'organization.team.sheet.worksAtRequired' | translate }}
+        </p>
+      }
+    </fieldset>
+  }
+
+  @if (error(); as e) {
+    <p class="field-error" role="alert">
+      @if (e.code === 'MEMBER_CONFLICT') {
+        {{ 'organization.team.sheet.conflict' | translate }}
+      } @else {
+        {{ e | errorMessage }}
+      }
+    </p>
+  }
+  <div class="actions">
+    <button matButton type="button" (click)="cancel()">
+      {{ 'organization.team.sheet.cancel' | translate }}
+    </button>
+    <app-busy-button type="submit" [busy]="busy()">
+      @if (editing) {
+        {{
+          (busy() ? 'organization.team.sheet.saving' : 'organization.team.sheet.save') | translate
+        }}
+      } @else {
+        {{
+          (busy() ? 'organization.team.sheet.sending' : 'organization.team.sheet.send') | translate
+        }}
+      }
+    </app-busy-button>
+  </div>
+</form>

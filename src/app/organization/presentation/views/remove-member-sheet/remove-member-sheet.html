@@ -1,0 +1,45 @@
+@let name = target.name;
+<div class="sheet">
+  <header>
+    <h2>
+      {{
+        (revoking
+          ? 'organization.team.removeSheet.revokeTitle'
+          : 'organization.team.removeSheet.removeTitle'
+        ) | translate: { name }
+      }}
+    </h2>
+    <p class="muted">
+      {{
+        (revoking
+          ? 'organization.team.removeSheet.revokeLead'
+          : 'organization.team.removeSheet.removeLead'
+        ) | translate
+      }}
+    </p>
+  </header>
+  @if (error(); as e) {
+    <p class="field-error" role="alert">
+      @if (e.code === 'MEMBER_HAS_UPCOMING_APPOINTMENTS') {
+        {{ 'organization.team.removeSheet.upcoming' | translate: { name } }}
+      } @else {
+        {{ e | errorMessage }}
+      }
+    </p>
+  }
+  <div class="actions">
+    <button matButton type="button" (click)="back()">
+      {{ 'organization.team.removeSheet.back' | translate }}
+    </button>
+    <app-busy-button class="danger" [busy]="busy()" (pressed)="confirm()">
+      {{
+        (busy()
+          ? 'organization.team.removeSheet.busy'
+          : revoking
+            ? 'organization.team.removeSheet.revoke'
+            : 'organization.team.removeSheet.remove'
+        ) | translate
+      }}
+    </app-busy-button>
+  </div>
+</div>

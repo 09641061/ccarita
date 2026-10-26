@@ -52,17 +52,9 @@
     <h2 id="others-title">{{ 'organization.settings.details.others' | translate }}</h2>
     <div class="card row">
       <p class="muted">{{ 'organization.settings.details.othersLead' | translate }}</p>
-      <button matButton="outlined" type="button" [disabled]="!canChange()" (click)="openAnother()">
-        <mat-icon aria-hidden="true">add_business</mat-icon>
-        {{ 'organization.settings.details.open' | translate }}
-      </button>
-    </div>
-    <div class="card row">
-      <p class="muted">{{ 'organization.settings.details.archiveLead' | translate }}</p>
-      <button matButton="outlined" type="button" class="danger-text" (click)="archive()">
-        <mat-icon aria-hidden="true">archive</mat-icon>
-        {{ 'organization.settings.details.archive' | translate }}
-      </button>
+      <a matButton="outlined" routerLink="/organizacion">
+        {{ 'organization.settings.details.toOrganization' | translate }}
+      </a>
     </div>
   </section>
 }

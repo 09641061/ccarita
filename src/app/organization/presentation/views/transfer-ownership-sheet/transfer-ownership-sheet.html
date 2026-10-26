@@ -1,0 +1,63 @@
+<div class="sheet">
+  @if (confirming() && chosen(); as member) {
+    <header>
+      <h2>
+        {{ 'organization.team.transferSheet.confirmTitle' | translate: { name: member.name } }}
+      </h2>
+    </header>
+    <p class="notice warning">
+      <mat-icon aria-hidden="true">warning</mat-icon>
+      <span>{{
+        'organization.team.transferSheet.confirmLead' | translate: { name: member.name }
+      }}</span>
+    </p>
+    @if (error(); as e) {
+      <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+    }
+    <div class="actions">
+      <button matButton type="button" [disabled]="busy()" (click)="back()">
+        {{ 'organization.team.transferSheet.back' | translate }}
+      </button>
+      <app-busy-button class="danger" [busy]="busy()" (pressed)="confirm()">
+        {{
+          (busy()
+            ? 'organization.team.transferSheet.busy'
+            : 'organization.team.transferSheet.confirm'
+          ) | translate: { name: member.name }
+        }}
+      </app-busy-button>
+    </div>
+  } @else {
+    <header>
+      <h2>{{ 'organization.team.transferSheet.title' | translate }}</h2>
+      <p class="muted">{{ 'organization.team.transferSheet.lead' | translate }}</p>
+    </header>
+    @if (candidates.length === 0) {
+      <p class="notice">{{ 'organization.team.transferSheet.nobody' | translate }}</p>
+    } @else {
+      <mat-radio-group
+        class="candidates"
+        [attr.aria-label]="'organization.team.transferSheet.title' | translate"
+        [value]="chosen()?.id"
+        (change)="choose($event.value)"
+      >
+        @for (member of candidates; track member.id) {
+          <mat-radio-button class="candidate" [value]="member.id">
+            <span class="name">{{ member.name }}</span>
+            <span class="muted">
+              {{ 'organization.role.' + member.role | translate }} · {{ member.email }}
+            </span>
+          </mat-radio-button>
+        }
+      </mat-radio-group>
+    }
+    <div class="actions">
+      <button matButton type="button" (click)="back()">
+        {{ 'organization.team.sheet.cancel' | translate }}
+      </button>
+      <button matButton="filled" type="button" [disabled]="!chosen()" (click)="next()">
+        {{ 'organization.team.transferSheet.next' | translate }}
+      </button>
+    </div>
+  }
+</div>

@@ -104,3 +104,22 @@ export function onboardingRoutes(
     },
   ];
 }
+
+/** Equipo (`/equipo`), for owners and managers; the app's routes guard the role. */
+export const teamRoutes: Routes = [
+  {
+    path: '',
+    loadComponent: () => import('./views/team/team').then((m) => m.Team),
+    title: 'Equipo · Takodu',
+  },
+];
+
+/** Organización (`/organizacion`), for the owner; the app's routes guard the role. */
+export const organizationPageRoutes: Routes = [
+  {
+    path: '',
+    loadComponent: () =>
+      import('./views/organization-page/organization-page').then((m) => m.OrganizationPage),
+    title: 'Organización · Takodu',
+  },
+];

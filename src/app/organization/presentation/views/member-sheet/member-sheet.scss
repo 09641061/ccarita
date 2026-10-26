@@ -1,0 +1,77 @@
+.pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 8px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: 8px;
+}
+
+.role {
+  padding: 8px 12px 8px 4px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+
+  &.on {
+    border-color: var(--mat-sys-primary);
+    background: var(--mat-sys-surface-container-low);
+  }
+}
+
+.role-name {
+  display: block;
+  font-weight: 500;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 0;
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.places {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+  gap: 8px;
+}
+
+.place {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 10px;
+}

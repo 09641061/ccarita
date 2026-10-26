@@ -1,0 +1,215 @@
+@let caller = store.caller();
+@if (caller && !caller.managesTeam) {
+  <app-state-view kind="forbidden" />
+} @else {
+  <div class="team">
+    <header>
+      <div class="heading">
+        <h1 id="team-title">{{ 'organization.team.title' | translate }}</h1>
+        @if (organization.selected(); as current) {
+          <p class="muted">
+            {{
+              'organization.team.summary'
+                | translate: { count: store.members.value().length, organization: current.name }
+            }}
+          </p>
+        }
+      </div>
+      @if (caller?.transfersOwnership) {
+        <button matButton="outlined" type="button" [disabled]="!canTransfer()" (click)="transfer()">
+          {{ 'organization.team.transfer' | translate }}
+        </button>
+      }
+      <button matButton="filled" type="button" (click)="invite()">
+        <mat-icon aria-hidden="true">person_add</mat-icon>
+        {{ 'organization.team.invite' | translate }}
+      </button>
+    </header>
+
+    @if (transferred(); as name) {
+      <p class="notice" role="status">
+        <mat-icon aria-hidden="true">check</mat-icon>
+        {{ 'organization.team.transferSheet.done' | translate: { name } }}
+      </p>
+    }
+
+    <div class="results">
+      @if (store.members.isLoading()) {
+        <mat-progress-bar mode="indeterminate" class="progress" />
+      }
+      @if (loadError()) {
+        <app-state-view [kind]="errorKind()" (retry)="store.members.reload()" />
+      } @else if (store.members.isLoading() && rows().length === 0) {
+        <app-skeleton [rows]="4" />
+      } @else if (rows().length === 0) {
+        <app-state-view
+          kind="empty"
+          title="organization.team.empty.title"
+          message="organization.team.empty.message"
+        />
+      } @else if (desktop()) {
+        <div class="card">
+          <table aria-labelledby="team-title">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'organization.team.person' | translate }}</th>
+                <th scope="col">{{ 'organization.team.role' | translate }}</th>
+                <th scope="col">{{ 'organization.team.bookable' | translate }}</th>
+                <th scope="col">{{ 'organization.team.establishments' | translate }}</th>
+                <th scope="col">{{ 'organization.team.status' | translate }}</th>
+                <th scope="col">
+                  <span class="tk-visually-hidden">{{
+                    'organization.team.actions' | translate
+                  }}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of rows(); track row.member.id; let i = $index) {
+                <tr>
+                  <td><ng-container *ngTemplateOutlet="person; context: { row, i }" /></td>
+                  <td>{{ 'organization.role.' + row.member.role | translate }}</td>
+                  <td>
+                    {{
+                      (row.member.bookable ? 'organization.team.yes' : 'organization.team.no')
+                        | translate
+                    }}
+                  </td>
+                  <td>{{ row.establishments ?? ('organization.team.everywhere' | translate) }}</td>
+                  <td><ng-container *ngTemplateOutlet="status; context: { row }" /></td>
+                  <td class="row-actions">
+                    <ng-container *ngTemplateOutlet="actions; context: { row }" />
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <ul class="cards" aria-labelledby="team-title">
+          @for (row of rows(); track row.member.id; let i = $index) {
+            <li class="card">
+              <div class="top">
+                <ng-container *ngTemplateOutlet="person; context: { row, i }" />
+                <ng-container *ngTemplateOutlet="actions; context: { row }" />
+              </div>
+              <p class="muted">
+                {{ 'organization.role.' + row.member.role | translate }} ·
+                {{ row.establishments ?? ('organization.team.everywhere' | translate) }} ·
+                {{ 'organization.team.bookable' | translate }}:
+                {{
+                  (row.member.bookable ? 'organization.team.yes' : 'organization.team.no')
+                    | translate
+                }}
+              </p>
+              <ng-container *ngTemplateOutlet="status; context: { row }" />
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+}
+
+<ng-template #person let-row="row" let-i="i">
+  <span class="person">
+    <app-avatar [name]="row.member.name" [colorIndex]="i" [size]="32" />
+    <span class="who">
+      <span class="name">
+        {{ row.member.name }}
+        @if (row.self) {
+          <span class="you">({{ 'organization.team.you' | translate }})</span>
+        }
+      </span>
+      <span class="muted">{{ row.member.email }}</span>
+    </span>
+  </span>
+</ng-template>
+
+<ng-template #status let-row="row">
+  @let member = row.member;
+  <span class="status">
+    @if (member.status === 'active') {
+      <span class="badge ok"
+        ><mat-icon aria-hidden="true">check</mat-icon
+        >{{ 'organization.team.active' | translate }}</span
+      >
+      @if (member.joinedAt) {
+        <span class="muted">{{
+          'organization.team.since'
+            | translate: { date: member.joinedAt | zonedDate: timeZone() : 'dayMonth' }
+        }}</span>
+      }
+    } @else if (row.expired) {
+      <span class="badge warn"
+        ><mat-icon aria-hidden="true">schedule</mat-icon
+        >{{ 'organization.team.expired' | translate }}</span
+      >
+      <span class="muted">{{
+        'organization.team.expiredOn'
+          | translate: { date: member.inviteExpiresAt | zonedDate: timeZone() : 'dayMonth' }
+      }}</span>
+    } @else {
+      <span class="badge neutral"
+        ><mat-icon aria-hidden="true">mail</mat-icon
+        >{{ 'organization.team.pending' | translate }}</span
+      >
+      @if (member.inviteExpiresAt) {
+        <span class="muted">{{
+          'organization.team.expires'
+            | translate: { date: member.inviteExpiresAt | zonedDate: timeZone() : 'dayMonth' }
+        }}</span>
+      }
+    }
+  </span>
+  @if (renewal()?.id === member.id) {
+    @if (renewal()!.error; as e) {
+      <span class="field-error" role="alert">{{ e | errorMessage }}</span>
+    } @else {
+      <span class="muted" role="status">{{
+        'organization.team.renewed' | translate: { email: member.email }
+      }}</span>
+    }
+  }
+</ng-template>
+
+<ng-template #actions let-row="row">
+  @if (row.canEdit || row.canRenew || row.canRemove) {
+    <button
+      matIconButton
+      type="button"
+      [disabled]="renewing() === row.member.id"
+      [matMenuTriggerFor]="menu"
+      [attr.aria-label]="'organization.team.options' | translate: { name: row.member.name }"
+    >
+      <mat-icon aria-hidden="true">more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu" xPosition="before">
+      @if (row.canEdit) {
+        <button mat-menu-item type="button" (click)="edit(row)">
+          <mat-icon aria-hidden="true">edit</mat-icon>
+          <span>{{ 'organization.team.edit' | translate }}</span>
+        </button>
+      }
+      @if (row.canRenew) {
+        <button mat-menu-item type="button" (click)="renew(row.member)">
+          <mat-icon aria-hidden="true">forward_to_inbox</mat-icon>
+          <span>{{ 'organization.team.renew' | translate }}</span>
+        </button>
+      }
+      @if (row.canRemove) {
+        <button mat-menu-item type="button" class="danger" (click)="remove(row.member)">
+          <mat-icon aria-hidden="true">{{
+            row.member.status === 'pending' ? 'cancel_schedule_send' : 'person_remove'
+          }}</mat-icon>
+          <span>{{
+            (row.member.status === 'pending'
+              ? 'organization.team.revoke'
+              : 'organization.team.remove'
+            ) | translate
+          }}</span>
+        </button>
+      }
+    </mat-menu>
+  }
+</ng-template>

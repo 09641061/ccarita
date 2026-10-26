@@ -8,13 +8,13 @@ import {
   untracked,
 } from '@angular/core';
 import { FormField, form, maxLength, required } from '@angular/forms/signals';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ApiError } from '../../../../shared/domain/model/api-error';
 import { BusyButton } from '../../../../shared/presentation/components/busy-button/busy-button';
 import { StateView } from '../../../../shared/presentation/components/state-view/state-view';
@@ -22,16 +22,14 @@ import { ErrorMessagePipe } from '../../../../shared/presentation/pipes/error-me
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
 import { CurrentOrganization } from '../../../application/current-organization.store';
 import { EstablishmentDetails as Details } from '../../../domain/model/establishment';
-import { ArchiveEstablishmentSheet } from '../archive-establishment-sheet/archive-establishment-sheet';
-import { OpenEstablishmentSheet } from '../open-establishment-sheet/open-establishment-sheet';
 import { DEFAULT_TIME_ZONE, timeZoneOptions } from './time-zones';
 
 const EMPTY: Details = { name: '', address: '', timeZone: DEFAULT_TIME_ZONE };
 
 /**
- * Ajustes › Datos, for the owner (03 §5): the selected establishment's name, address and time zone (O7), opening
- * another one (O4) and archiving this one. Saving is a PUT, so it needs no idempotency key; an inactive plan
- * disables saving and opening, but not archiving (O6).
+ * Ajustes › Datos, for the owner (03 §5): the selected establishment's name, address and time zone (O7). Opening
+ * and archiving establishments live in Organización. Saving is a PUT, so it needs no idempotency key; an inactive
+ * plan disables it (O6).
  */
 @Component({
   selector: 'app-establishment-details',
@@ -44,6 +42,7 @@ const EMPTY: Details = { name: '', address: '', timeZone: DEFAULT_TIME_ZONE };
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    RouterLink,
     StateView,
     TranslatePipe,
   ],
@@ -52,8 +51,6 @@ const EMPTY: Details = { name: '', address: '', timeZone: DEFAULT_TIME_ZONE };
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EstablishmentDetails {
-  private readonly sheet = inject(MatBottomSheet);
-  private readonly translate = inject(TranslateService);
   protected readonly organization = inject(CurrentOrganization);
   protected readonly establishment = inject(CurrentEstablishment);
 
@@ -102,22 +99,5 @@ export class EstablishmentDetails {
     } finally {
       this.busy.set(false);
     }
-  }
-
-  protected openAnother(): void {
-    this.sheet.open(OpenEstablishmentSheet, {
-      ariaLabel: this.translate.instant('organization.settings.openSheet.title'),
-    });
-  }
-
-  protected archive(): void {
-    const selected = this.establishment.selected();
-    if (!selected) return;
-    this.sheet.open(ArchiveEstablishmentSheet, {
-      data: selected,
-      ariaLabel: this.translate.instant('organization.settings.archiveSheet.title', {
-        name: selected.name,
-      }),
-    });
   }
 }
