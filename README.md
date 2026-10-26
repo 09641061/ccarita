@@ -43,7 +43,7 @@ One pull request into `develop` per step, built from the designs in `../ui-refer
 - **F5** customers: list, detail, registration, editing and deletion (done).
 - **F6a** inbox, live stream, reading and replying, media (done).
 - **F6b** templates, assignment, assistant pause and resume, "Ver chat" from the customer (done).
-- **F7** onboarding and establishment settings.
+- **F7** onboarding and establishment settings (done).
 - **F8** assistant settings and usage.
 - **F9** team, invitations, ownership transfer, account sessions, plan.
 - **F10** Takodu team area.
@@ -60,11 +60,15 @@ Where pibble's API serves less than a design shows, the design adapts:
 - The inbox shows a status line instead of a message preview, has no search and no "replying" state, and filters only loaded conversations, 30 at a time with "Cargar más". It never says the assistant is answering: pibble does not say whether it is on, so an active conversation shows until when the customer can be written to.
 - Reminders and confirmations offer the customer's confirmed appointments of the next 42 days, the most pibble's calendar lists at once, since it has no per-customer read for members. With several, a menu picks the appointment instead of one card per appointment. Inside the window a confirmation goes as normal text, so it needs no approval.
 - The assistant button pauses an active assistant and resumes a paused one; pibble does not say whether the assistant is turned on for the establishment, so it is offered either way.
+- Primeros pasos has three steps (hours, services, WhatsApp) instead of five: turning on the assistant (F8) and inviting the team (F9) are not built. A step is done when pibble reports it, and only owners walk it.
+- Opening and archiving establishments are in Ajustes › Datos, since the Organización page (F9) is not built; managers see only Horario and Servicios (Mapa por rol).
+- Connecting WhatsApp needs Takodu's Meta app (`environment.metaSignup`), which is not set up: the screen says so, and development builds offer a labelled form with the values pibble's dev mode accepts ([decision](docs/decisions/implemented/2026-10-26-embedded-signup-behind-a-setting.md)).
+- The time zone of an establishment is chosen among the Americas' IANA zones.
 - The customers page has previous and next without a total.
 - Staff send text and templates only.
 - The navigation shows no unread count.
 - Booking offers the slots pibble lists, which start from now; the design draws no direct time, so a walk-in that already started is booked at the next free slot instead of directly (B16).
-- The booking day strip marks no closed days until opening hours are read (F7); a closed day says there are no free times.
+- The calendar does not read opening hours, so it marks no closed days or appointments outside them; booking's day strip marks closed days.
 - Rescheduling lists slots without ignoring the appointment being moved, because the slots endpoint does not; times that overlap its own are not offered, and it shows no "N libres" counts.
 - Booking has three steps instead of the design's four: the third ends with the design's "Reservar" button.
 - The booking footer says the confirmation goes by WhatsApp only when the establishment has a line (W12); it promises no reminder, which depends on how far ahead the appointment is (W11).
@@ -73,7 +77,7 @@ Where pibble's API serves less than a design shows, the design adapts:
 - The plan card names the plan (`standard` or `max`) and its end; pibble has no trial flag, so it never says "Prueba gratis".
 - An invitation for another email shows only the signed-in email; pibble does not return the invited one.
 
-Defaults for the designs' open questions: navigation says "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel sheet says "El cliente"; the renewal contact is `environment.renewalContact`, a placeholder; there is no floating assistant button; sign-in shows the "Takodu" wordmark, because the mascot marks only the assistant; a user without an organization sees an explanation and a link to `/primeros-pasos`, a placeholder until F7; "Cualquiera" in booking lets pibble choose the least busy member (B17), and in rescheduling it is "Mantener a …"; the calendar does not read opening hours until F7, so it marks no closed days or appointments outside them, and the desktop grid shows 08:00 to 20:00, widened to fit what it draws.
+Defaults for the designs' open questions: navigation says "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel sheet says "El cliente"; the renewal contact is `environment.renewalContact`, a placeholder; there is no floating assistant button; sign-in shows the "Takodu" wordmark, because the mascot marks only the assistant; a user without an organization sees an explanation and a link to `/primeros-pasos`, where they create one; "Cualquiera" in booking lets pibble choose the least busy member (B17), and in rescheduling it is "Mantener a …"; the desktop calendar grid shows 08:00 to 20:00, widened to fit what it draws.
 
 ## API contract
 
@@ -88,7 +92,7 @@ CI fails when the generated types do not match `api/openapi.json`.
 
 ## Production
 
-`pnpm build` writes a static site to `dist/ccarita/browser`, calling pibble at `apiBaseUrl` in `src/environments/environment.ts`. Serve it from the origin pibble's `APP_URL` names, with every unknown path answered by `index.html`, and a Content Security Policy that allows scripts only from the site itself.
+`pnpm build` writes a static site to `dist/ccarita/browser`, calling pibble at `apiBaseUrl` in `src/environments/environment.ts`. Serve it from the origin pibble's `APP_URL` names, with every unknown path answered by `index.html`, and a Content Security Policy that allows scripts only from the site itself, plus `https://connect.facebook.net` once `environment.metaSignup` is set.
 
 ## Local hooks
 
