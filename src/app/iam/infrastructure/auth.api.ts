@@ -2,15 +2,17 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import type {
+  Session as AccountSessionResource,
   RefreshSessionRequest,
   RequestLoginCodeRequest,
   SessionTokens as SessionTokensResource,
   SignInRequest,
 } from '../../shared/infrastructure/api/pibble.schema';
 import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
+import { AccountSession } from '../domain/model/account-session';
 import { Session } from '../domain/model/session';
 import { anonymous } from './anonymous';
-import { toSession } from './session.assembler';
+import { toAccountSession, toSession } from './session.assembler';
 
 /**
  * `/api/v1/auth` of pibble. Requesting a code, signing in and refreshing take no `Idempotency-Key`:
@@ -49,7 +51,14 @@ export class AuthApi {
       .pipe(map(toSession));
   }
 
-  /** Ends a session; its access tokens stop working within 15 minutes (I5). */
+  /** I5: the devices where the caller is signed in, most recently used first. */
+  listSessions(): Observable<AccountSession[]> {
+    return this.http
+      .get<AccountSessionResource[]>(`${this.baseUrl}/api/v1/auth/sessions`)
+      .pipe(map((resources) => resources.map(toAccountSession)));
+  }
+
+  /** Ends a session; its access tokens stop working within 15 minutes (I5). @throws ApiError `SESSION_NOT_FOUND`. */
   endSession(sessionId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/api/v1/auth/sessions/${sessionId}`);
   }

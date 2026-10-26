@@ -18,12 +18,17 @@ const barranco = new Establishment('est-2', 'Barranco', '', 'America/Lima', null
 
 describe('Workspace', () => {
   const signedIn = signal(true);
+  const signedOut = signal(false);
   let signOut: ReturnType<typeof vi.fn>;
   let select: ReturnType<typeof vi.fn>;
 
   async function render(role: MemberRole, { planActive = true, organizations = 1 } = {}) {
     signedIn.set(true);
-    signOut = vi.fn(async () => signedIn.set(false));
+    signedOut.set(false);
+    signOut = vi.fn(async () => {
+      signedOut.set(true);
+      signedIn.set(false);
+    });
     select = vi.fn();
     const joined = new JoinedOrganization('org-1', 'Barbería Don Lucho', until, 'm-1', role);
     TestBed.configureTestingModule({
@@ -41,6 +46,7 @@ describe('Workspace', () => {
           provide: SessionStore,
           useValue: {
             isSignedIn: signedIn,
+            signedOut,
             user: signal(new SessionUser('u-1', 'luis@donlucho.pe', 'Luis Ramírez')),
             signOut,
           },

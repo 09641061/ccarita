@@ -50,20 +50,17 @@ export class Workspace {
       : null;
   });
 
-  private signingOut = false;
-
   constructor() {
     effect(() => {
       if (this.session.isSignedIn()) return;
       untracked(() => {
-        const volver = this.signingOut ? undefined : this.router.url;
+        const volver = this.session.signedOut() ? undefined : this.router.url;
         void this.router.navigate(['/ingresar'], { queryParams: { volver } });
       });
     });
   }
 
   protected async signOut(): Promise<void> {
-    this.signingOut = true;
     await this.session.signOut();
   }
 }
