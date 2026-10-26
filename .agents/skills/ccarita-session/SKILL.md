@@ -9,19 +9,19 @@ Product rules: I1–I6 (sign-in), O9, O10 and O13 (roles, invitations, visibilit
 
 ## Sign-in (`iam`)
 
-1. `/ingresar` (`SignIn`): the email, then the 6-digit code (`CodeInput`: one input with `one-time-code`, shown as six boxes). The sixth digit submits. pibble's dev mode prints the code in its console; development builds say so.
+1. `/ingresar` (`SignIn`): the email, then the 6-digit code (`CodeInput`: one input with `one-time-code`, shown as six boxes). The sixth digit submits; development builds say pibble's console prints it.
 2. `SessionStore` (`requestCode`, `signIn`, `restore`, `signOut`, `user`, `isSignedIn`) is what other contexts use. Requesting a code, signing in, refreshing and accepting an invitation send no `Idempotency-Key`: pibble marks them `@WithoutIdempotencyKey`.
 3. `SessionHolder` keeps the access token in memory and the refresh token in `localStorage`. `authInterceptor` (first in `app.config.ts`) adds `Bearer` only to `API_BASE_URL`, refreshes an expiring token before sending, and on a 401 refreshes once (shared by concurrent calls) and replays. Calls marked `anonymous()` get no token.
 4. A refused refresh clears tokens and `TenantContext`; `Workspace` then returns to `/ingresar?volver=…`. Sign-out deletes the session in pibble and clears both, even offline.
 5. After sign-in, `volver` passes through `safeReturnUrl`, so only paths inside the app are followed.
 
-The account sessions list (`GET`/`DELETE /api/v1/auth/sessions`) belongs to the account screen (F9).
+Cuenta (`/cuenta`) lists devices through `AccountSessionsStore` (`/api/v1/auth/sessions`); this device signs out through `SessionStore.signOut()`. The app's routes provide `ACCOUNT_WORKSPACE` (time zone, several organizations), since `iam` imports no context.
 
 ## Organization and establishment (`organization`)
 
 - `CurrentOrganization.load()` reads `GET /api/v1/organizations` once per user. It drops a stored selection that is not a membership and selects the only organization when there is one. `selected()`, `role()`, `can(action)`, `planActiveUntil()` and `planActive()` come from pibble; `details` is `GET /api/v1/organization` (plan and fresh end date).
-- `/organizaciones` (`OrganizationPicker`) lists several organizations; with one it goes straight on, and with none it explains how to get one and links to `/primeros-pasos`, where they create one (O1) and the owner then sets up hours, services, the line and the assistant.
-- `CurrentEstablishment` lists `GET /api/v1/establishments` without archived ones (pibble returns the assigned ones for staff, O13) and exposes `id()`, `timeZone()` and `select()`. `TenantContext` remembers one establishment per organization; a missing one falls back to the first. Other contexts key their reads on it.
+- `/organizaciones` (`OrganizationPicker`) lists several organizations; with one it goes straight on, and with none it links to `/primeros-pasos`, where they create one (O1) and set it up.
+- `CurrentEstablishment` lists `GET /api/v1/establishments` without archived ones (pibble returns the assigned ones for staff, O13) and exposes `id()`, `timeZone()` and `select()`. `TenantContext` remembers one per organization, falling back to the first. Other contexts key their reads on it.
 - `/invitations/:token` is the link pibble emails. Signed out, `authGuard` brings the user back after sign-in. Accepting selects the organization and opens `/agenda`. `INVITATION_EXPIRED`, `INVITATION_NOT_FOUND`, `INVITATION_CONFLICT` and `ACCESS_DENIED` (another email; pibble does not say which) each have a state.
 
 ## The frame
@@ -34,6 +34,7 @@ The account sessions list (`GET`/`DELETE /api/v1/auth/sessions`) belongs to the 
 
 - Hide navigation and actions the role cannot use; a deep link a role cannot use shows `/sin-permiso`, and pibble's `ACCESS_DENIED` shows the same state.
 - A context the map keeps below `organization` (`customers`) reads the role through a token it declares, provided in `app.routes.ts` (`CUSTOMER_ACCESS`, [decision](../../../docs/decisions/implemented/2026-10-24-member-access-provided-by-the-app-routes.md)).
+- Equipo asks `TeamCaller` what each row offers (O12); after a transfer, `CurrentOrganization.load(true)` brings the new role.
 - **pibble is the authority.** A hidden button is convenience, not security: never skip a request because the UI believes it would fail, and never send a role or organization in a body.
 
 ## Guards
