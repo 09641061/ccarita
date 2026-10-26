@@ -1,4 +1,5 @@
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -18,9 +19,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { UpcomingAppointments } from '../../../../booking/public-api';
 import {
   CurrentEstablishment,
   CurrentOrganization,
@@ -30,6 +33,7 @@ import { ApiError } from '../../../../shared/domain/model/api-error';
 import { newIdempotencyKey } from '../../../../shared/domain/model/idempotency-key';
 import { LocalDate } from '../../../../shared/domain/model/local-date';
 import { Avatar } from '../../../../shared/presentation/components/avatar/avatar';
+import { BrandMark } from '../../../../shared/presentation/components/brand-mark/brand-mark';
 import { BusyButton } from '../../../../shared/presentation/components/busy-button/busy-button';
 import { Skeleton } from '../../../../shared/presentation/components/skeleton/skeleton';
 import {
@@ -41,7 +45,9 @@ import { ZonedDatePipe } from '../../../../shared/presentation/pipes/zoned-date.
 import { ConversationStore } from '../../../application/conversation.store';
 import { InboxStore } from '../../../application/inbox.store';
 import { Message } from '../../../domain/model/message';
+import { SendTemplate, templateChoices } from '../../../domain/model/template-choice';
 import { MessageBubble } from '../../components/message-bubble/message-bubble';
+import { TemplatePicker } from '../../components/template-picker/template-picker';
 import { conversationStatus } from '../../conversation-status';
 import { memberNames } from '../../member-names';
 import { MessageMedia } from '../message-media/message-media';
@@ -57,15 +63,26 @@ interface Day {
 /** Why the composer is closed, first match wins: C5, O6, W1, W6. */
 export type ReplyBlock = 'customerDeleted' | 'planInactive' | 'lineDisconnected' | 'windowClosed';
 
+/** A header action that failed, kept so a retry after a lost answer sends the same key. */
+interface ActionFailure {
+  readonly action: 'pause' | 'resume' | 'assign';
+  readonly key: string | null;
+  readonly memberId: string | null;
+  readonly error: ApiError;
+}
+
 /**
- * Chat: one conversation's messages by day, oldest first, and a reply inside the 24-hour window (W6). Opening it
- * marks it read (W8). A reply carries one idempotency key, the same on a retry after a lost answer, so the customer
- * never gets it twice. An inactive plan keeps reading and media and closes replying (O6).
+ * Chat: one conversation's messages by day, oldest first, a reply inside the 24-hour window (W6), and an upcoming
+ * appointment's reminder or confirmation at any time (W11, W12). Opening it marks it read (W8). A reply or template
+ * carries one idempotency key, the same on a retry after a lost answer, so the customer never gets it twice. The
+ * header assigns the chat (W9) and pauses or resumes the assistant (A3, A7). An inactive plan keeps reading, media,
+ * assigning and the assistant controls, and closes sending (O6).
  */
 @Component({
   selector: 'app-chat',
   imports: [
     Avatar,
+    BrandMark,
     BusyButton,
     CdkTextareaAutosize,
     ErrorMessagePipe,
@@ -74,12 +91,15 @@ export type ReplyBlock = 'customerDeleted' | 'planInactive' | 'lineDisconnected'
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatMenuModule,
     MatProgressBarModule,
     MessageBubble,
     MessageMedia,
+    NgTemplateOutlet,
     RouterLink,
     Skeleton,
     StateView,
+    TemplatePicker,
     TranslatePipe,
     ZonedDatePipe,
   ],
@@ -93,6 +113,7 @@ export class Chat {
   protected readonly organization = inject(CurrentOrganization);
   protected readonly establishment = inject(CurrentEstablishment);
   private readonly team = inject(EstablishmentTeam);
+  protected readonly upcoming = inject(UpcomingAppointments);
 
   /** From the route `bandeja/:conversationId`. */
   readonly conversationId = input.required<string>();
@@ -100,6 +121,9 @@ export class Chat {
   protected readonly maxLength = REPLY_MAX_LENGTH;
   protected readonly now = signal(new Date());
   protected readonly names = computed(() => memberNames(this.team.membersById()));
+  protected readonly serviceNames = computed(
+    () => new Map([...this.team.servicesById()].map(([id, service]) => [id, service.name])),
+  );
 
   protected readonly conversation = computed(() => {
     const c = this.store.conversation.hasValue() ? this.store.conversation.value() : null;
@@ -125,6 +149,22 @@ export class Chat {
     const id = this.conversation()?.assignedMemberId;
     return id ? (this.names().get(id) ?? null) : null;
   });
+  /** W9: the active members who work at the conversation's establishment (O13). */
+  protected readonly assignees = computed(() => {
+    const establishmentId = this.conversation()?.establishmentId;
+    if (!establishmentId) return [];
+    return this.team.members
+      .value()
+      .filter((member) => member.status === 'active' && member.worksAt(establishmentId));
+  });
+  /** A3, A7: pause while the assistant may answer; otherwise resume. */
+  protected readonly assistantActive = computed(() => {
+    const c = this.conversation();
+    return !!c && c.assistantState(this.now()).kind === 'active';
+  });
+  protected readonly line = computed(() =>
+    this.inbox.line.hasValue() ? this.inbox.line.value() : null,
+  );
 
   protected readonly days = computed<readonly Day[]>(() => {
     const tz = this.establishment.timeZone();
@@ -161,7 +201,7 @@ export class Chat {
     if (!c) return null;
     if (c.customerDeleted) return 'customerDeleted';
     if (!this.organization.planActive()) return 'planInactive';
-    const line = this.inbox.line.hasValue() ? this.inbox.line.value() : null;
+    const line = this.line();
     if (line && !line.connected) return 'lineDisconnected';
     if (!c.windowOpen(this.now())) return 'windowClosed';
     return null;
@@ -176,6 +216,32 @@ export class Chat {
   private key = newIdempotencyKey();
   /** The text the key was last sent with; another text is another message. */
   private keyInput: string | null = null;
+
+  /** Inside the window, the templates open on request; outside it they are all that can be sent. */
+  protected readonly showTemplates = signal(false);
+  protected readonly templatesShown = computed(() => {
+    const block = this.block();
+    return block === 'windowClosed' || (block === null && this.showTemplates());
+  });
+  protected readonly choices = computed(() => {
+    const c = this.conversation();
+    return c ? templateChoices(c, this.line(), this.now()) : [];
+  });
+  protected readonly upcomingAppointments = computed(() =>
+    this.upcoming.appointments.hasValue() ? this.upcoming.appointments.value() : null,
+  );
+  protected readonly upcomingError = computed(() => {
+    const error = this.upcoming.appointments.error();
+    return error ? ApiError.of(error) : null;
+  });
+  protected readonly templateBusy = signal(false);
+  protected readonly templateError = signal<ApiError | null>(null);
+  private templateKey = newIdempotencyKey();
+  /** The template and appointment the key was last sent with, as JSON. */
+  private templateKeyInput: string | null = null;
+
+  protected readonly acting = signal<ActionFailure['action'] | null>(null);
+  protected readonly failure = signal<ActionFailure | null>(null);
 
   private readonly scroller = viewChild<ElementRef<HTMLElement>>('scroller');
   private readonly log = viewChild<ElementRef<HTMLElement>>('log');
@@ -192,9 +258,19 @@ export class Chat {
         this.error.set(null);
         this.key = newIdempotencyKey();
         this.keyInput = null;
+        this.showTemplates.set(false);
+        this.templateError.set(null);
+        this.renewTemplateKey();
+        this.failure.set(null);
         this.stick = true;
         this.lastScrollTop = 0;
       });
+    });
+    // Read the customer's appointments only while the templates are shown.
+    effect(() => {
+      const c = this.conversation();
+      const customerId = c && this.templatesShown() ? c.customerId : null;
+      untracked(() => this.upcoming.select(customerId));
     });
     const destroyRef = inject(DestroyRef);
     const toBottom = () => {
@@ -219,6 +295,7 @@ export class Chat {
     destroyRef.onDestroy(() => {
       clearInterval(timer);
       this.store.open(null);
+      this.upcoming.select(null);
     });
   }
 
@@ -263,6 +340,76 @@ export class Chat {
     } finally {
       this.busy.set(false);
     }
+  }
+
+  /** W11, W12. Another template or appointment is another message, so it gets a new key. */
+  protected async sendTemplate(command: SendTemplate): Promise<void> {
+    if (this.templateBusy()) return;
+    const input = JSON.stringify(command);
+    if (this.templateKeyInput !== null && this.templateKeyInput !== input) this.renewTemplateKey();
+    this.templateKeyInput = input;
+    this.templateBusy.set(true);
+    this.templateError.set(null);
+    try {
+      await this.store.sendTemplate(command, this.templateKey);
+      this.renewTemplateKey();
+      this.showTemplates.set(false);
+      this.stick = true;
+    } catch (error) {
+      const failure = ApiError.of(error);
+      this.templateError.set(failure);
+      if (!failure.retryable) this.renewTemplateKey();
+      if (failure.code === 'TEMPLATE_NOT_APPROVED' || failure.code === 'LINE_DISCONNECTED')
+        this.inbox.line.reload();
+      if (failure.code === 'APPOINTMENT_NOT_UPCOMING') this.upcoming.reload();
+      if (failure.code === 'CUSTOMER_DELETED') this.store.conversation.reload();
+    } finally {
+      this.templateBusy.set(false);
+    }
+  }
+
+  /** A3, A7: a retry after a lost answer sends the same key, so the change happens once. */
+  protected async assistant(action: 'pause' | 'resume'): Promise<void> {
+    if (this.acting()) return;
+    const prior = this.failure();
+    const key =
+      prior?.action === action && prior.error.retryable && prior.key
+        ? prior.key
+        : newIdempotencyKey();
+    this.acting.set(action);
+    this.failure.set(null);
+    try {
+      if (action === 'pause') await this.store.pauseAssistant(key);
+      else await this.store.resumeAssistant(key);
+    } catch (error) {
+      this.failure.set({ action, key, memberId: null, error: ApiError.of(error) });
+    } finally {
+      this.acting.set(null);
+    }
+  }
+
+  /** W9: informative; `null` unassigns. The PUT takes no key, since repeating it changes nothing. */
+  protected async assign(memberId: string | null): Promise<void> {
+    if (this.acting() || memberId === (this.conversation()?.assignedMemberId ?? null)) return;
+    this.acting.set('assign');
+    this.failure.set(null);
+    try {
+      await this.store.assign(memberId);
+    } catch (error) {
+      this.failure.set({ action: 'assign', key: null, memberId, error: ApiError.of(error) });
+    } finally {
+      this.acting.set(null);
+    }
+  }
+
+  protected retryAction(failure: ActionFailure): void {
+    if (failure.action === 'assign') void this.assign(failure.memberId);
+    else void this.assistant(failure.action);
+  }
+
+  private renewTemplateKey(): void {
+    this.templateKey = newIdempotencyKey();
+    this.templateKeyInput = null;
   }
 
   private renewKey(): void {

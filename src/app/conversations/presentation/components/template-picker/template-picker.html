@@ -1,0 +1,123 @@
+@let tz = timeZone();
+@let a = appointment();
+@if (appointmentsError(); as e) {
+  <p class="error" role="alert">
+    {{ e | errorMessage }}
+    <button matButton type="button" (click)="reload.emit()">
+      {{ 'shared.state.retry' | translate }}
+    </button>
+  </p>
+} @else if (appointments(); as list) {
+  @if (list.length === 0) {
+    <div class="none">
+      <p>
+        <strong>{{ 'conversations.templates.none.title' | translate }}</strong>
+        {{ 'conversations.templates.none.message' | translate }}
+      </p>
+      <a
+        matButton="outlined"
+        routerLink="/agenda/reservar"
+        [queryParams]="{ cliente: customerId() }"
+      >
+        <mat-icon aria-hidden="true">event</mat-icon>
+        {{ 'conversations.chat.book' | translate }}
+      </a>
+    </div>
+  } @else {
+    @if (list.length > 1) {
+      <mat-form-field subscriptSizing="dynamic">
+        <mat-label>{{ 'conversations.templates.appointment' | translate }}</mat-label>
+        <mat-select [value]="appointmentId()" (valueChange)="appointmentId.set($event)">
+          @for (option of list; track option.id) {
+            <mat-option [value]="option.id">
+              {{ option.start | zonedDate: tz : 'dayTime' }}
+              @if (serviceNames().get(option.serviceId); as service) {
+                · {{ service }}
+              }
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+    <mat-radio-group
+      class="choices"
+      [attr.aria-label]="'conversations.templates.label' | translate"
+      [value]="template()"
+      (change)="template.set($event.value)"
+    >
+      @for (c of choices(); track c.template) {
+        <mat-radio-button
+          class="choice"
+          [class.on]="template() === c.template"
+          [value]="c.template"
+          [disabled]="!c.sendable"
+        >
+          <span class="body">
+            <span class="top">
+              <span class="name">{{ 'conversations.templates.' + c.template | translate }}</span>
+              @if (!c.asTemplate) {
+                <span class="badge text">
+                  <mat-icon aria-hidden="true">chat</mat-icon>
+                  {{ 'conversations.templates.asText' | translate }}
+                </span>
+              } @else {
+                <span class="badge" [class]="c.status ?? 'unknown'">
+                  <mat-icon aria-hidden="true">{{
+                    c.status === 'approved'
+                      ? 'check'
+                      : c.status === 'pending'
+                        ? 'schedule'
+                        : 'block'
+                  }}</mat-icon>
+                  {{ 'conversations.templates.status.' + (c.status ?? 'unknown') | translate }}
+                </span>
+              }
+            </span>
+            <span class="line">
+              @if (c.sendable && a) {
+                {{ a.start | zonedDate: tz : 'weekday' }}
+                {{ a.start | zonedDate: tz : 'dayMonth' }} ·
+                {{ a.start | zonedDate: tz : 'time' }} – {{ a.end | zonedDate: tz : 'time' }}
+                @if (serviceNames().get(a.serviceId); as service) {
+                  ·
+                  {{
+                    'conversations.templates.with'
+                      | translate: { service, member: memberNames().get(a.staffMemberId) ?? '—' }
+                  }}
+                }
+              } @else {
+                {{ 'conversations.templates.reason.' + (c.status ?? 'unknown') | translate }}
+              }
+            </span>
+          </span>
+        </mat-radio-button>
+      }
+    </mat-radio-group>
+    <app-busy-button
+      class="wide send"
+      [busy]="busy()"
+      [disabled]="!template() || !a"
+      (pressed)="submit()"
+    >
+      <mat-icon aria-hidden="true">send</mat-icon>
+      {{
+        (busy()
+          ? 'conversations.chat.sending'
+          : 'conversations.templates.send.' + (template() ?? 'reminder')
+        ) | translate
+      }}
+    </app-busy-button>
+    @if (error(); as e) {
+      <p class="error" role="alert">
+        {{ e | errorMessage }}
+        @if (e.retryable) {
+          <button matButton type="button" (click)="submit()">
+            {{ 'shared.state.retry' | translate }}
+          </button>
+        }
+      </p>
+    }
+  }
+} @else {
+  <app-skeleton [rows]="2" />
+}

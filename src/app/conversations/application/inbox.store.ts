@@ -122,6 +122,14 @@ export class InboxStore {
     };
   }
 
+  /**
+   * W3: the customer's conversation at the selected establishment, among the loaded pages; pibble has no lookup by
+   * customer, so a customer whose chat is older than the loaded pages has none here.
+   */
+  conversationOf(customerId: string): string | null {
+    return this.conversations()?.find((c) => c.customerId === customerId)?.id ?? null;
+  }
+
   /** Appends the next page; conversations already loaded are kept once. */
   async loadMore(): Promise<void> {
     const loaded = this.loaded();

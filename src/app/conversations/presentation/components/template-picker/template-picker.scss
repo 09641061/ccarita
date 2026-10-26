@@ -1,0 +1,130 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choice {
+  display: flex;
+  padding: 6px 12px 6px 4px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-medium);
+  background: var(--mat-sys-surface);
+  transition: border-color var(--tk-duration-short) var(--tk-motion-standard);
+
+  &.on {
+    border-color: var(--mat-sys-primary);
+    background: var(--mat-sys-primary-container);
+  }
+
+  ::ng-deep .mdc-form-field {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  ::ng-deep label {
+    flex: 1;
+    padding-top: 10px;
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.name {
+  flex: 1;
+  color: var(--mat-sys-on-surface);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.line {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 13px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-container-high);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  mat-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
+
+  &.approved {
+    color: var(--tk-status-confirmed);
+    background: var(--tk-status-confirmed-bg);
+  }
+
+  &.pending {
+    color: var(--tk-warning);
+    background: var(--tk-warning-bg);
+  }
+
+  &.rejected {
+    color: var(--mat-sys-on-error-container);
+    background: var(--mat-sys-error-container);
+  }
+}
+
+.send {
+  margin-top: 2px;
+}
+
+.none {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 13px;
+
+  p {
+    flex: 1 1 220px;
+    margin: 0;
+  }
+
+  strong {
+    display: block;
+    color: var(--mat-sys-on-surface);
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+.error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--mat-sys-error);
+  font-size: 14px;
+}

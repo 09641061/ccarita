@@ -407,7 +407,8 @@
       "notFound": {
         "title": "Este cliente no existe",
         "message": "Puede que lo hayan eliminado. Sus citas pasadas siguen en el calendario."
-      }
+      },
+      "chat": "Ver chat"
     },
     "form": {
       "newTitle": "Nuevo cliente",
@@ -534,6 +535,17 @@
           "message": "El cliente aún no ha escrito. Si escribe, podrás responderle libremente durante 24 h.",
           "since": "La ventana de 24 h se cerró el {{time}}. Si el cliente responde, vuelves a escribir libre."
         }
+      },
+      "more": "Más opciones",
+      "dismiss": "Cerrar",
+      "assign": {
+        "label": "Asignar conversación",
+        "none": "Sin asignar"
+      },
+      "assistant": {
+        "pause": "Pausar asistente",
+        "resume": "Retomar asistente",
+        "resumeHint": "Al retomarlo, el asistente responde desde el próximo mensaje del cliente."
       }
     },
     "media": {
@@ -547,6 +559,40 @@
       "failed": "No se pudo descargar el archivo",
       "removed": "Archivo eliminado",
       "unshown": "No se pudo mostrar el archivo"
+    },
+    "templates": {
+      "title": "Recordatorio o confirmación",
+      "open": "Recordatorio o confirmación",
+      "close": "Cerrar recordatorio o confirmación",
+      "label": "Mensaje aprobado para enviar",
+      "appointment": "Cita",
+      "reminder": "Recordatorio de su cita",
+      "confirmation": "Confirmación de su cita",
+      "with": "{{service}} con {{member}}",
+      "asText": "Como mensaje normal",
+      "send": {
+        "reminder": "Enviar recordatorio",
+        "confirmation": "Enviar confirmación"
+      },
+      "status": {
+        "approved": "Aprobada",
+        "pending": "En revisión",
+        "rejected": "Rechazada",
+        "paused": "Pausada",
+        "disabled": "Desactivada",
+        "unknown": "Sin revisión"
+      },
+      "reason": {
+        "pending": "Meta aún no la aprueba",
+        "rejected": "Meta la rechazó",
+        "paused": "Meta la pausó",
+        "disabled": "Meta la desactivó",
+        "unknown": "La línea aún no tiene esta plantilla"
+      },
+      "none": {
+        "title": "No tiene citas próximas",
+        "message": "Los recordatorios y confirmaciones hablan de una cita confirmada de los próximos 42 días."
+      }
     }
   },
   "pageNotFound": {
