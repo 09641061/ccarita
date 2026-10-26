@@ -106,6 +106,17 @@ export class CurrentOrganization {
     return organization;
   }
 
+  /**
+   * Owner only (O2): renames the selected organization, then rereads it and the memberships that name it.
+   * @throws ApiError `PLAN_INACTIVE` (O6), `VALIDATION_ERROR`.
+   */
+  async rename(name: string): Promise<Organization> {
+    const renamed = await firstValueFrom(this.api.rename(name));
+    this.details.reload();
+    await this.load(true);
+    return renamed;
+  }
+
   private async fetch(): Promise<readonly JoinedOrganization[]> {
     const userId = this.session.user()?.id;
     const organizations = await firstValueFrom(this.api.listJoined());

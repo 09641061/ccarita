@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import {
   establishmentResource,
   joinedResource,
+  memberResource,
   serviceResource,
 } from '../../../testing/organization-fixtures';
 import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
@@ -14,7 +15,9 @@ import { tenantInterceptor } from '../../shared/infrastructure/tenancy/tenant.in
 import { OpeningHours } from '../domain/model/opening-hours';
 import { EstablishmentsApi } from './establishments.api';
 import { InvitationAcceptancesApi } from './invitation-acceptances.api';
+import { MembersApi } from './members.api';
 import { OrganizationsApi } from './organizations.api';
+import { OwnershipTransfersApi } from './ownership-transfers.api';
 import { ServicesApi } from './services.api';
 
 const API = 'http://api.test';
@@ -229,5 +232,126 @@ describe('organization endpoints', () => {
     const on = firstValueFrom(api.setActive('s-1', true));
     backend.expectOne(`${API}/api/v1/services/s-1/activations`).flush(serviceResource('s-1'));
     expect((await on).active).toBe(true);
+  });
+
+  it('O2: renames the organization with a PUT and no key', async () => {
+    const call = firstValueFrom(TestBed.inject(OrganizationsApi).rename('  Barbería Don Pepe '));
+
+    const request = backend.expectOne(`${API}/api/v1/organization`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({ name: 'Barbería Don Pepe' });
+    expect(request.request.headers.has('Idempotency-Key')).toBe(false);
+    request.flush({
+      id: 'org-1',
+      name: 'Barbería Don Pepe',
+      plan: 'standard',
+      planActiveUntil: '2026-11-06T05:00:00Z',
+    });
+
+    expect((await call).name).toBe('Barbería Don Pepe');
+  });
+
+  it('reads members with when they joined and when their invitation expires', async () => {
+    const call = firstValueFrom(TestBed.inject(MembersApi).list());
+
+    backend.expectOne(`${API}/api/v1/members`).flush([
+      { ...memberResource('m-1'), joinedAt: '2026-09-02T15:00:00Z' },
+      { ...memberResource('m-2', { status: 'pending' }), inviteExpiresAt: '2026-10-28T15:00:00Z' },
+    ]);
+
+    const [joined, invited] = await call;
+    expect(joined.joinedAt).toEqual(new Date('2026-09-02T15:00:00Z'));
+    expect(joined.inviteExpiresAt).toBeNull();
+    expect(invited.inviteExpiresAt).toEqual(new Date('2026-10-28T15:00:00Z'));
+  });
+
+  it('O10: invites with a key, sending establishments only for staff', async () => {
+    const api = TestBed.inject(MembersApi);
+    const invite = {
+      email: ' stefano@example.com ',
+      displayName: 'Stefano ',
+      bookable: false,
+      establishmentIds: ['est-1'],
+    };
+
+    const staff = firstValueFrom(api.invite({ ...invite, role: 'staff' }, 'key-4'));
+    const post = backend.expectOne(`${API}/api/v1/members`);
+    expect(post.request.method).toBe('POST');
+    expect(post.request.headers.get('Idempotency-Key')).toBe('key-4');
+    expect(post.request.body).toEqual({
+      email: 'stefano@example.com',
+      displayName: 'Stefano',
+      role: 'staff',
+      bookable: false,
+      establishmentIds: ['est-1'],
+    });
+    post.flush(memberResource('m-9', { status: 'pending' }), { status: 201, statusText: '' });
+    expect((await staff).status).toBe('pending');
+
+    const manager = firstValueFrom(api.invite({ ...invite, role: 'manager' }, 'key-5'));
+    const second = backend.expectOne(`${API}/api/v1/members`);
+    expect(second.request.body.establishmentIds).toEqual([]);
+    second.flush(memberResource('m-10', { role: 'manager', establishmentIds: [] }));
+    await manager;
+  });
+
+  it('O9, O12: updates and removes a member with no key', async () => {
+    const api = TestBed.inject(MembersApi);
+
+    const updated = firstValueFrom(
+      api.update('m-1', {
+        displayName: 'Ana',
+        bookable: true,
+        role: 'manager',
+        establishmentIds: ['est-1'],
+      }),
+    );
+    const put = backend.expectOne(`${API}/api/v1/members/m-1`);
+    expect(put.request.method).toBe('PUT');
+    expect(put.request.headers.has('Idempotency-Key')).toBe(false);
+    expect(put.request.body).toEqual({
+      displayName: 'Ana',
+      bookable: true,
+      role: 'manager',
+      establishmentIds: [],
+    });
+    put.flush(memberResource('m-1', { role: 'manager', establishmentIds: [] }));
+    expect((await updated).role).toBe('manager');
+
+    const removed = firstValueFrom(api.remove('m-1'), { defaultValue: undefined });
+    const remove = backend.expectOne(`${API}/api/v1/members/m-1`);
+    expect(remove.request.method).toBe('DELETE');
+    expect(remove.request.headers.has('Idempotency-Key')).toBe(false);
+    remove.flush(null, { status: 204, statusText: '' });
+    await removed;
+  });
+
+  it('O10: sends an invitation again with a key', async () => {
+    const call = firstValueFrom(TestBed.inject(MembersApi).renewInvitation('m-2', 'key-6'));
+
+    const request = backend.expectOne(`${API}/api/v1/members/m-2/invitation-renewals`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.headers.get('Idempotency-Key')).toBe('key-6');
+    request.flush({
+      ...memberResource('m-2', { status: 'pending' }),
+      inviteExpiresAt: '2026-11-02T15:00:00Z',
+    });
+
+    expect((await call).inviteExpiresAt).toEqual(new Date('2026-11-02T15:00:00Z'));
+  });
+
+  it('O12: transfers ownership with a key and the new owner only', async () => {
+    const call = firstValueFrom(TestBed.inject(OwnershipTransfersApi).transfer('m-3', 'key-7'));
+
+    const request = backend.expectOne(`${API}/api/v1/ownership-transfers`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.headers.get('Idempotency-Key')).toBe('key-7');
+    expect(request.request.body).toEqual({ newOwnerId: 'm-3' });
+    request.flush(memberResource('m-3', { role: 'owner', establishmentIds: [] }), {
+      status: 201,
+      statusText: '',
+    });
+
+    expect((await call).role).toBe('owner');
   });
 });

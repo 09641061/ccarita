@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import type {
   JoinedOrganization as JoinedOrganizationResource,
   Organization as OrganizationResource,
+  RenameOrganizationRequest,
 } from '../../shared/infrastructure/api/pibble.schema';
 import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
 import { idempotent } from '../../shared/infrastructure/http/idempotency';
@@ -41,6 +42,14 @@ export class OrganizationsApi {
         toCreateOrganizationRequest(command),
         { context: idempotent(idempotencyKey) },
       )
+      .pipe(map(toOrganization));
+  }
+
+  /** Owner only, a PUT (O2). @throws ApiError `PLAN_INACTIVE` (O6). */
+  rename(name: string): Observable<Organization> {
+    const body: RenameOrganizationRequest = { name: name.trim() };
+    return this.http
+      .put<OrganizationResource>(`${this.baseUrl}/api/v1/organization`, body)
       .pipe(map(toOrganization));
   }
 }
