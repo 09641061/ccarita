@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BrandMark } from '../brand-mark/brand-mark';
-import { NavigationItem } from './navigation-item';
+import { filter, map } from 'rxjs';
+import { NavigationItem, activeItem } from './navigation-item';
 
 /**
  * The signed-in frame: a navigation drawer from 1024 px, and below that a bottom bar with the
@@ -19,6 +21,8 @@ import { NavigationItem } from './navigation-item';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Shell {
+  private readonly router = inject(Router);
+
   /** The destinations the current role may see, in order (`navigationFor`). */
   readonly navigation = input.required<readonly NavigationItem[]>();
 
@@ -28,4 +32,14 @@ export class Shell {
   protected readonly hasMore = computed(() =>
     this.navigation().some((item) => item.placement === 'more'),
   );
+
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map(() => this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+  /** The destination of the current screen, by longest path (`activeItem`). */
+  protected readonly active = computed(() => activeItem(this.navigation(), this.url())?.path);
 }
