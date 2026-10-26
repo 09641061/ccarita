@@ -66,6 +66,11 @@ export class LocalDate {
     return this.utcMidnight() < other.utcMidnight();
   }
 
+  /** Whole days from this day to `other`; negative when `other` comes first. */
+  daysUntil(other: LocalDate): number {
+    return Math.round((other.utcMidnight() - this.utcMidnight()) / DAY_MS);
+  }
+
   toString(): string {
     const pad = (n: number, width = 2) => String(n).padStart(width, '0');
     return `${pad(this.year, 4)}-${pad(this.month)}-${pad(this.day)}`;

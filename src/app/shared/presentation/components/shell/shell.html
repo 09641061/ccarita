@@ -8,10 +8,8 @@
       <a
         mat-list-item
         [routerLink]="item.path"
-        routerLinkActive
-        #active="routerLinkActive"
-        [activated]="active.isActive"
-        [attr.aria-current]="active.isActive ? 'page' : null"
+        [activated]="active() === item.path"
+        [attr.aria-current]="active() === item.path ? 'page' : null"
       >
         @if (item.assistant) {
           <app-brand-mark matListItemIcon [size]="22" />
@@ -41,9 +39,8 @@
     <a
       class="tab"
       [routerLink]="item.path"
-      routerLinkActive="active"
-      #active="routerLinkActive"
-      [attr.aria-current]="active.isActive ? 'page' : null"
+      [class.active]="active() === item.path"
+      [attr.aria-current]="active() === item.path ? 'page' : null"
     >
       <span class="indicator">
         @if (item.assistant) {
@@ -60,8 +57,8 @@
       class="tab"
       routerLink="/mas"
       routerLinkActive="active"
-      #active="routerLinkActive"
-      [attr.aria-current]="active.isActive ? 'page' : null"
+      #more="routerLinkActive"
+      [attr.aria-current]="more.isActive ? 'page' : null"
     >
       <span class="indicator"><mat-icon aria-hidden="true">menu</mat-icon></span>
       <span class="label">{{ 'shared.nav.more' | translate }}</span>

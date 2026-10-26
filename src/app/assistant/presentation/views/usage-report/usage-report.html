@@ -1,0 +1,112 @@
+@if (!organization.can('editSettings')) {
+  <app-state-view kind="forbidden" />
+} @else {
+  <section class="section" aria-labelledby="usage-title">
+    <div class="head">
+      <div class="heading">
+        <h2 id="usage-title">{{ 'assistant.usage.title' | translate }}</h2>
+        <p class="muted">
+          {{
+            'assistant.usage.lead'
+              | translate: { timeZone: establishment.timeZone() ?? '', max: maxDays }
+          }}
+        </p>
+      </div>
+      <fieldset class="range">
+        <legend class="tk-visually-hidden">{{ 'assistant.usage.period' | translate }}</legend>
+        <mat-form-field subscriptSizing="dynamic">
+          <mat-label>{{ 'assistant.usage.from' | translate }}</mat-label>
+          <input
+            matInput
+            type="date"
+            [value]="from()"
+            (change)="change('from', $any($event.target).value)"
+          />
+        </mat-form-field>
+        <mat-form-field subscriptSizing="dynamic">
+          <mat-label>{{ 'assistant.usage.to' | translate }}</mat-label>
+          <input
+            matInput
+            type="date"
+            [value]="to()"
+            (change)="change('to', $any($event.target).value)"
+          />
+        </mat-form-field>
+      </fieldset>
+    </div>
+    @if (problem(); as p) {
+      <p class="field-error" role="alert">
+        {{ 'assistant.usage.problem.' + p | translate: { max: maxDays } }}
+      </p>
+    }
+
+    @if (store.usage.isLoading() && usage()) {
+      <mat-progress-bar
+        mode="indeterminate"
+        [attr.aria-label]="'shared.state.loading' | translate"
+      />
+    }
+
+    @if (loadError(); as e) {
+      <app-state-view [kind]="errorKind()" (retry)="store.usage.reload()" />
+    } @else if (usage(); as u) {
+      @if (u.isEmpty) {
+        <app-state-view
+          kind="empty"
+          title="assistant.usage.empty.title"
+          message="assistant.usage.empty.message"
+        />
+      } @else {
+        <div class="card table-scroll">
+          <table>
+            <caption class="tk-visually-hidden">
+              {{
+                'assistant.usage.caption'
+                  | translate
+                    : {
+                        from: u.period.from | zonedDate: u.timeZone : 'date',
+                        to: u.period.to | zonedDate: u.timeZone : 'date',
+                      }
+              }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'assistant.usage.columns.day' | translate }}</th>
+                <th scope="col">{{ 'assistant.usage.columns.turns' | translate }}</th>
+                <th scope="col">{{ 'assistant.usage.columns.input' | translate }}</th>
+                <th scope="col">{{ 'assistant.usage.columns.cached' | translate }}</th>
+                <th scope="col">{{ 'assistant.usage.columns.output' | translate }}</th>
+                <th scope="col">{{ 'assistant.usage.columns.tools' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (day of u.newestFirst; track day.date.toString()) {
+                <tr>
+                  <th scope="row">{{ day.date | zonedDate: u.timeZone : 'shortDay' }}</th>
+                  <td>{{ day.totals.turns | number }}</td>
+                  <td>{{ day.totals.inputTokens | number }}</td>
+                  <td>{{ day.totals.cachedTokens | number }}</td>
+                  <td>{{ day.totals.outputTokens | number }}</td>
+                  <td>{{ day.totals.toolCalls | number }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th scope="row">{{ 'assistant.usage.total' | translate }}</th>
+                <td>{{ u.totals.turns | number }}</td>
+                <td>{{ u.totals.inputTokens | number }}</td>
+                <td>{{ u.totals.cachedTokens | number }}</td>
+                <td>{{ u.totals.outputTokens | number }}</td>
+                <td>{{ u.totals.toolCalls | number }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <p class="muted small">{{ 'assistant.usage.note' | translate }}</p>
+      }
+    } @else {
+      <app-skeleton [rows]="4" />
+    }
+  </section>
+}

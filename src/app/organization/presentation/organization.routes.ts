@@ -38,11 +38,17 @@ const openingHours = () =>
   import('./views/opening-hours-editor/opening-hours-editor').then((m) => m.OpeningHoursEditor);
 const services = () => import('./views/service-list/service-list').then((m) => m.ServiceList);
 
-/**
- * Ajustes (`/ajustes`): the sections of the selected establishment. `whatsapp` is the line's screen of
- * `conversations`, which the app's routes pass in.
- */
-export function settingsRoutes(whatsapp: Route): Routes {
+/** The screens of other contexts that Ajustes and Primeros pasos mount, which `organization` does not import. */
+export interface SettingsScreens {
+  /** The line's screen of `conversations`. */
+  readonly whatsapp: Route;
+  /** The assistant's settings and usage, screens of `assistant`. */
+  readonly assistant: Route;
+  readonly usage: Route;
+}
+
+/** Ajustes (`/ajustes`): the sections of the selected establishment; the app's routes pass the other contexts' screens. */
+export function settingsRoutes({ whatsapp, assistant, usage }: SettingsScreens): Routes {
   return [
     {
       path: '',
@@ -66,6 +72,8 @@ export function settingsRoutes(whatsapp: Route): Routes {
           canActivate: [roleGuard(['owner'])],
           title: 'WhatsApp · Takodu',
         },
+        { ...assistant, path: 'asistente', title: 'Asistente · Takodu' },
+        { ...usage, path: 'uso', title: 'Uso del asistente · Takodu' },
       ],
     },
   ];
@@ -73,20 +81,25 @@ export function settingsRoutes(whatsapp: Route): Routes {
 
 /**
  * Primeros pasos (`/primeros-pasos`), outside the signed-in frame: creating the organization, then the owner's
- * steps, each the same screen Ajustes shows. `line` provides `ESTABLISHMENT_LINE` from `conversations`.
+ * steps, each the same screen Ajustes shows. `providers` give `ESTABLISHMENT_LINE` and `ESTABLISHMENT_ASSISTANT`
+ * from the contexts that own them.
  */
-export function onboardingRoutes(whatsapp: Route, line: Provider): Routes {
+export function onboardingRoutes(
+  { whatsapp, assistant }: Omit<SettingsScreens, 'usage'>,
+  providers: Provider[],
+): Routes {
   return [
     {
       path: 'primeros-pasos',
       canActivate: [authGuard],
-      providers: [line],
+      providers,
       loadComponent: () => import('./views/onboarding/onboarding').then((m) => m.Onboarding),
       title: 'Primeros pasos · Takodu',
       children: [
         { path: 'horario', loadComponent: openingHours },
         { path: 'servicios', loadComponent: services },
         { ...whatsapp, path: 'whatsapp' },
+        { ...assistant, path: 'asistente' },
       ],
     },
   ];

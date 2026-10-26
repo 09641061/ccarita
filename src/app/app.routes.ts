@@ -1,4 +1,5 @@
 import { computed, inject } from '@angular/core';
+import { AssistantSettingsStore } from './assistant/public-api';
 import { ResolveFn, Route, Routes } from '@angular/router';
 import { InboxStore, WhatsappLineStore } from './conversations/public-api';
 import { CUSTOMER_ACCESS } from './customers/public-api';
@@ -6,11 +7,13 @@ import { devRoutes } from './dev.routes';
 import { authGuard } from './iam/public-api';
 import {
   CurrentOrganization,
+  ESTABLISHMENT_ASSISTANT,
   ESTABLISHMENT_LINE,
   onboardingRoutes,
   organizationEntryRoutes,
   organizationGuard,
   roleGuard,
+  SettingsScreens,
   settingsRoutes,
 } from './organization/public-api';
 import { ApiError } from './shared/domain/model/api-error';
@@ -25,12 +28,24 @@ const pageNotFound = () =>
 const placeholder = () =>
   import('./shared/presentation/views/placeholder/placeholder').then((m) => m.Placeholder);
 
-/** The establishment's WhatsApp line, a screen of `conversations` inside Ajustes and Primeros pasos. */
-const WHATSAPP_LINE: Route = {
-  loadComponent: () =>
-    import('./conversations/presentation/views/line-settings/line-settings').then(
-      (m) => m.LineSettings,
-    ),
+/** The screens of `conversations` and `assistant` inside Ajustes and Primeros pasos. */
+const SETTINGS_SCREENS: SettingsScreens = {
+  whatsapp: {
+    loadComponent: () =>
+      import('./conversations/presentation/views/line-settings/line-settings').then(
+        (m) => m.LineSettings,
+      ),
+  },
+  assistant: {
+    loadComponent: () =>
+      import('./assistant/presentation/views/assistant-configuration/assistant-configuration').then(
+        (m) => m.AssistantConfiguration,
+      ),
+  },
+  usage: {
+    loadComponent: () =>
+      import('./assistant/presentation/views/usage-report/usage-report').then((m) => m.UsageReport),
+  },
 };
 
 /** Primeros pasos' WhatsApp step is done once the line is connected; a line never connected is not. */
@@ -47,6 +62,15 @@ const ESTABLISHMENT_LINE_PROVIDER = {
   },
 };
 
+/** Primeros pasos' assistant step is done once the assistant is on. */
+const ESTABLISHMENT_ASSISTANT_PROVIDER = {
+  provide: ESTABLISHMENT_ASSISTANT,
+  useFactory: () => {
+    const settings = inject(AssistantSettingsStore).settings;
+    return { enabled: computed(() => (settings.hasValue() ? settings.value().enabled : null)) };
+  },
+};
+
 /** The destinations a context already serves; the others show a placeholder until their phase. */
 const CONTEXT_ROUTES: Record<string, Route> = {
   '/agenda': {
@@ -59,7 +83,9 @@ const CONTEXT_ROUTES: Record<string, Route> = {
         (m) => m.conversationsRoutes,
       ),
   },
-  '/ajustes': { children: settingsRoutes(WHATSAPP_LINE) },
+  '/ajustes': { children: settingsRoutes(SETTINGS_SCREENS) },
+  // The assistant lives in Ajustes; its navigation item opens it there and stays active.
+  '/asistente': { pathMatch: 'full', redirectTo: '/ajustes/asistente' },
   '/clientes': {
     providers: [
       {
@@ -100,7 +126,10 @@ export const routes: Routes = [
     loadChildren: () => import('./iam/presentation/iam.routes').then((m) => m.iamRoutes),
   },
   ...organizationEntryRoutes,
-  ...onboardingRoutes(WHATSAPP_LINE, ESTABLISHMENT_LINE_PROVIDER),
+  ...onboardingRoutes(SETTINGS_SCREENS, [
+    ESTABLISHMENT_LINE_PROVIDER,
+    ESTABLISHMENT_ASSISTANT_PROVIDER,
+  ]),
   {
     path: '',
     canActivate: [authGuard, organizationGuard],
@@ -110,7 +139,8 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'agenda' },
       ...MAIN_NAVIGATION.map((item) => ({
         path: item.path.slice(1),
-        canActivate: [roleGuard(item.roles)],
+        // Redirects run before guards, and Angular refuses both on one route; the target is guarded.
+        ...(CONTEXT_ROUTES[item.path]?.redirectTo ? {} : { canActivate: [roleGuard(item.roles)] }),
         ...(CONTEXT_ROUTES[item.path] ?? {
           loadComponent: placeholder,
           data: { label: item.label },

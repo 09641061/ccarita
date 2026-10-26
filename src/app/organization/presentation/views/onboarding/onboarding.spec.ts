@@ -10,7 +10,10 @@ import { ApiError } from '../../../../shared/domain/model/api-error';
 import { Money } from '../../../../shared/domain/model/money';
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
 import { CurrentOrganization } from '../../../application/current-organization.store';
-import { ESTABLISHMENT_LINE } from '../../../application/establishment-line';
+import {
+  ESTABLISHMENT_ASSISTANT,
+  ESTABLISHMENT_LINE,
+} from '../../../application/establishment-line';
 import { EstablishmentTeam } from '../../../application/establishment-team.store';
 import { OpeningHoursStore } from '../../../application/opening-hours.store';
 import { JoinedOrganization } from '../../../domain/model/joined-organization';
@@ -43,6 +46,7 @@ describe('Onboarding', () => {
       hours?: OpeningHours;
       services?: Service[];
       connected?: boolean;
+      enabled?: boolean;
       url?: string;
     } = {},
   ) {
@@ -62,6 +66,7 @@ describe('Onboarding', () => {
               { path: 'horario', component: Step },
               { path: 'servicios', component: Step },
               { path: 'whatsapp', component: Step },
+              { path: 'asistente', component: Step },
             ],
           },
           { path: '**', children: [] },
@@ -91,6 +96,10 @@ describe('Onboarding', () => {
         {
           provide: ESTABLISHMENT_LINE,
           useValue: { connected: signal(options.connected ?? false) },
+        },
+        {
+          provide: ESTABLISHMENT_ASSISTANT,
+          useValue: { enabled: signal(options.enabled ?? false) },
         },
       ],
     });
@@ -148,8 +157,9 @@ describe('Onboarding', () => {
     const { host, router } = await render({ organizations: [joined('owner')] });
     expect(router.url).toBe('/primeros-pasos/horario');
     expect(text(host)).toContain('Barbería Don Lucho');
-    expect(text(host)).toContain('0 de 3');
-    expect(text(host)).toContain('Paso 1 de 3');
+    expect(text(host)).toContain('0 de 4');
+    expect(text(host)).toContain('Paso 1 de 4');
+    expect(text(host)).toContain('Primero conecta WhatsApp');
     expect(text(host)).toContain('contenido del paso');
   });
 
@@ -160,9 +170,28 @@ describe('Onboarding', () => {
       services: [CUT],
     });
     expect(router.url).toBe('/primeros-pasos/whatsapp');
-    expect(text(host)).toContain('2 de 3');
+    expect(text(host)).toContain('2 de 4');
     expect(text(host)).toContain('Días abiertos: 1');
     expect(text(host)).toContain('Servicios: 1');
+
+    [...host.querySelectorAll('button')]
+      .find((b) => b.textContent!.includes('Hacerlo después'))!
+      .click();
+    await stable();
+    expect(router.url).toBe('/primeros-pasos/asistente');
+  });
+
+  it('A1: turning on the assistant is the last step, once WhatsApp is connected', async () => {
+    const { host, stable, router } = await render({
+      organizations: [joined('owner')],
+      hours: WEEK,
+      services: [CUT],
+      connected: true,
+    });
+    expect(router.url).toBe('/primeros-pasos/asistente');
+    expect(text(host)).toContain('Paso 4 de 4');
+    expect(text(host)).toContain('Que Tako responda a tus clientes');
+    expect(text(host)).not.toContain('Primero conecta WhatsApp');
 
     [...host.querySelectorAll('button')]
       .find((b) => b.textContent!.includes('Hacerlo después'))!
@@ -177,6 +206,7 @@ describe('Onboarding', () => {
       hours: WEEK,
       services: [CUT],
       connected: true,
+      enabled: true,
     });
     expect(router.url).toBe('/primeros-pasos');
     expect(text(host)).toContain('Todo listo');

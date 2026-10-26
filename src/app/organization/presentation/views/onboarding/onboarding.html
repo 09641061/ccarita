@@ -127,7 +127,8 @@
                     {{
                       'organization.onboarding.steps.' +
                         step.key +
-                        (step.done ? '.done' : '.pending') | translate: { count: step.count }
+                        (step.done ? '.done' : step.needsLine ? '.needsLine' : '.pending')
+                        | translate: { count: step.count }
                     }}
                   </span>
                 </span>

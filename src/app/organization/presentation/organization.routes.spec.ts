@@ -18,7 +18,14 @@ describe('settingsRoutes', () => {
       providers: [
         provideSpanish(),
         provideRouter([
-          { path: 'ajustes', children: settingsRoutes({ component: Blank }) },
+          {
+            path: 'ajustes',
+            children: settingsRoutes({
+              whatsapp: { component: Blank },
+              assistant: { component: Blank },
+              usage: { component: Blank },
+            }),
+          },
           { path: 'sin-permiso', component: Blank },
         ]),
         {
@@ -54,5 +61,11 @@ describe('settingsRoutes', () => {
     expect(await navigate('manager', '/ajustes/datos')).toBe('/sin-permiso');
     TestBed.resetTestingModule();
     expect(await navigate('manager', '/ajustes/whatsapp')).toBe('/sin-permiso');
+  });
+
+  it('03 §5: opens the assistant and its usage for managers', async () => {
+    expect(await navigate('manager', '/ajustes/asistente')).toBe('/ajustes/asistente');
+    TestBed.resetTestingModule();
+    expect(await navigate('manager', '/ajustes/uso')).toBe('/ajustes/uso');
   });
 });

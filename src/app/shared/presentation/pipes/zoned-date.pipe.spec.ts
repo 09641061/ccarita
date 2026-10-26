@@ -24,5 +24,6 @@ describe('ZonedDatePipe with a local date', () => {
     expect(pipe.transform(day, 'America/Lima', 'longDay')).toBe('viernes, 23 de octubre');
     expect(pipe.transform(day, 'Asia/Tokyo', 'weekday')).toBe('vie');
     expect(pipe.transform(day, 'America/Lima', 'monthYear')).toBe('octubre de 2026');
+    expect(pipe.transform(day, 'America/Lima', 'shortDay')).toBe('vie, 23 oct.');
   });
 });

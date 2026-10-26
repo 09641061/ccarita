@@ -44,7 +44,7 @@ One pull request into `develop` per step, built from the designs in `../ui-refer
 - **F6a** inbox, live stream, reading and replying, media (done).
 - **F6b** templates, assignment, assistant pause and resume, "Ver chat" from the customer (done).
 - **F7** onboarding and establishment settings (done).
-- **F8** assistant settings and usage.
+- **F8** assistant settings and usage (done).
 - **F9** team, invitations, ownership transfer, account sessions, plan.
 - **F10** Takodu team area.
 
@@ -57,12 +57,15 @@ Where pibble's API serves less than a design shows, the design adapts:
 - The customer panel shows "Ver chat" only when the customer's conversation is among the inbox conversations already loaded for the selected establishment: pibble has no lookup by customer ([decision](docs/decisions/implemented/2026-10-25-customer-chat-from-the-loaded-inbox.md)).
 - The customers list follows pibble's order by display name, so customers without a name (shown as "Sin nombre") come first, by phone.
 - Appointments show no notification status.
-- The inbox shows a status line instead of a message preview, has no search and no "replying" state, and filters only loaded conversations, 30 at a time with "Cargar más". It never says the assistant is answering: pibble does not say whether it is on, so an active conversation shows until when the customer can be written to.
+- The inbox shows a status line instead of a message preview, has no search and no "replying" state, and filters only loaded conversations, 30 at a time with "Cargar más". It never says the assistant is answering: the inbox does not read the assistant's settings, so an active conversation shows until when the customer can be written to.
 - Reminders and confirmations offer the customer's confirmed appointments of the next 42 days, the most pibble's calendar lists at once, since it has no per-customer read for members. With several, a menu picks the appointment instead of one card per appointment. Inside the window a confirmation goes as normal text, so it needs no approval.
-- The assistant button pauses an active assistant and resumes a paused one; pibble does not say whether the assistant is turned on for the establishment, so it is offered either way.
-- Primeros pasos has three steps (hours, services, WhatsApp) instead of five: turning on the assistant (F8) and inviting the team (F9) are not built. A step is done when pibble reports it, and only owners walk it.
-- Opening and archiving establishments are in Ajustes › Datos, since the Organización page (F9) is not built; managers see only Horario and Servicios (Mapa por rol).
+- The assistant button pauses an active assistant and resumes a paused one, offered whether or not the assistant is turned on: its settings are readable only by owners and managers, while staff use the chat too.
+- Primeros pasos has four steps (hours, services, WhatsApp, assistant) instead of five: inviting the team (F9) is not built. A step is done when pibble reports it, and only owners walk it.
+- Opening and archiving establishments are in Ajustes › Datos, since the Organización page (F9) is not built; managers see Horario, Servicios, Asistente and Uso (Mapa por rol).
 - Connecting WhatsApp needs Takodu's Meta app (`environment.metaSignup`), which is not set up: the screen says so, and development builds offer a labelled form with the values pibble's dev mode accepts ([decision](docs/decisions/implemented/2026-10-26-embedded-signup-behind-a-setting.md)).
+- The assistant lives in Ajustes (Asistente and Uso tabs); the "Asistente" navigation item opens it there ([decision](docs/decisions/implemented/2026-10-26-assistant-inside-ajustes.md)).
+- The assistant's status card says "Respondiendo en WhatsApp" from the switch, the line and the plan; pibble tells nothing more, so it cannot say which chats it is quiet in.
+- Assistant usage lists only the days with answered turns, newest first, as pibble sends them, with the period's total; tokens, never costs. The period is two date inputs instead of a range button.
 - The time zone of an establishment is chosen among the Americas' IANA zones.
 - The customers page has previous and next without a total.
 - Staff send text and templates only.

@@ -70,4 +70,15 @@ describe('Shell', () => {
       false,
     );
   });
+
+  it('marks the assistant, not Ajustes, on the assistant screens inside Ajustes', async () => {
+    const host = await render('owner', '/ajustes/uso');
+
+    expect(host.querySelector('aside a[href="/asistente"]')?.getAttribute('aria-current')).toBe(
+      'page',
+    );
+    expect(host.querySelector('aside a[href="/ajustes"]')?.hasAttribute('aria-current')).toBe(
+      false,
+    );
+  });
 });

@@ -1,0 +1,149 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 14px;
+  background: var(--mat-sys-surface-container-lowest);
+}
+
+h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.muted {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 14px;
+}
+
+.status {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+
+  @media (min-width: 600px) {
+    gap: 20px;
+    padding: 24px;
+  }
+}
+
+.status-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--mat-sys-outline);
+
+  &.on {
+    background: var(--mat-sys-primary);
+  }
+}
+
+.link {
+  color: var(--mat-sys-primary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.section,
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.heading {
+  gap: 4px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.field-error {
+  margin: 0;
+  color: var(--mat-sys-error);
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.counter {
+  flex: 1;
+  font-size: 13px;
+}
+
+.saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 14px;
+}
+
+.rules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 16px;
+}
+
+.rule {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  mat-icon {
+    flex: none;
+    color: var(--mat-sys-primary);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.rule:last-child mat-icon {
+  color: var(--mat-sys-on-surface-variant);
+}

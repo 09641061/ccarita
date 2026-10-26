@@ -20,7 +20,7 @@ The account sessions list (`GET`/`DELETE /api/v1/auth/sessions`) belongs to the 
 ## Organization and establishment (`organization`)
 
 - `CurrentOrganization.load()` reads `GET /api/v1/organizations` once per user. It drops a stored selection that is not a membership and selects the only organization when there is one. `selected()`, `role()`, `can(action)`, `planActiveUntil()` and `planActive()` come from pibble; `details` is `GET /api/v1/organization` (plan and fresh end date).
-- `/organizaciones` (`OrganizationPicker`) lists several organizations; with one it goes straight on, and with none it explains how to get one and links to `/primeros-pasos`, where they create one (O1) and the owner then sets up hours, services and the line.
+- `/organizaciones` (`OrganizationPicker`) lists several organizations; with one it goes straight on, and with none it explains how to get one and links to `/primeros-pasos`, where they create one (O1) and the owner then sets up hours, services, the line and the assistant.
 - `CurrentEstablishment` lists `GET /api/v1/establishments` without archived ones (pibble returns the assigned ones for staff, O13) and exposes `id()`, `timeZone()` and `select()`. `TenantContext` remembers one establishment per organization; a missing one falls back to the first. Other contexts key their reads on it.
 - `/invitations/:token` is the link pibble emails. Signed out, `authGuard` brings the user back after sign-in. Accepting selects the organization and opens `/agenda`. `INVITATION_EXPIRED`, `INVITATION_NOT_FOUND`, `INVITATION_CONFLICT` and `ACCESS_DENIED` (another email; pibble does not say which) each have a state.
 

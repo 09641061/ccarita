@@ -8,7 +8,7 @@ export { CurrentOrganization } from './application/current-organization.store';
 export { EstablishmentTeam } from './application/establishment-team.store';
 export { organizationGuard } from './presentation/guards/organization.guard';
 export { roleGuard } from './presentation/guards/role.guard';
-export { ESTABLISHMENT_LINE } from './application/establishment-line';
+export { ESTABLISHMENT_ASSISTANT, ESTABLISHMENT_LINE } from './application/establishment-line';
 export { OpeningHoursStore } from './application/opening-hours.store';
 export { OpeningHours } from './domain/model/opening-hours';
 export {
@@ -16,3 +16,4 @@ export {
   organizationEntryRoutes,
   settingsRoutes,
 } from './presentation/organization.routes';
+export type { SettingsScreens } from './presentation/organization.routes';
