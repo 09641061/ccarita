@@ -1,0 +1,121 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
+import { FormField, form, maxLength, required } from '@angular/forms/signals';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ApiError } from '../../../../shared/domain/model/api-error';
+import { BusyButton } from '../../../../shared/presentation/components/busy-button/busy-button';
+import { StateView } from '../../../../shared/presentation/components/state-view/state-view';
+import { ErrorMessagePipe } from '../../../../shared/presentation/pipes/error-message.pipe';
+import { CurrentEstablishment } from '../../../application/current-establishment.store';
+import { CurrentOrganization } from '../../../application/current-organization.store';
+import { EstablishmentDetails as Details } from '../../../domain/model/establishment';
+import { ArchiveEstablishmentSheet } from '../archive-establishment-sheet/archive-establishment-sheet';
+import { OpenEstablishmentSheet } from '../open-establishment-sheet/open-establishment-sheet';
+import { DEFAULT_TIME_ZONE, timeZoneOptions } from './time-zones';
+
+const EMPTY: Details = { name: '', address: '', timeZone: DEFAULT_TIME_ZONE };
+
+/**
+ * Ajustes › Datos, for the owner (03 §5): the selected establishment's name, address and time zone (O7), opening
+ * another one (O4) and archiving this one. Saving is a PUT, so it needs no idempotency key; an inactive plan
+ * disables saving and opening, but not archiving (O6).
+ */
+@Component({
+  selector: 'app-establishment-details',
+  imports: [
+    BusyButton,
+    ErrorMessagePipe,
+    FormField,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    StateView,
+    TranslatePipe,
+  ],
+  templateUrl: './establishment-details.html',
+  styleUrl: '../settings/section.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class EstablishmentDetails {
+  private readonly sheet = inject(MatBottomSheet);
+  private readonly translate = inject(TranslateService);
+  protected readonly organization = inject(CurrentOrganization);
+  protected readonly establishment = inject(CurrentEstablishment);
+
+  protected readonly model = signal<Details>(EMPTY);
+  protected readonly detailsForm = form(this.model, (path) => {
+    required(path.name);
+    maxLength(path.name, 120);
+    maxLength(path.address, 300);
+  });
+  protected readonly timeZones = computed(() => timeZoneOptions(this.model().timeZone));
+  protected readonly busy = signal(false);
+  protected readonly error = signal<ApiError | null>(null);
+  protected readonly saved = signal(false);
+  protected readonly canChange = computed(() => this.organization.planActive());
+
+  constructor() {
+    effect(() => {
+      const selected = this.establishment.selected();
+      untracked(() => {
+        this.model.set(
+          selected
+            ? { name: selected.name, address: selected.address, timeZone: selected.timeZone }
+            : EMPTY,
+        );
+        this.error.set(null);
+        this.saved.set(false);
+      });
+    });
+  }
+
+  protected async save(event?: Event): Promise<void> {
+    event?.preventDefault();
+    this.detailsForm().markAsTouched();
+    const id = this.establishment.id();
+    if (!id || this.busy() || this.detailsForm().invalid() || !this.model().name.trim()) return;
+    this.busy.set(true);
+    this.error.set(null);
+    this.saved.set(false);
+    try {
+      await this.establishment.describe(id, this.model());
+      this.saved.set(true);
+    } catch (error) {
+      this.error.set(ApiError.of(error));
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  protected openAnother(): void {
+    this.sheet.open(OpenEstablishmentSheet, {
+      ariaLabel: this.translate.instant('organization.settings.openSheet.title'),
+    });
+  }
+
+  protected archive(): void {
+    const selected = this.establishment.selected();
+    if (!selected) return;
+    this.sheet.open(ArchiveEstablishmentSheet, {
+      data: selected,
+      ariaLabel: this.translate.instant('organization.settings.archiveSheet.title', {
+        name: selected.name,
+      }),
+    });
+  }
+}

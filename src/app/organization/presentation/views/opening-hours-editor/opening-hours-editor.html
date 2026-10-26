@@ -1,0 +1,124 @@
+@if (!organization.can('editSettings')) {
+  <app-state-view kind="forbidden" />
+} @else if (loadError()) {
+  <app-state-view [kind]="errorKind()" (retry)="store.hours.reload()" />
+} @else if (!store.hours.hasValue()) {
+  <app-skeleton [rows]="7" />
+} @else {
+  <section class="section" aria-labelledby="hours-title">
+    <h2 id="hours-title" class="tk-visually-hidden">
+      {{ 'organization.settings.tabs.hours' | translate }}
+    </h2>
+    <p class="lead">{{ 'organization.settings.hours.lead' | translate }}</p>
+    @if (!store.hours.value().isSet) {
+      <p class="notice" role="status">
+        <mat-icon aria-hidden="true">schedule</mat-icon>
+        {{ 'organization.settings.hours.notSet' | translate }}
+      </p>
+    }
+
+    <div class="card week">
+      @for (day of weekdays; track day) {
+        @let dayName = 'organization.weekday.' + day | translate;
+        @let ranges = week()[day];
+        <div class="day">
+          <mat-slide-toggle
+            [checked]="ranges.length > 0"
+            [disabled]="!canChange()"
+            [attr.aria-label]="'organization.settings.hours.toggle' | translate: { day: dayName }"
+            (change)="toggle(day, $event.checked)"
+          >
+            <span class="name">{{ dayName }}</span>
+          </mat-slide-toggle>
+          <div class="ranges">
+            @for (range of ranges; track $index) {
+              @let problem = problemOf(day, $index);
+              <div class="range">
+                <mat-form-field subscriptSizing="dynamic">
+                  <mat-label>{{ 'organization.settings.hours.opensAt' | translate }}</mat-label>
+                  <input
+                    matInput
+                    type="time"
+                    step="60"
+                    [value]="range.opensAt"
+                    [disabled]="!canChange()"
+                    (change)="type(day, $index, 'opensAt', $any($event.target).value)"
+                  />
+                </mat-form-field>
+                <span class="dash" aria-hidden="true">–</span>
+                <mat-form-field subscriptSizing="dynamic">
+                  <mat-label>{{ 'organization.settings.hours.closesAt' | translate }}</mat-label>
+                  <input
+                    matInput
+                    type="time"
+                    step="60"
+                    [value]="range.closesAt"
+                    [disabled]="!canChange()"
+                    (change)="type(day, $index, 'closesAt', $any($event.target).value)"
+                  />
+                </mat-form-field>
+                <button
+                  matIconButton
+                  type="button"
+                  [disabled]="!canChange()"
+                  [attr.aria-label]="
+                    'organization.settings.hours.removeRange' | translate: { day: dayName }
+                  "
+                  (click)="remove(day, $index)"
+                >
+                  <mat-icon aria-hidden="true">close</mat-icon>
+                </button>
+                @if (problem) {
+                  <p class="field-error" role="alert">
+                    {{ 'organization.settings.hours.problem.' + problem | translate }}
+                  </p>
+                }
+              </div>
+            } @empty {
+              <span class="closed">{{ 'organization.settings.hours.closed' | translate }}</span>
+            }
+            @if (ranges.length > 0) {
+              <button
+                matButton
+                type="button"
+                class="add"
+                [disabled]="!canChange()"
+                (click)="add(day)"
+              >
+                <mat-icon aria-hidden="true">add</mat-icon>
+                {{ 'organization.settings.hours.addRange' | translate }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <p class="muted">{{ 'organization.settings.hours.kept' | translate }}</p>
+    @if (error(); as e) {
+      <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+    }
+    <div class="actions">
+      @if (saved()) {
+        <span class="saved" role="status">
+          <mat-icon aria-hidden="true">check</mat-icon>
+          {{ 'organization.settings.hours.saved' | translate }}
+        </span>
+      }
+      <button
+        matButton
+        type="button"
+        [disabled]="!canChange() || week()[1].length === 0"
+        (click)="copyMonday()"
+      >
+        {{ 'organization.settings.hours.copy' | translate }}
+      </button>
+      <app-busy-button [busy]="busy()" [disabled]="!canChange()" (pressed)="save()">
+        {{
+          (busy() ? 'organization.settings.hours.saving' : 'organization.settings.hours.save')
+            | translate
+        }}
+      </app-busy-button>
+    </div>
+  </section>
+}

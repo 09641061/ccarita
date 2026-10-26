@@ -1,0 +1,30 @@
+<div class="sheet">
+  <header>
+    <h2>{{ 'organization.settings.archiveSheet.title' | translate: { name: target.name } }}</h2>
+    @if (target.address) {
+      <p class="muted">{{ target.address }}</p>
+    }
+  </header>
+  <p>{{ 'organization.settings.archiveSheet.lead' | translate }}</p>
+  <p class="notice">
+    <mat-icon aria-hidden="true">history</mat-icon>
+    <span>{{ 'organization.settings.archiveSheet.keeps' | translate }}</span>
+  </p>
+
+  @if (error(); as e) {
+    <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+  }
+  <div class="actions">
+    <button matButton type="button" (click)="back()">
+      {{ 'organization.settings.archiveSheet.back' | translate }}
+    </button>
+    <app-busy-button class="danger" [busy]="busy()" (pressed)="confirm()">
+      {{
+        (busy()
+          ? 'organization.settings.archiveSheet.busy'
+          : 'organization.settings.archiveSheet.confirm'
+        ) | translate
+      }}
+    </app-busy-button>
+  </div>
+</div>

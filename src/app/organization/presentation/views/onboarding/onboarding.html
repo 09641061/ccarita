@@ -1,0 +1,183 @@
+<div class="page">
+  <header class="top">
+    <span class="wordmark">{{ 'app.name' | translate }}</span>
+    @if (organization.selected(); as joined) {
+      <span class="muted">· {{ joined.name }}</span>
+      <a class="to-calendar" routerLink="/agenda">{{
+        'organization.onboarding.toCalendar' | translate
+      }}</a>
+    }
+  </header>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" [attr.aria-label]="'shared.state.loading' | translate" />
+  } @else if (loadError(); as e) {
+    <div class="single">
+      <app-state-view [kind]="e.code === 'NETWORK_ERROR' ? 'offline' : 'error'" (retry)="load()" />
+    </div>
+  } @else if (!organization.selected()) {
+    <form class="single card" (submit)="create($event)" novalidate>
+      <div class="intro">
+        <h1>{{ 'organization.onboarding.create.title' | translate }}</h1>
+        <p class="muted">{{ 'organization.onboarding.create.lead' | translate }}</p>
+      </div>
+      <mat-form-field>
+        <mat-label>{{ 'organization.onboarding.create.name' | translate }}</mat-label>
+        <input
+          matInput
+          autocomplete="organization"
+          [placeholder]="'organization.onboarding.create.namePlaceholder' | translate"
+          [formField]="createForm.name"
+        />
+        @if (createForm.name().touched() && !model().name.trim()) {
+          <mat-error>{{ 'organization.onboarding.create.required' | translate }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>{{ 'organization.onboarding.create.establishment' | translate }}</mat-label>
+        <input
+          matInput
+          autocomplete="off"
+          [placeholder]="'organization.onboarding.create.establishmentPlaceholder' | translate"
+          [formField]="createForm.establishmentName"
+        />
+        @if (createForm.establishmentName().touched() && !model().establishmentName.trim()) {
+          <mat-error>{{ 'organization.onboarding.create.required' | translate }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>{{ 'organization.onboarding.create.address' | translate }}</mat-label>
+        <input matInput autocomplete="street-address" [formField]="createForm.address" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>{{ 'organization.onboarding.create.ownerName' | translate }}</mat-label>
+        <input matInput autocomplete="name" [formField]="createForm.ownerDisplayName" />
+        <mat-hint>{{ 'organization.onboarding.create.ownerNameHint' | translate }}</mat-hint>
+        @if (createForm.ownerDisplayName().touched() && !model().ownerDisplayName.trim()) {
+          <mat-error>{{ 'organization.onboarding.create.required' | translate }}</mat-error>
+        }
+      </mat-form-field>
+      <p class="muted">{{ 'organization.onboarding.create.trial' | translate }}</p>
+      @if (error(); as e) {
+        <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+      }
+      <app-busy-button class="wide" type="submit" [busy]="busy()">
+        {{
+          (busy() ? 'organization.onboarding.create.busy' : 'organization.onboarding.create.submit')
+            | translate
+        }}
+      </app-busy-button>
+      @if (session.user(); as user) {
+        <p class="muted small">
+          {{ 'organization.onboarding.create.signedInAs' | translate: { email: user.email } }}
+        </p>
+      }
+    </form>
+  } @else if (!isOwner()) {
+    <div class="single">
+      <app-state-view
+        kind="forbidden"
+        title="organization.onboarding.notOwner.title"
+        message="organization.onboarding.notOwner.message"
+      >
+        <a matButton="filled" routerLink="/agenda">{{ 'shared.nav.backToCalendar' | translate }}</a>
+      </app-state-view>
+    </div>
+  } @else {
+    @let all = steps();
+    <div class="layout">
+      <nav [attr.aria-label]="'organization.onboarding.title' | translate">
+        <div class="intro">
+          <h1>{{ 'organization.onboarding.heading' | translate }}</h1>
+          <div class="progress">
+            <mat-progress-bar
+              mode="determinate"
+              [value]="(doneCount() / all.length) * 100"
+              [attr.aria-label]="'organization.onboarding.progress' | translate"
+            />
+            <span class="label">
+              {{
+                'organization.onboarding.count'
+                  | translate: { done: doneCount(), total: all.length }
+              }}
+            </span>
+          </div>
+        </div>
+        <ol>
+          @for (step of all; track step.path; let i = $index) {
+            <li>
+              <a
+                class="step"
+                [class.current]="current() === i"
+                [routerLink]="['/primeros-pasos', step.path]"
+                [attr.aria-current]="current() === i ? 'step' : null"
+              >
+                <span class="dot" [class.ok]="step.done">
+                  @if (step.done) {
+                    <mat-icon aria-hidden="true">check</mat-icon>
+                  } @else {
+                    {{ i + 1 }}
+                  }
+                </span>
+                <span class="text">
+                  <span class="title">{{
+                    'organization.onboarding.steps.' + step.key + '.title' | translate
+                  }}</span>
+                  <span class="muted">
+                    {{
+                      'organization.onboarding.steps.' +
+                        step.key +
+                        (step.done ? '.done' : '.pending') | translate: { count: step.count }
+                    }}
+                  </span>
+                </span>
+                @if (step.done) {
+                  <span class="label">{{ 'organization.onboarding.done' | translate }}</span>
+                }
+              </a>
+            </li>
+          }
+        </ol>
+      </nav>
+
+      <section class="card panel" aria-labelledby="step-title">
+        @if (current() >= 0) {
+          @let step = all[current()];
+          <div class="panel-head">
+            <span class="label">
+              {{
+                'organization.onboarding.step'
+                  | translate: { number: current() + 1, total: all.length }
+              }}
+            </span>
+            <h2 id="step-title">
+              {{ 'organization.onboarding.steps.' + step.key + '.title' | translate }}
+            </h2>
+          </div>
+          <router-outlet />
+          <div class="panel-end">
+            <button matButton type="button" (click)="next()">
+              {{
+                (step.done ? 'organization.onboarding.next' : 'organization.onboarding.later')
+                  | translate
+              }}
+            </button>
+          </div>
+        } @else if (doneCount() === all.length) {
+          <app-state-view
+            id="step-title"
+            kind="empty"
+            title="organization.onboarding.allDone.title"
+            message="organization.onboarding.allDone.message"
+          >
+            <a matButton="filled" routerLink="/agenda">{{
+              'organization.onboarding.toCalendar' | translate
+            }}</a>
+          </app-state-view>
+        } @else {
+          <mat-progress-bar id="step-title" mode="indeterminate" />
+        }
+      </section>
+    </div>
+  }
+</div>

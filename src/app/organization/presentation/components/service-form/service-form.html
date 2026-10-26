@@ -1,0 +1,80 @@
+<form (submit)="submit($event)" novalidate>
+  <mat-form-field>
+    <mat-label>{{ 'organization.settings.services.form.name' | translate }}</mat-label>
+    <input matInput autocomplete="off" [formField]="serviceForm.name" />
+    @if ((attempted() || serviceForm.name().touched()) && !model().name.trim()) {
+      <mat-error>{{ 'organization.settings.services.form.nameRequired' | translate }}</mat-error>
+    }
+  </mat-form-field>
+  <div class="pair">
+    <mat-form-field>
+      <mat-label>{{ 'organization.settings.services.form.duration' | translate }}</mat-label>
+      <input matInput inputmode="numeric" autocomplete="off" [formField]="serviceForm.duration" />
+      @if (attempted() && durationMinutes() === null) {
+        <mat-hint class="invalid">{{
+          'organization.settings.services.form.durationInvalid' | translate
+        }}</mat-hint>
+      }
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>{{ 'organization.settings.services.form.price' | translate }}</mat-label>
+      <input matInput inputmode="decimal" autocomplete="off" [formField]="serviceForm.price" />
+      @if (attempted() && priceCents() === null) {
+        <mat-hint class="invalid">{{
+          'organization.settings.services.form.priceInvalid' | translate
+        }}</mat-hint>
+      } @else {
+        <mat-hint>{{ 'organization.settings.services.form.priceHint' | translate }}</mat-hint>
+      }
+    </mat-form-field>
+  </div>
+  <mat-form-field>
+    <mat-label>{{ 'organization.settings.services.form.instructions' | translate }}</mat-label>
+    <textarea matInput rows="2" [formField]="serviceForm.instructions"></textarea>
+    <mat-hint>{{ 'organization.settings.services.form.instructionsHint' | translate }}</mat-hint>
+  </mat-form-field>
+
+  <fieldset>
+    <legend>{{ 'organization.settings.services.form.performers' | translate }}</legend>
+    <p class="muted">{{ 'organization.settings.services.form.performersHint' | translate }}</p>
+    @for (member of performers(); track member.id) {
+      <mat-checkbox
+        [checked]="chosen().has(member.id)"
+        (change)="toggle(member.id, $event.checked)"
+      >
+        {{ member.name }}
+      </mat-checkbox>
+    } @empty {
+      <p class="muted">{{ 'organization.settings.services.form.noPerformers' | translate }}</p>
+    }
+  </fieldset>
+
+  @if (service()) {
+    <p class="muted">{{ 'organization.settings.services.form.keepsPrice' | translate }}</p>
+  }
+  @if (error(); as e) {
+    <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+  }
+  <div class="actions">
+    <button matButton type="button" (click)="closed.emit()">
+      {{ 'organization.settings.services.form.cancel' | translate }}
+    </button>
+    <app-busy-button type="submit" [busy]="busy()" [disabled]="disabled()">
+      @if (service()) {
+        {{
+          (busy()
+            ? 'organization.settings.services.form.saving'
+            : 'organization.settings.services.form.save'
+          ) | translate
+        }}
+      } @else {
+        {{
+          (busy()
+            ? 'organization.settings.services.form.creating'
+            : 'organization.settings.services.form.create'
+          ) | translate
+        }}
+      }
+    </app-busy-button>
+  </div>
+</form>

@@ -1,0 +1,126 @@
+@if (!organization.can('editSettings')) {
+  <app-state-view kind="forbidden" />
+} @else if (editing() !== null) {
+  <section class="section" aria-labelledby="service-form-title">
+    <h2 id="service-form-title">
+      {{
+        (editedService()
+          ? 'organization.settings.services.form.editTitle'
+          : 'organization.settings.services.form.newTitle'
+        ) | translate
+      }}
+    </h2>
+    <div class="card">
+      <app-service-form
+        [service]="editedService()"
+        [performers]="team.bookable()"
+        [busy]="busy()"
+        [disabled]="!canChange()"
+        [error]="error()"
+        (save)="save($event)"
+        (closed)="close()"
+      />
+    </div>
+  </section>
+} @else if (loadError()) {
+  <app-state-view [kind]="errorKind()" (retry)="team.services.reload()" />
+} @else {
+  <section class="section" aria-labelledby="services-title">
+    <div class="head">
+      <h2 id="services-title" class="tk-visually-hidden">
+        {{ 'organization.settings.tabs.services' | translate }}
+      </h2>
+      <p class="lead">{{ 'organization.settings.services.lead' | translate }}</p>
+      <button matButton="filled" type="button" [disabled]="!canChange()" (click)="edit('new')">
+        <mat-icon aria-hidden="true">add</mat-icon>
+        {{ 'organization.settings.services.new' | translate }}
+      </button>
+    </div>
+
+    @if (team.services.isLoading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    @if (team.services.isLoading() && team.services.value().length === 0) {
+      <app-skeleton [rows]="3" />
+    } @else if (team.services.value().length === 0) {
+      <app-state-view
+        kind="empty"
+        title="organization.settings.services.empty.title"
+        message="organization.settings.services.empty.message"
+      />
+    } @else {
+      @for (group of [active(), inactive()]; track $index) {
+        @if (group.length > 0) {
+          <h3>
+            {{
+              ($index === 0
+                ? 'organization.settings.services.active'
+                : 'organization.settings.services.inactive'
+              ) | translate
+            }}
+          </h3>
+          <ul class="card list">
+            @for (service of group; track service.id) {
+              <li [class.off]="!service.active">
+                <div class="info">
+                  <span class="name">{{ service.name }}</span>
+                  <span class="muted">
+                    {{
+                      'organization.settings.services.minutes'
+                        | translate: { count: service.durationMinutes }
+                    }}
+                    · {{ service.price.format() }} ·
+                    @if (service.performerIds.length > 0) {
+                      {{
+                        'organization.settings.services.performers'
+                          | translate: { count: service.performerIds.length }
+                      }}
+                    } @else {
+                      {{ 'organization.settings.services.nobody' | translate }}
+                    }
+                  </span>
+                  @if (!service.active) {
+                    <span class="muted">{{
+                      'organization.settings.services.deactivated' | translate
+                    }}</span>
+                  }
+                  @if (toggleError()?.id === service.id) {
+                    <span class="field-error" role="alert">{{
+                      toggleError()!.error | errorMessage
+                    }}</span>
+                  }
+                </div>
+                <div class="row-actions">
+                  <app-busy-button
+                    appearance="text"
+                    [busy]="toggling() === service.id"
+                    [disabled]="!canChange()"
+                    (pressed)="setActive(service, !service.active)"
+                  >
+                    {{
+                      (service.active
+                        ? 'organization.settings.services.deactivate'
+                        : 'organization.settings.services.activate'
+                      ) | translate
+                    }}
+                  </app-busy-button>
+                  <button
+                    matIconButton
+                    type="button"
+                    [disabled]="!canChange()"
+                    [attr.aria-label]="
+                      'organization.settings.services.edit' | translate: { name: service.name }
+                    "
+                    (click)="edit(service)"
+                  >
+                    <mat-icon aria-hidden="true">edit</mat-icon>
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      }
+    }
+  </section>
+}
