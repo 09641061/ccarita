@@ -12,7 +12,7 @@ import {
 import { ApiError } from '../../../../shared/domain/model/api-error';
 import { LocalDate } from '../../../../shared/domain/model/local-date';
 import { AssistantUsage, UsageTotals } from '../../../domain/model/assistant-usage';
-import { UsagePeriod } from '../../../domain/model/usage-period';
+import { UsagePeriod } from '../../../../shared/domain/model/usage-period';
 import { AssistantUsageStore } from '../../../application/assistant-usage.store';
 import { UsageReport } from './usage-report';
 

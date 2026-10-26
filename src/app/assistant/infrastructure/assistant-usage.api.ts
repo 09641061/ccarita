@@ -4,7 +4,7 @@ import { Observable, map } from 'rxjs';
 import type { AssistantUsage as AssistantUsageResource } from '../../shared/infrastructure/api/pibble.schema';
 import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
 import { AssistantUsage } from '../domain/model/assistant-usage';
-import { UsagePeriod } from '../domain/model/usage-period';
+import { UsagePeriod } from '../../shared/domain/model/usage-period';
 import { toAssistantUsage } from './assistant.assembler';
 
 /** `/api/v1/establishments/{id}/assistant/usage`: owners and managers, also while the plan is inactive (A9). */

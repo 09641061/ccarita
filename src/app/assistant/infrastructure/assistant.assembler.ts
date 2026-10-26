@@ -8,7 +8,7 @@ import { LocalDate } from '../../shared/domain/model/local-date';
 import { required } from '../../shared/infrastructure/api/required';
 import { AssistantSettings, ConfigureAssistant } from '../domain/model/assistant-settings';
 import { AssistantUsage, UsageTotals } from '../domain/model/assistant-usage';
-import { UsagePeriod } from '../domain/model/usage-period';
+import { UsagePeriod } from '../../shared/domain/model/usage-period';
 
 export function toAssistantSettings(resource: AssistantSettingsResource): AssistantSettings {
   return new AssistantSettings(

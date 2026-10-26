@@ -1,10 +1,10 @@
-import { LocalDate } from '../../../shared/domain/model/local-date';
+import { LocalDate } from './local-date';
 
 /** Why pibble would refuse a period: the last day before the first, or more than 366 days. */
 export type UsagePeriodProblem = 'order' | 'length';
 
 /**
- * A9: whole days of the establishment, both included, read in its time zone, as pibble's `UsagePeriod`: at most
+ * A9: whole days of an establishment, both included, read in its time zone, as pibble's `UsagePeriod`: at most
  * 366 days at a time.
  */
 export class UsagePeriod {

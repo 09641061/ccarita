@@ -21,7 +21,7 @@ import {
 } from '../../../../shared/presentation/components/state-view/state-view';
 import { ZonedDatePipe } from '../../../../shared/presentation/pipes/zoned-date.pipe';
 import { AssistantUsageStore } from '../../../application/assistant-usage.store';
-import { UsagePeriod, UsagePeriodProblem } from '../../../domain/model/usage-period';
+import { UsagePeriod, UsagePeriodProblem } from '../../../../shared/domain/model/usage-period';
 
 /**
  * Ajustes › Uso, for owners and managers (03 §5): the assistant's answered turns, tokens and tool calls per day of
