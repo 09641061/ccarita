@@ -1,0 +1,188 @@
+// The screens of the Takodu team's area, in the style of Organización and Equipo.
+:host {
+  display: block;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 760px;
+
+  &.wide {
+    max-width: none;
+  }
+}
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.heading {
+  display: flex;
+  flex: 1 1 240px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+
+  :host(.desktop) & {
+    font-size: 28px;
+  }
+}
+
+h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 14px;
+
+  &.small {
+    font-size: 13px;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 14px;
+  background: var(--mat-sys-surface-container-lowest);
+
+  &.flush {
+    display: block;
+    padding: 0;
+  }
+}
+
+.results {
+  position: relative;
+}
+
+.progress {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+}
+
+.field-error {
+  margin: 0;
+  color: var(--mat-sys-error);
+  font-size: 14px;
+}
+
+.notice {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-container);
+  font-size: 14px;
+
+  mat-icon {
+    flex: none;
+  }
+
+  &.warn {
+    color: var(--tk-warning);
+    background: var(--tk-warning-bg);
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  mat-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
+
+  &.ok {
+    color: var(--mat-sys-on-primary-container);
+    background: var(--mat-sys-primary-container);
+  }
+
+  &.warn {
+    color: var(--tk-warning);
+    background: var(--tk-warning-bg);
+  }
+
+  &.neutral {
+    color: var(--mat-sys-on-surface-variant);
+    background: var(--mat-sys-surface-container-high);
+  }
+}
+
+.status {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+// On phones a wide table scrolls inside its card, never the page.
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th,
+td {
+  padding: 12px 16px;
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+thead th {
+  padding-block: 10px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+tbody tr:last-child > * {
+  border-bottom: 0;
+}

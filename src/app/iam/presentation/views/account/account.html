@@ -80,6 +80,12 @@
   </section>
 
   <div class="actions">
+    @if (platform.visible()) {
+      <a matButton="outlined" routerLink="/platform">
+        <mat-icon aria-hidden="true">admin_panel_settings</mat-icon>
+        {{ 'platform.entry' | translate }}
+      </a>
+    }
     @if (workspace.canSwitchOrganization()) {
       <a matButton="outlined" routerLink="/organizaciones">
         <mat-icon aria-hidden="true">swap_horiz</mat-icon>

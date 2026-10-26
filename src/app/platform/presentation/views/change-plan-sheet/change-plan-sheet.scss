@@ -1,0 +1,81 @@
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 8px 0 16px;
+}
+
+h2 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+}
+
+.hint {
+  display: block;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 13px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 14px;
+}
+
+.field-error {
+  color: var(--mat-sys-error);
+  font-size: 14px;
+}
+
+.notice,
+.preview {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-container);
+  font-size: 14px;
+
+  mat-icon {
+    flex: none;
+  }
+
+  &.warn {
+    color: var(--tk-warning);
+    background: var(--tk-warning-bg);
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

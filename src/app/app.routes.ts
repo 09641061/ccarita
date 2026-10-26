@@ -19,6 +19,7 @@ import {
   settingsRoutes,
   teamRoutes,
 } from './organization/public-api';
+import { operatorGuard } from './platform/public-api';
 import { ApiError } from './shared/domain/model/api-error';
 import {
   MAIN_NAVIGATION,
@@ -132,7 +133,8 @@ const roleNavigation: ResolveFn<readonly NavigationItem[]> = async () => {
 };
 
 /**
- * Sign-in, the organization picker and invitations stand alone; everything else is inside `Workspace`, behind a
+ * Sign-in, the organization picker, invitations and the Takodu team's area (`/platform`, behind pibble's operator
+ * check, with no organization) stand alone; everything else is inside `Workspace`, behind a
  * session and a selected organization, and each destination behind the roles that see it (Mapa por rol, 03 §5).
  * Each context replaces its placeholder with one lazy entry
  * (`loadChildren: () => import('./<context>/presentation/<context>.routes')`).
@@ -144,6 +146,12 @@ export const routes: Routes = [
     loadChildren: () => import('./iam/presentation/iam.routes').then((m) => m.iamRoutes),
   },
   ...organizationEntryRoutes,
+  {
+    path: 'platform',
+    canActivate: [authGuard, operatorGuard],
+    loadChildren: () =>
+      import('./platform/presentation/platform.routes').then((m) => m.platformRoutes),
+  },
   ...onboardingRoutes(SETTINGS_SCREENS, [
     ESTABLISHMENT_LINE_PROVIDER,
     ESTABLISHMENT_ASSISTANT_PROVIDER,

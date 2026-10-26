@@ -4,7 +4,7 @@ import { Router, provideRouter, withComponentInputBinding } from '@angular/route
 import { RouterTestingHarness } from '@angular/router/testing';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { settle } from '../../../../../testing/settle';
-import { SessionStore, SessionUser } from '../../../../iam/public-api';
+import { PLATFORM_ENTRY, SessionStore, SessionUser } from '../../../../iam/public-api';
 import { ApiError } from '../../../../shared/domain/model/api-error';
 import { CurrentOrganization } from '../../../application/current-organization.store';
 import { JoinedOrganization } from '../../../domain/model/joined-organization';
@@ -15,7 +15,7 @@ const donLucho = new JoinedOrganization('org-1', 'Barbería Don Lucho', until, '
 const spa = new JoinedOrganization('org-2', 'Spa Luna', until, 'm-2', 'staff');
 
 describe('OrganizationPicker', () => {
-  async function render(load: () => Promise<readonly JoinedOrganization[]>) {
+  async function render(load: () => Promise<readonly JoinedOrganization[]>, operator = false) {
     const organizations = signal<readonly JoinedOrganization[] | null>(null);
     const selected = signal<JoinedOrganization | null>(null);
     const store = {
@@ -44,6 +44,7 @@ describe('OrganizationPicker', () => {
           provide: SessionStore,
           useValue: { user: signal(new SessionUser('u-1', 'luis@donlucho.pe', null)) },
         },
+        { provide: PLATFORM_ENTRY, useValue: { visible: signal(operator) } },
       ],
     });
     const harness = await RouterTestingHarness.create();
@@ -83,6 +84,13 @@ describe('OrganizationPicker', () => {
       'Aún no tienes un negocio en Takodu',
     );
     expect(host!.querySelector('a[href="/primeros-pasos"]')).not.toBeNull();
+    expect(host!.querySelector('a[href="/platform"]')).toBeNull();
+  });
+
+  it('offers the Takodu team its area, even without a business', async () => {
+    const { host } = await render(async () => [], true);
+
+    expect(host!.querySelector('a[href="/platform"]')?.textContent).toContain('Panel de Takodu');
   });
 
   it('offers a retry when the list cannot load', async () => {

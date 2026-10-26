@@ -1,0 +1,84 @@
+.page {
+  gap: 16px;
+}
+
+.search {
+  flex: 1 1 280px;
+  max-width: 420px;
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+a.who:hover .name,
+a.who:focus-visible .name {
+  text-decoration: underline;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.places {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+
+  &.over {
+    color: var(--tk-warning);
+  }
+}
+
+.over-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 500;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  padding: 16px;
+  color: inherit;
+  text-decoration: none;
+  transition: background var(--tk-duration-short) var(--tk-motion-standard);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--mat-sys-surface-container-low);
+  }
+}
+
+.line {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+}

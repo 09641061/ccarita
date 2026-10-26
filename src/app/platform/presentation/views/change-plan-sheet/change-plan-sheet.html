@@ -1,0 +1,107 @@
+<form class="sheet" (submit)="confirm($event)" novalidate>
+  <header>
+    <h2>{{ 'platform.changeSheet.title' | translate }}</h2>
+    <p class="muted">{{ 'platform.changeSheet.lead' | translate: { name: account.name } }}</p>
+  </header>
+
+  <fieldset>
+    <legend>{{ 'platform.changeSheet.plan' | translate }}</legend>
+    <mat-radio-group
+      class="options"
+      [value]="model().plan"
+      (change)="set('plan', $event.value)"
+      [attr.aria-label]="'platform.changeSheet.plan' | translate"
+    >
+      @for (plan of plans; track plan) {
+        <mat-radio-button [value]="plan">
+          {{ 'platform.plan.' + plan | translate }}
+          <span class="hint">{{ 'platform.changeSheet.planHint.' + plan | translate }}</span>
+        </mat-radio-button>
+      }
+    </mat-radio-group>
+  </fieldset>
+  @if (downgradeOverLimit()) {
+    <p class="notice warn">
+      <mat-icon aria-hidden="true">warning</mat-icon>
+      {{ 'platform.changeSheet.overLimit' | translate: { count: account.activeEstablishments } }}
+    </p>
+  }
+
+  <fieldset>
+    <legend>{{ 'platform.changeSheet.period' | translate }}</legend>
+    <mat-radio-group
+      class="options"
+      [value]="model().mode"
+      (change)="set('mode', $event.value)"
+      [attr.aria-label]="'platform.changeSheet.period' | translate"
+    >
+      @for (mode of modes; track mode) {
+        <mat-radio-button [value]="mode">{{
+          'platform.changeSheet.mode.' + mode | translate
+        }}</mat-radio-button>
+      }
+    </mat-radio-group>
+  </fieldset>
+
+  @switch (model().mode) {
+    @case ('extend') {
+      <mat-form-field>
+        <mat-label>{{ 'platform.changeSheet.days' | translate }}</mat-label>
+        <input matInput type="number" inputmode="numeric" [formField]="planForm.days" />
+        <span matTextSuffix>{{ 'platform.changeSheet.daysSuffix' | translate }}</span>
+        @if (problem() === 'days') {
+          <mat-error>{{
+            'platform.changeSheet.problem.days' | translate: { max: maxDays }
+          }}</mat-error>
+        }
+      </mat-form-field>
+    }
+    @case ('until') {
+      <mat-form-field>
+        <mat-label>{{ 'platform.changeSheet.until' | translate }}</mat-label>
+        <input matInput type="date" [formField]="planForm.until" />
+        <mat-hint>{{ 'platform.changeSheet.untilHint' | translate }}</mat-hint>
+      </mat-form-field>
+    }
+  }
+
+  <p class="preview" [class.warn]="endsPlan()" role="status">
+    <mat-icon aria-hidden="true">{{ endsPlan() ? 'block' : 'event' }}</mat-icon>
+    @if (model().mode === 'keep') {
+      {{ 'platform.changeSheet.preview.keep' | translate }}
+    } @else if (newEnd(); as end) {
+      {{
+        (endsPlan() ? 'platform.changeSheet.preview.ends' : 'platform.changeSheet.preview.until')
+          | translate: { date: end | zonedDate: timeZone : 'dayTime' }
+      }}
+    } @else {
+      {{ 'platform.changeSheet.preview.unknown' | translate }}
+    }
+  </p>
+
+  <mat-form-field>
+    <mat-label>{{ 'platform.changeSheet.note' | translate }}</mat-label>
+    <textarea matInput rows="2" [formField]="planForm.note"></textarea>
+    <mat-hint>{{ 'platform.changeSheet.noteHint' | translate }}</mat-hint>
+    @if (planForm.note().touched() && problem() === 'note') {
+      <mat-error>{{ 'platform.changeSheet.problem.note' | translate }}</mat-error>
+    }
+  </mat-form-field>
+
+  @if (submitted() && (problem() === 'nothing' || problem() === 'date')) {
+    <p class="field-error" role="alert">
+      {{ 'platform.changeSheet.problem.' + problem() | translate }}
+    </p>
+  }
+  @if (error(); as e) {
+    <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+  }
+  <div class="actions">
+    <button matButton type="button" (click)="back()">
+      {{ 'platform.changeSheet.back' | translate }}
+    </button>
+    <app-busy-button type="submit" [busy]="busy()">
+      {{ (busy() ? 'platform.changeSheet.busy' : 'platform.changeSheet.confirm') | translate }}
+    </app-busy-button>
+  </div>
+</form>

@@ -1,0 +1,101 @@
+.back {
+  align-self: flex-start;
+  margin-left: -12px;
+}
+
+.plan-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.history {
+  gap: 0;
+  margin: 0;
+  padding: 4px 20px;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 0;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+
+    & + li {
+      border-top: 1px solid var(--mat-sys-outline-variant);
+    }
+  }
+}
+
+.when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  font-weight: 500;
+}
+
+.stopped {
+  color: var(--tk-warning);
+  font-weight: 500;
+}
+
+.note {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.usage-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  mat-form-field {
+    width: 170px;
+  }
+}
+
+.numbers {
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    text-align: right;
+  }
+
+  th:first-child {
+    text-align: left;
+  }
+
+  tbody th {
+    font-weight: 500;
+  }
+
+  tfoot > tr > * {
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    border-bottom: 0;
+    font-weight: 600;
+  }
+}
+
+.zone {
+  display: block;
+  font-weight: 400;
+}

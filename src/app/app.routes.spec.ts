@@ -24,4 +24,11 @@ describe('routes', () => {
     expect(roles('/cuenta')).toEqual(['owner', 'manager', 'staff']);
     expect(child('cuenta').providers).toHaveLength(1);
   });
+
+  it('mounts the Takodu team area outside the workspace, behind sign-in and the operator check', () => {
+    const platform = routes.find((route) => route.path === 'platform')!;
+    expect(platform.canActivate).toHaveLength(2);
+    expect(platform.loadChildren).toBeDefined();
+    expect(routes.indexOf(platform)).toBeLessThan(routes.indexOf(workspace));
+  });
 });

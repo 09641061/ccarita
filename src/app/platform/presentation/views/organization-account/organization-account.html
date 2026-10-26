@@ -1,0 +1,252 @@
+<div class="page">
+  <a matButton="text" class="back" routerLink="/platform">
+    <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    {{ 'platform.account.back' | translate }}
+  </a>
+
+  @let account = store.account();
+  @if (listErrorKind(); as kind) {
+    <app-state-view [kind]="kind" (retry)="accounts.accounts.reload()" />
+  } @else if (account === undefined) {
+    <app-skeleton [rows]="4" />
+  } @else if (account === null) {
+    <app-state-view
+      kind="notFound"
+      title="platform.account.notFound.title"
+      message="platform.account.notFound.message"
+    />
+  } @else {
+    <header>
+      <div class="heading">
+        <h1>{{ account.name }}</h1>
+        <p class="muted">
+          {{ 'platform.account.owner' | translate: { email: account.ownerEmail } }}
+        </p>
+      </div>
+      <button matButton="filled" type="button" (click)="changePlan()">
+        <mat-icon aria-hidden="true">payments</mat-icon>
+        {{ 'platform.account.changePlan' | translate }}
+      </button>
+    </header>
+
+    @if (recorded()) {
+      <p class="notice" role="status">
+        <mat-icon aria-hidden="true">check</mat-icon>
+        {{ 'platform.account.recorded' | translate }}
+      </p>
+    }
+
+    <section class="section" aria-labelledby="plan-title">
+      <h2 id="plan-title">{{ 'platform.account.planTitle' | translate }}</h2>
+      <div class="card">
+        <div class="plan-head">
+          <span class="plan-name">{{ 'platform.plan.' + account.plan | translate }}</span>
+          <span class="badge" [class.ok]="account.planActive" [class.warn]="!account.planActive">
+            <mat-icon aria-hidden="true">{{ account.planActive ? 'check' : 'error' }}</mat-icon>
+            {{ (account.planActive ? 'platform.plan.active' : 'platform.plan.ended') | translate }}
+          </span>
+        </div>
+        @if (account.planActiveUntil; as until) {
+          <p>
+            {{
+              (account.planActive ? 'platform.plan.untilLong' : 'platform.plan.endedOnLong')
+                | translate: { date: until | zonedDate: timeZone : 'dayTime' }
+            }}
+          </p>
+        }
+        <p class="muted">
+          {{
+            (account.establishmentLimit === null
+              ? 'platform.accounts.placesUnlimited'
+              : 'platform.accounts.places'
+            )
+              | translate
+                : { count: account.activeEstablishments, limit: account.establishmentLimit }
+          }}
+        </p>
+        @if (account.overLimit) {
+          <p class="notice warn">
+            <mat-icon aria-hidden="true">warning</mat-icon>
+            {{ 'platform.account.overLimit' | translate: { count: account.activeEstablishments } }}
+          </p>
+        }
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="history-title">
+      <h2 id="history-title">{{ 'platform.account.historyTitle' | translate }}</h2>
+      <div class="results">
+        @if (store.history.isLoading()) {
+          <mat-progress-bar
+            mode="indeterminate"
+            class="progress"
+            [attr.aria-label]="'shared.state.loading' | translate"
+          />
+        }
+        @if (historyErrorKind(); as kind) {
+          <app-state-view [kind]="kind" (retry)="store.history.reload()" />
+        } @else if (store.history.isLoading() && store.history.value().length === 0) {
+          <app-skeleton [rows]="2" />
+        } @else {
+          <ol class="card history">
+            @for (entry of store.history.value(); track entry.id) {
+              <li>
+                <span class="when">
+                  {{ entry.changedAt | zonedDate: timeZone : 'dayTime' }}
+                  <span class="muted small">{{
+                    'platform.account.by' | translate: { email: entry.changedByEmail }
+                  }}</span>
+                </span>
+                @if (entry.planChanged) {
+                  <span>{{
+                    'platform.account.planMoved'
+                      | translate
+                        : {
+                            from: 'platform.plan.' + entry.fromPlan | translate,
+                            to: 'platform.plan.' + entry.toPlan | translate,
+                          }
+                  }}</span>
+                }
+                @if (entry.ended) {
+                  <span class="stopped">{{ 'platform.account.stopped' | translate }}</span>
+                } @else if (entry.endChanged && entry.toActiveUntil) {
+                  <span>{{
+                    'platform.account.endMoved'
+                      | translate
+                        : {
+                            from: entry.fromActiveUntil
+                              ? (entry.fromActiveUntil | zonedDate: timeZone)
+                              : '—',
+                            to: entry.toActiveUntil | zonedDate: timeZone,
+                          }
+                  }}</span>
+                }
+                <span class="note">“{{ entry.note }}”</span>
+              </li>
+            } @empty {
+              <li class="muted">{{ 'platform.account.noHistory' | translate }}</li>
+            }
+          </ol>
+        }
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="usage-title">
+      <div class="usage-head">
+        <div class="heading">
+          <h2 id="usage-title">{{ 'platform.usage.title' | translate }}</h2>
+          <p class="muted">{{ 'platform.usage.lead' | translate: { max: maxDays } }}</p>
+        </div>
+        <fieldset class="range">
+          <legend class="tk-visually-hidden">{{ 'platform.usage.period' | translate }}</legend>
+          <mat-form-field subscriptSizing="dynamic">
+            <mat-label>{{ 'platform.usage.from' | translate }}</mat-label>
+            <input
+              matInput
+              type="date"
+              [value]="from()"
+              (change)="changePeriod('from', $any($event.target).value)"
+            />
+          </mat-form-field>
+          <mat-form-field subscriptSizing="dynamic">
+            <mat-label>{{ 'platform.usage.to' | translate }}</mat-label>
+            <input
+              matInput
+              type="date"
+              [value]="to()"
+              (change)="changePeriod('to', $any($event.target).value)"
+            />
+          </mat-form-field>
+        </fieldset>
+      </div>
+      @if (periodProblem(); as p) {
+        <p class="field-error" role="alert">
+          {{ 'platform.usage.problem.' + p | translate: { max: maxDays } }}
+        </p>
+      }
+
+      <div class="results">
+        @if (store.usage.isLoading() && usage()) {
+          <mat-progress-bar
+            mode="indeterminate"
+            class="progress"
+            [attr.aria-label]="'shared.state.loading' | translate"
+          />
+        }
+        @if (usageError(); as e) {
+          @if (e.status === 400) {
+            <p class="field-error" role="alert">
+              {{ 'platform.usage.problem.length' | translate: { max: maxDays } }}
+            </p>
+          } @else {
+            <app-state-view [kind]="usageErrorKind()" (retry)="store.usage.reload()" />
+          }
+        } @else if (usage(); as u) {
+          @if (u.isEmpty) {
+            <app-state-view
+              kind="empty"
+              title="platform.usage.empty.title"
+              message="platform.usage.empty.message"
+            />
+          } @else {
+            <div class="card flush table-scroll">
+              <table class="numbers">
+                <caption class="tk-visually-hidden">
+                  {{
+                    'platform.usage.caption'
+                      | translate
+                        : {
+                            from: u.period.from | zonedDate: timeZone : 'date',
+                            to: u.period.to | zonedDate: timeZone : 'date',
+                          }
+                  }}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{{ 'platform.usage.columns.establishment' | translate }}</th>
+                    <th scope="col">{{ 'platform.usage.columns.turns' | translate }}</th>
+                    <th scope="col">{{ 'platform.usage.columns.input' | translate }}</th>
+                    <th scope="col">{{ 'platform.usage.columns.cached' | translate }}</th>
+                    <th scope="col">{{ 'platform.usage.columns.output' | translate }}</th>
+                    <th scope="col">{{ 'platform.usage.columns.tools' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (place of u.establishments; track place.establishmentId) {
+                    <tr>
+                      <th scope="row">
+                        {{ place.name }}
+                        <span class="muted small zone">{{
+                          'platform.usage.days'
+                            | translate: { count: place.days.length, zone: place.timeZone }
+                        }}</span>
+                      </th>
+                      <td>{{ place.totals.turns | number }}</td>
+                      <td>{{ place.totals.inputTokens | number }}</td>
+                      <td>{{ place.totals.cachedTokens | number }}</td>
+                      <td>{{ place.totals.outputTokens | number }}</td>
+                      <td>{{ place.totals.toolCalls | number }}</td>
+                    </tr>
+                  }
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th scope="row">{{ 'platform.usage.total' | translate }}</th>
+                    <td>{{ u.totals.turns | number }}</td>
+                    <td>{{ u.totals.inputTokens | number }}</td>
+                    <td>{{ u.totals.cachedTokens | number }}</td>
+                    <td>{{ u.totals.outputTokens | number }}</td>
+                    <td>{{ u.totals.toolCalls | number }}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <p class="muted small">{{ 'platform.usage.note' | translate }}</p>
+          }
+        } @else {
+          <app-skeleton [rows]="3" />
+        }
+      </div>
+    </section>
+  }
+</div>
