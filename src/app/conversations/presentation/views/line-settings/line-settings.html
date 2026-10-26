@@ -1,0 +1,184 @@
+@if (!organization.can('connectWhatsapp')) {
+  <app-state-view
+    kind="forbidden"
+    title="conversations.line.ownerOnly.title"
+    message="conversations.line.ownerOnly.message"
+  />
+} @else if (failed()) {
+  <app-state-view [kind]="errorKind()" (retry)="store.line.reload()" />
+} @else if (!line() && !neverConnected()) {
+  <app-skeleton [rows]="3" />
+} @else {
+  @let current = line();
+  @if (current) {
+    <section class="card line" aria-labelledby="line-title">
+      <div class="facts">
+        <h2 id="line-title" class="phone">{{ current.displayPhone }}</h2>
+        <span class="status" [class.on]="current.connected">
+          <mat-icon aria-hidden="true">{{
+            current.connected ? 'check_circle' : 'link_off'
+          }}</mat-icon>
+          {{
+            (current.connected ? 'conversations.line.connected' : 'conversations.line.disconnected')
+              | translate
+          }}
+        </span>
+        <span class="muted">{{ 'conversations.line.modes.' + current.mode | translate }}</span>
+      </div>
+      @if (current.connected) {
+        <button matButton="outlined" type="button" class="danger-text" (click)="disconnect()">
+          <mat-icon aria-hidden="true">link_off</mat-icon>
+          {{ 'conversations.line.disconnect' | translate }}
+        </button>
+      }
+    </section>
+
+    @if (current.connected) {
+      <section class="section" aria-labelledby="templates-title">
+        <h3 id="templates-title">{{ 'conversations.line.templates' | translate }}</h3>
+        <p class="muted">{{ 'conversations.line.templatesLead' | translate }}</p>
+        <ul class="card templates">
+          @for (template of templates; track template) {
+            @let status = current.templates[template] ?? 'unknown';
+            <li>
+              <span>{{ 'conversations.line.template.' + template | translate }}</span>
+              <span class="badge" [class]="status">
+                <mat-icon aria-hidden="true">
+                  {{
+                    status === 'approved' ? 'check' : status === 'pending' ? 'schedule' : 'block'
+                  }}
+                </mat-icon>
+                {{ 'conversations.templates.status.' + status | translate }}
+              </span>
+            </li>
+          }
+        </ul>
+        <p class="notice">
+          <mat-icon aria-hidden="true">credit_card</mat-icon>
+          <span>{{ 'conversations.line.billing' | translate }}</span>
+        </p>
+      </section>
+    }
+  } @else {
+    <section class="section" aria-labelledby="none-title">
+      <h3 id="none-title">
+        {{
+          'conversations.line.none.title'
+            | translate: { establishment: establishment.selected()?.name ?? '' }
+        }}
+      </h3>
+      <p class="muted">{{ 'conversations.line.none.message' | translate }}</p>
+      <ul class="points">
+        <li>
+          <span class="icon"><mat-icon aria-hidden="true">smartphone</mat-icon></span>
+          <span>
+            <strong>{{ 'conversations.line.points.app.title' | translate }}</strong>
+            <span class="muted">{{ 'conversations.line.points.app.message' | translate }}</span>
+          </span>
+        </li>
+        <li>
+          <span class="icon"><mat-icon aria-hidden="true">history</mat-icon></span>
+          <span>
+            <strong>{{ 'conversations.line.points.history.title' | translate }}</strong>
+            <span class="muted">{{ 'conversations.line.points.history.message' | translate }}</span>
+          </span>
+        </li>
+        <li>
+          <span class="icon"><app-brand-mark [size]="18" /></span>
+          <span>
+            <strong>{{ 'conversations.line.points.assistant.title' | translate }}</strong>
+            <span class="muted">{{
+              'conversations.line.points.assistant.message' | translate
+            }}</span>
+          </span>
+        </li>
+      </ul>
+    </section>
+  }
+
+  @if (!current?.connected) {
+    <section class="connect" aria-labelledby="connect-title">
+      <h3 id="connect-title" class="tk-visually-hidden">
+        {{ 'conversations.line.connect' | translate }}
+      </h3>
+      @if (withMeta) {
+        <div class="actions">
+          <app-busy-button [busy]="busy()" [disabled]="!canConnect()" (pressed)="connectWithMeta()">
+            {{
+              (busy()
+                ? 'conversations.line.connecting'
+                : current
+                  ? 'conversations.line.reconnect'
+                  : 'conversations.line.connect'
+              ) | translate
+            }}
+          </app-busy-button>
+          <span class="muted hint">
+            <mat-icon aria-hidden="true">open_in_new</mat-icon>
+            {{ 'conversations.line.metaWindow' | translate }}
+          </span>
+        </div>
+      } @else {
+        <p class="notice">
+          <mat-icon aria-hidden="true">info</mat-icon>
+          <span>{{ 'conversations.line.notConfigured' | translate }}</span>
+        </p>
+        @if (devSignup) {
+          <form class="card dev" (submit)="connectForDevelopment($event)" novalidate>
+            <h4>{{ 'conversations.line.dev.title' | translate }}</h4>
+            <p class="muted">{{ 'conversations.line.dev.lead' | translate }}</p>
+            <div class="fields">
+              <mat-form-field>
+                <mat-label>{{ 'conversations.line.dev.code' | translate }}</mat-label>
+                <input matInput autocomplete="off" [formField]="devForm.code" />
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>{{ 'conversations.line.mode' | translate }}</mat-label>
+                <mat-select [formField]="devForm.mode">
+                  <mat-option value="coexistence">coexistence</mat-option>
+                  <mat-option value="cloud_api">cloud_api</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>{{ 'conversations.line.dev.waba' | translate }}</mat-label>
+                <input matInput autocomplete="off" [formField]="devForm.wabaId" />
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>{{ 'conversations.line.dev.phone' | translate }}</mat-label>
+                <input matInput autocomplete="off" [formField]="devForm.phoneNumberId" />
+              </mat-form-field>
+              @if (devModel().mode === 'cloud_api') {
+                <mat-form-field>
+                  <mat-label>{{ 'conversations.line.dev.pin' | translate }}</mat-label>
+                  <input
+                    matInput
+                    inputmode="numeric"
+                    autocomplete="off"
+                    [formField]="devForm.pin"
+                  />
+                  <mat-hint>{{ 'conversations.line.dev.pinHint' | translate }}</mat-hint>
+                </mat-form-field>
+              }
+            </div>
+            <div class="actions">
+              <app-busy-button
+                type="submit"
+                appearance="tonal"
+                [busy]="busy()"
+                [disabled]="!canConnect()"
+              >
+                {{
+                  (busy() ? 'conversations.line.connecting' : 'conversations.line.dev.submit')
+                    | translate
+                }}
+              </app-busy-button>
+            </div>
+          </form>
+        }
+      }
+      @if (error(); as e) {
+        <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+      }
+    </section>
+  }
+}

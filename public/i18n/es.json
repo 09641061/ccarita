@@ -163,7 +163,171 @@
       "signOut": "Salir e ingresar con otro correo"
     },
     "onboarding": {
-      "title": "Primeros pasos"
+      "title": "Primeros pasos",
+      "heading": "Deja todo listo para atender por WhatsApp",
+      "progress": "Pasos completados",
+      "count": "{{done}} de {{total}}",
+      "toCalendar": "Ir al calendario",
+      "step": "Paso {{number}} de {{total}}",
+      "done": "Listo",
+      "later": "Hacerlo después",
+      "next": "Siguiente paso",
+      "steps": {
+        "hours": {
+          "title": "Horario de atención",
+          "pending": "Cuándo se puede reservar",
+          "done": "{{count}} días a la semana"
+        },
+        "services": {
+          "title": "Servicios y quién los hace",
+          "pending": "Lo que ofreces",
+          "done": "{{count}} servicios"
+        },
+        "whatsapp": {
+          "title": "Conectar WhatsApp",
+          "pending": "Tu número de negocio",
+          "done": "Conectado"
+        }
+      },
+      "allDone": {
+        "title": "Todo listo",
+        "message": "Tu local ya recibe citas y mensajes. Activa el asistente y suma a tu equipo cuando quieras."
+      },
+      "notOwner": {
+        "title": "El dueño deja listo el negocio",
+        "message": "Pídele al dueño que configure el horario, los servicios y el WhatsApp."
+      },
+      "create": {
+        "title": "Crea tu negocio en Takodu",
+        "lead": "Empieza con tu primer local. Luego pones su horario, servicios y WhatsApp.",
+        "name": "Nombre del negocio",
+        "namePlaceholder": "Barbería Don Lucho",
+        "establishment": "Nombre del primer local",
+        "establishmentPlaceholder": "Miraflores",
+        "address": "Dirección (opcional)",
+        "ownerName": "Tu nombre",
+        "ownerNameHint": "Así te verá tu equipo.",
+        "required": "Completa este campo.",
+        "trial": "Empiezas con un periodo de prueba.",
+        "submit": "Crear negocio",
+        "busy": "Creando…",
+        "signedInAs": "Entraste como {{email}}."
+      }
+    },
+    "weekday": {
+      "1": "Lunes",
+      "2": "Martes",
+      "3": "Miércoles",
+      "4": "Jueves",
+      "5": "Viernes",
+      "6": "Sábado",
+      "7": "Domingo"
+    },
+    "settings": {
+      "title": "Ajustes · {{establishment}}",
+      "sections": "Secciones del local",
+      "noEstablishment": {
+        "title": "Aún no hay locales",
+        "message": "Abre un local para configurar su horario, servicios y WhatsApp."
+      },
+      "tabs": {
+        "details": "Datos",
+        "hours": "Horario",
+        "services": "Servicios",
+        "whatsapp": "WhatsApp"
+      },
+      "planInactive": "Tu plan terminó: puedes ver los ajustes, pero cambiarlos vuelve cuando renueves.",
+      "details": {
+        "lead": "Así aparece el local para tu equipo y en los mensajes a tus clientes.",
+        "name": "Nombre del local",
+        "address": "Dirección",
+        "timeZone": "Zona horaria",
+        "timeZoneHint": "Las citas y el horario se muestran en esta zona.",
+        "nameRequired": "Escribe el nombre del local.",
+        "save": "Guardar cambios",
+        "saving": "Guardando…",
+        "saved": "Cambios guardados.",
+        "others": "Otros locales",
+        "othersLead": "Cada local tiene su propio calendario, horario, servicios y WhatsApp.",
+        "open": "Abrir otro local",
+        "archive": "Archivar este local",
+        "archiveLead": "Libera su lugar en tu plan. El historial se conserva."
+      },
+      "openSheet": {
+        "title": "Abrir otro local",
+        "lead": "Empieza cerrado: luego pones su horario y servicios.",
+        "confirm": "Abrir local",
+        "busy": "Abriendo…",
+        "back": "Cancelar",
+        "limit": "Tu plan Standard permite un local activo. Archiva uno o pásate a Max para abrir otro."
+      },
+      "archiveSheet": {
+        "title": "¿Archivar {{name}}?",
+        "lead": "El local deja de aparecer para tu equipo y libera su lugar en tu plan.",
+        "keeps": "Sus citas, clientes y conversaciones se conservan.",
+        "confirm": "Archivar",
+        "busy": "Archivando…",
+        "back": "Cancelar"
+      },
+      "hours": {
+        "lead": "Las citas solo se reservan dentro de este horario. Puedes partir el día en varios turnos.",
+        "closed": "Cerrado",
+        "opensAt": "Abre",
+        "closesAt": "Cierra",
+        "addRange": "Agregar turno",
+        "removeRange": "Quitar turno de {{day}}",
+        "copy": "Copiar el lunes a los días abiertos",
+        "toggle": "Abre el {{day}}",
+        "problem": {
+          "format": "Usa horas como 09:00.",
+          "order": "Debe cerrar después de abrir, el mismo día (23:59 a más tardar).",
+          "overlap": "Se cruza con otro turno del día."
+        },
+        "notSet": "Este local aún no tiene horario: por ahora no recibe citas.",
+        "kept": "Las citas ya reservadas fuera del nuevo horario se mantienen.",
+        "save": "Guardar horario",
+        "saving": "Guardando…",
+        "saved": "Horario guardado."
+      },
+      "services": {
+        "lead": "Lo que se reserva en este local, cuánto dura, cuánto cuesta y quién lo hace.",
+        "new": "Nuevo servicio",
+        "active": "Activos",
+        "inactive": "Desactivados",
+        "minutes": "{{count}} min",
+        "performers": "{{count}} personas",
+        "nobody": "Nadie lo hace aún",
+        "empty": {
+          "title": "Aún no hay servicios",
+          "message": "Agrega lo que ofreces para que se pueda reservar."
+        },
+        "edit": "Editar {{name}}",
+        "deactivate": "Desactivar",
+        "activate": "Activar",
+        "deactivated": "No se ofrece para nuevas citas; las ya reservadas siguen igual.",
+        "form": {
+          "newTitle": "Nuevo servicio",
+          "editTitle": "Editar servicio",
+          "name": "Nombre",
+          "duration": "Duración (minutos)",
+          "price": "Precio (S/)",
+          "priceHint": "Por ejemplo 35 o 35.50",
+          "instructions": "Indicaciones para el cliente",
+          "instructionsHint": "Se envían al cliente cuando reserva.",
+          "performers": "Quién lo hace",
+          "performersHint": "Solo personas activas que atienden en este local.",
+          "noPerformers": "Nadie del equipo atiende citas en este local todavía.",
+          "nameRequired": "Escribe el nombre.",
+          "durationInvalid": "Entre 1 y 720 minutos.",
+          "priceInvalid": "Escribe un precio en soles, como 35.50.",
+          "keepsPrice": "Las citas ya reservadas mantienen su precio.",
+          "save": "Guardar",
+          "saving": "Guardando…",
+          "create": "Crear servicio",
+          "creating": "Creando…",
+          "cancel": "Cancelar"
+        }
+      }
     }
   },
   "booking": {
@@ -342,7 +506,8 @@
       "noSlots": {
         "title": "No hay horarios libres este día",
         "message": "Prueba otro día u otra persona."
-      }
+      },
+      "closed": "Cerrado"
     }
   },
   "customers": {
@@ -592,6 +757,72 @@
       "none": {
         "title": "No tiene citas próximas",
         "message": "Los recordatorios y confirmaciones hablan de una cita confirmada de los próximos 42 días."
+      }
+    },
+    "line": {
+      "lead": "El número de WhatsApp del local. La bandeja y el asistente lo usan.",
+      "number": "Número",
+      "mode": "Modo",
+      "status": "Estado",
+      "modes": {
+        "coexistence": "Coexistencia: sigues usando la app WhatsApp Business",
+        "cloud_api": "Solo Takodu (Cloud API)"
+      },
+      "connected": "Conectado",
+      "disconnected": "Desconectado",
+      "templates": "Plantillas de mensajes",
+      "templatesLead": "Meta revisa las plantillas de recordatorio, confirmación y cancelación. Hasta que las apruebe, no se envían.",
+      "template": {
+        "reminder": "Recordatorio",
+        "confirmation": "Confirmación",
+        "cancellation": "Cancelación"
+      },
+      "billing": "Agrega un método de pago en Meta Business Suite: sin él, las plantillas no se entregan.",
+      "none": {
+        "title": "Conecta el WhatsApp de {{establishment}}",
+        "message": "La bandeja y el asistente lo necesitan. Meta te pedirá tu cuenta de negocio y el número."
+      },
+      "points": {
+        "app": {
+          "title": "Sigues usando la app WhatsApp Business",
+          "message": "Lo que respondas en el celular también llega a la bandeja."
+        },
+        "history": {
+          "title": "Traemos tus chats anteriores",
+          "message": "Tu equipo ve el historial desde el primer día."
+        },
+        "assistant": {
+          "title": "Luego activas el asistente",
+          "message": "Responde y reserva día y noche. Tú lo prendes."
+        }
+      },
+      "connect": "Conectar con WhatsApp",
+      "connecting": "Conectando…",
+      "reconnect": "Volver a conectar",
+      "metaWindow": "Se abre una ventana de Meta",
+      "notConfigured": "La conexión con Meta aún no está configurada en esta versión de Takodu.",
+      "dev": {
+        "title": "Conexión de prueba (solo desarrollo)",
+        "lead": "pibble en modo desarrollo acepta estos datos en lugar de la ventana de Meta. Nunca aparece en producción.",
+        "code": "Código",
+        "waba": "WhatsApp Business Account ID",
+        "phone": "Phone number ID",
+        "pin": "PIN de 6 dígitos",
+        "pinHint": "Solo para Cloud API.",
+        "submit": "Conectar (prueba)"
+      },
+      "disconnect": "Desconectar",
+      "disconnectSheet": {
+        "title": "¿Desconectar {{phone}}?",
+        "lead": "Dejan de llegar mensajes a la bandeja y el asistente deja de responder.",
+        "keeps": "Las conversaciones se conservan. Si vuelves a conectar el mismo número, siguen ahí.",
+        "confirm": "Desconectar",
+        "busy": "Desconectando…",
+        "back": "Cancelar"
+      },
+      "ownerOnly": {
+        "title": "Solo el dueño conecta el WhatsApp",
+        "message": "Pídele al dueño que conecte el número del local."
       }
     }
   },

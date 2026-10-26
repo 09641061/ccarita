@@ -1,0 +1,26 @@
+<div class="sheet">
+  <h2>
+    {{ 'conversations.line.disconnectSheet.title' | translate: { phone: line.displayPhone } }}
+  </h2>
+  <p>{{ 'conversations.line.disconnectSheet.lead' | translate }}</p>
+  <p class="notice">
+    <mat-icon aria-hidden="true">forum</mat-icon>
+    <span>{{ 'conversations.line.disconnectSheet.keeps' | translate }}</span>
+  </p>
+  @if (error(); as e) {
+    <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+  }
+  <div class="actions">
+    <button matButton type="button" (click)="back()">
+      {{ 'conversations.line.disconnectSheet.back' | translate }}
+    </button>
+    <app-busy-button class="danger" [busy]="busy()" (pressed)="confirm()">
+      {{
+        (busy()
+          ? 'conversations.line.disconnectSheet.busy'
+          : 'conversations.line.disconnectSheet.confirm'
+        ) | translate
+      }}
+    </app-busy-button>
+  </div>
+</div>
