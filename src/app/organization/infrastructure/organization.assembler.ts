@@ -2,18 +2,20 @@ import type {
   CreateOrganizationRequest,
   EstablishmentDetailsRequest,
   Establishment as EstablishmentResource,
+  InviteMemberRequest,
   OpeningHours as OpeningHoursResource,
   ServiceDetailsRequest,
   JoinedOrganization as JoinedOrganizationResource,
   Member as MemberResource,
   Organization as OrganizationResource,
   Service as ServiceResource,
+  UpdateMemberRequest,
 } from '../../shared/infrastructure/api/pibble.schema';
 import { Money } from '../../shared/domain/model/money';
 import { required } from '../../shared/infrastructure/api/required';
 import { Establishment, EstablishmentDetails } from '../domain/model/establishment';
 import { JoinedOrganization } from '../domain/model/joined-organization';
-import { Member } from '../domain/model/member';
+import { InviteMember, Member, UpdateMember } from '../domain/model/member';
 import { IsoWeekday, OpeningHours } from '../domain/model/opening-hours';
 import { CreateOrganization, Organization } from '../domain/model/organization';
 import { Service } from '../domain/model/service';
@@ -58,7 +60,29 @@ export function toMember(resource: MemberResource): Member {
     resource.bookable ?? false,
     required(resource.status, 'Member.status'),
     resource.establishmentIds ?? [],
+    resource.joinedAt ? new Date(resource.joinedAt) : null,
+    resource.inviteExpiresAt ? new Date(resource.inviteExpiresAt) : null,
   );
+}
+
+/** Managers get no establishments: pibble ignores them (O13). */
+export function toInviteMemberRequest(command: InviteMember): InviteMemberRequest {
+  return {
+    email: command.email.trim(),
+    displayName: command.displayName.trim(),
+    role: command.role,
+    bookable: command.bookable,
+    establishmentIds: command.role === 'staff' ? [...command.establishmentIds] : [],
+  };
+}
+
+export function toUpdateMemberRequest(command: UpdateMember): UpdateMemberRequest {
+  return {
+    displayName: command.displayName.trim(),
+    bookable: command.bookable,
+    role: command.role,
+    establishmentIds: command.role === 'staff' ? [...command.establishmentIds] : [],
+  };
 }
 
 export function toService(resource: ServiceResource): Service {

@@ -14,6 +14,8 @@ export { OpeningHours } from './domain/model/opening-hours';
 export {
   onboardingRoutes,
   organizationEntryRoutes,
+  organizationPageRoutes,
   settingsRoutes,
+  teamRoutes,
 } from './presentation/organization.routes';
 export type { SettingsScreens } from './presentation/organization.routes';

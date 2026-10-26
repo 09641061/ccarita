@@ -1,0 +1,23 @@
+.candidates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.candidate {
+  padding: 4px 0;
+}
+
+.name {
+  display: block;
+  font-weight: 500;
+}
+
+.notice.warning {
+  color: var(--tk-warning);
+  background: var(--tk-warning-bg);
+
+  mat-icon {
+    flex: none;
+  }
+}

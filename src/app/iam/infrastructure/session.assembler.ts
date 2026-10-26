@@ -1,8 +1,10 @@
 import type {
+  Session as AccountSessionResource,
   SessionTokens as SessionTokensResource,
   User as UserResource,
 } from '../../shared/infrastructure/api/pibble.schema';
 import { required } from '../../shared/infrastructure/api/required';
+import { AccountSession } from '../domain/model/account-session';
 import { Session } from '../domain/model/session';
 import { SessionUser } from '../domain/model/session-user';
 
@@ -21,5 +23,14 @@ export function toSessionUser(resource: UserResource): SessionUser {
     required(resource.id, 'User.id'),
     required(resource.email, 'User.email'),
     resource.name ?? null,
+  );
+}
+
+export function toAccountSession(resource: AccountSessionResource): AccountSession {
+  return new AccountSession(
+    required(resource.id, 'Session.id'),
+    new Date(required(resource.lastUsedAt, 'Session.lastUsedAt')),
+    new Date(required(resource.expiresAt, 'Session.expiresAt')),
+    resource.current ?? false,
   );
 }

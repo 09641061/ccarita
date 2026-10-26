@@ -100,6 +100,23 @@
         "message": "Revisa tu conexión e inténtalo otra vez. Tu sesión sigue guardada."
       },
       "useAnotherEmail": "Ingresar con otro correo"
+    },
+    "account": {
+      "title": "Cuenta",
+      "you": "Tus datos",
+      "noName": "Sin nombre",
+      "identityHint": "Ingresas con este correo. Tu nombre en cada equipo lo cambia quien lo administra.",
+      "devicesTitle": "Dispositivos",
+      "devicesLead": "Donde tienes la sesión abierta. Si no reconoces uno, ciérralo.",
+      "thisDevice": "Este dispositivo",
+      "device": "Otro dispositivo",
+      "lastUsed": "Último uso: {{date}}",
+      "expires": "Vence si no se usa: {{date}}",
+      "signOutDevice": "Cerrar sesión",
+      "signOutDeviceLabel": "Cerrar sesión: {{device}}, último uso {{date}}",
+      "signedOutDevice": "Sesión cerrada. Ese dispositivo pierde el acceso en menos de 15 minutos.",
+      "switchOrganization": "Cambiar de organización",
+      "signOut": "Salir"
     }
   },
   "organization": {
@@ -256,10 +273,8 @@
         "saving": "Guardando…",
         "saved": "Cambios guardados.",
         "others": "Otros locales",
-        "othersLead": "Cada local tiene su propio calendario, horario, servicios y WhatsApp.",
-        "open": "Abrir otro local",
-        "archive": "Archivar este local",
-        "archiveLead": "Libera su lugar en tu plan. El historial se conserva."
+        "othersLead": "Abre otros locales o archiva uno desde Organización. Cada local tiene su propio calendario, horario, servicios y WhatsApp.",
+        "toOrganization": "Ir a Organización"
       },
       "openSheet": {
         "title": "Abrir otro local",
@@ -336,6 +351,108 @@
           "cancel": "Cancelar"
         }
       }
+    },
+    "team": {
+      "title": "Equipo",
+      "summary": "Personas: {{count}} · {{organization}}",
+      "invite": "Invitar",
+      "transfer": "Transferir propiedad",
+      "list": "Personas del equipo",
+      "person": "Persona",
+      "role": "Rol",
+      "bookable": "Recibe citas",
+      "establishments": "Locales",
+      "status": "Estado",
+      "yes": "Sí",
+      "no": "No",
+      "everywhere": "Todos los locales",
+      "you": "Tú",
+      "active": "Activo",
+      "since": "desde {{date}}",
+      "pending": "Invitación enviada",
+      "expires": "vence {{date}}",
+      "expired": "Invitación vencida",
+      "expiredOn": "venció el {{date}}",
+      "actions": "Acciones",
+      "options": "Opciones de {{name}}",
+      "edit": "Editar",
+      "renew": "Reenviar invitación",
+      "renewed": "Enviamos un enlace nuevo a {{email}}.",
+      "revoke": "Revocar invitación",
+      "remove": "Quitar del equipo",
+      "empty": {
+        "title": "Todavía estás solo",
+        "message": "Invita a tu equipo para que vean la agenda y respondan chats."
+      },
+      "sheet": {
+        "inviteTitle": "Invitar a alguien",
+        "inviteLead": "Le llegará un enlace por correo. Vence en 7 días.",
+        "editTitle": "Editar a {{name}}",
+        "email": "Correo",
+        "emailRequired": "Escribe su correo.",
+        "emailInvalid": "Revisa el correo: parece incompleto.",
+        "name": "Nombre que verá el equipo",
+        "nameRequired": "Escribe su nombre.",
+        "role": "Rol",
+        "manager": "Encargado",
+        "managerHint": "Maneja agenda, servicios y equipo",
+        "staff": "Personal",
+        "staffHint": "Atiende citas y chats de sus locales",
+        "ownerLocked": "El dueño sigue siendo dueño. Para cambiarlo, transfiere la propiedad.",
+        "selfLocked": "No puedes cambiar tu propio rol.",
+        "bookable": "Recibe citas",
+        "bookableHint": "Aparece en el calendario y se le pueden reservar clientes",
+        "worksAt": "Trabaja en",
+        "worksAtRequired": "Elige al menos un local.",
+        "cancel": "Cancelar",
+        "send": "Enviar invitación",
+        "sending": "Enviando…",
+        "save": "Guardar cambios",
+        "saving": "Guardando…",
+        "conflict": "Ese correo ya está en tu equipo o ya tiene una invitación."
+      },
+      "removeSheet": {
+        "removeTitle": "¿Quitar a {{name}} del equipo?",
+        "removeLead": "Dejará de entrar a tu organización. Sus citas pasadas y sus mensajes se conservan.",
+        "revokeTitle": "¿Revocar la invitación de {{name}}?",
+        "revokeLead": "El enlace que le enviamos dejará de funcionar.",
+        "upcoming": "{{name}} tiene citas pendientes. Reasígnalas o cancélalas en el calendario y vuelve a intentarlo.",
+        "back": "Volver",
+        "remove": "Quitar",
+        "revoke": "Revocar",
+        "busy": "Un momento…"
+      },
+      "transferSheet": {
+        "title": "Transferir propiedad",
+        "lead": "Elige quién será el nuevo dueño. Solo pueden serlo personas que ya aceptaron su invitación.",
+        "nobody": "Nadie más ha aceptado su invitación todavía.",
+        "next": "Continuar",
+        "confirmTitle": "¿Hacer dueño a {{name}}?",
+        "confirmLead": "{{name}} podrá cambiar el nombre, el plan, los locales y WhatsApp. Tú pasarás a ser Encargado y solo el nuevo dueño podrá devolverte la propiedad.",
+        "back": "Volver",
+        "confirm": "Transferir a {{name}}",
+        "busy": "Transfiriendo…",
+        "done": "{{name}} es el nuevo dueño. Ahora eres Encargado."
+      }
+    },
+    "page": {
+      "title": "Organización",
+      "nameTitle": "Nombre",
+      "nameLead": "Así aparece tu negocio para tu equipo.",
+      "name": "Nombre del negocio",
+      "nameRequired": "Escribe el nombre del negocio.",
+      "save": "Guardar nombre",
+      "saving": "Guardando…",
+      "saved": "Nombre guardado.",
+      "planTitle": "Plan",
+      "planActive": "Activo",
+      "planEnded": "Vencido",
+      "renew": "Para renovar o cambiar de plan, escribe a {{contact}}. Aceptamos transferencia, Yape y Plin.",
+      "establishmentsTitle": "Locales",
+      "establishmentsLead": "Cada local tiene su propio calendario, horario, servicios y WhatsApp. Archivar uno libera su lugar en tu plan y conserva su historial.",
+      "open": "Abrir otro local",
+      "archive": "Archivar {{name}}",
+      "edit": "Editar datos de {{name}}"
     }
   },
   "booking": {
@@ -969,6 +1086,11 @@
     "WHATSAPP_LINE_NOT_FOUND": "Este local aún no tiene una línea de WhatsApp.",
     "LINE_ALREADY_CONNECTED": "Este local ya tiene una línea, o ese número ya está conectado a otro local.",
     "SIGNUP_CANCELLED": "Cerraste la ventana de Meta antes de terminar. Inténtalo de nuevo.",
-    "ASSISTANT_SETTINGS_CONFLICT": "Alguien más guardó los ajustes del asistente al mismo tiempo."
+    "ASSISTANT_SETTINGS_CONFLICT": "Alguien más guardó los ajustes del asistente al mismo tiempo.",
+    "MEMBER_CONFLICT": "Ese correo ya está en tu equipo o ya tiene una invitación.",
+    "MEMBER_NOT_FOUND": "Esta persona ya no está en tu equipo.",
+    "OWNER_CONFLICT": "La propiedad cambió mientras tanto. Recarga e inténtalo de nuevo.",
+    "SESSION_NOT_FOUND": "Esa sesión ya estaba cerrada.",
+    "ESTABLISHMENT_NOT_FOUND": "Ese local ya no existe o fue archivado."
   }
 }

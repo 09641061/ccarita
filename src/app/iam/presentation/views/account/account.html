@@ -1,0 +1,94 @@
+<div class="account">
+  <h1>{{ 'iam.account.title' | translate }}</h1>
+
+  @if (session.user(); as user) {
+    <section class="section" aria-labelledby="you-title">
+      <h2 id="you-title">{{ 'iam.account.you' | translate }}</h2>
+      <div class="card you">
+        <app-avatar [name]="user.displayName" [size]="48" />
+        <span class="who">
+          <span class="name">{{ user.name || ('iam.account.noName' | translate) }}</span>
+          <span class="muted">{{ user.email }}</span>
+        </span>
+      </div>
+      <p class="muted small">{{ 'iam.account.identityHint' | translate }}</p>
+    </section>
+  }
+
+  <section class="section" aria-labelledby="devices-title">
+    <h2 id="devices-title">{{ 'iam.account.devicesTitle' | translate }}</h2>
+    <p class="muted">{{ 'iam.account.devicesLead' | translate }}</p>
+    <div class="results">
+      @if (store.sessions.isLoading()) {
+        <mat-progress-bar mode="indeterminate" class="progress" />
+      }
+      @if (loadError()) {
+        <app-state-view [kind]="errorKind()" (retry)="store.sessions.reload()" />
+      } @else if (store.sessions.isLoading() && store.sessions.value().length === 0) {
+        <app-skeleton [rows]="2" />
+      } @else {
+        <ul class="card list">
+          @for (device of store.sessions.value(); track device.id) {
+            @let lastUsed = device.lastUsedAt | zonedDate: timeZone() : 'dayTime';
+            <li>
+              <mat-icon aria-hidden="true">{{
+                device.current ? 'smartphone' : 'devices'
+              }}</mat-icon>
+              <span class="info">
+                <span class="name">{{
+                  (device.current ? 'iam.account.thisDevice' : 'iam.account.device') | translate
+                }}</span>
+                <span class="muted">{{
+                  'iam.account.lastUsed' | translate: { date: lastUsed }
+                }}</span>
+                <span class="muted">{{
+                  'iam.account.expires'
+                    | translate: { date: device.expiresAt | zonedDate: timeZone() : 'date' }
+                }}</span>
+                @if (ended()?.id === device.id && ended()!.error; as e) {
+                  <span class="field-error" role="alert">{{ e | errorMessage }}</span>
+                }
+              </span>
+              <app-busy-button
+                appearance="outlined"
+                [busy]="ending() === device.id"
+                [disabled]="ending() !== null"
+                (pressed)="signOutDevice(device)"
+              >
+                <span class="tk-visually-hidden">{{
+                  'iam.account.signOutDeviceLabel'
+                    | translate
+                      : {
+                          device:
+                            (device.current ? 'iam.account.thisDevice' : 'iam.account.device')
+                            | translate,
+                          date: lastUsed,
+                        }
+                }}</span>
+                <span aria-hidden="true">{{ 'iam.account.signOutDevice' | translate }}</span>
+              </app-busy-button>
+            </li>
+          }
+        </ul>
+        @if (ended(); as done) {
+          @if (!done.error) {
+            <p class="muted" role="status">{{ 'iam.account.signedOutDevice' | translate }}</p>
+          }
+        }
+      }
+    </div>
+  </section>
+
+  <div class="actions">
+    @if (workspace.canSwitchOrganization()) {
+      <a matButton="outlined" routerLink="/organizaciones">
+        <mat-icon aria-hidden="true">swap_horiz</mat-icon>
+        {{ 'iam.account.switchOrganization' | translate }}
+      </a>
+    }
+    <button matButton="filled" type="button" (click)="signOut()">
+      <mat-icon aria-hidden="true">logout</mat-icon>
+      {{ 'iam.account.signOut' | translate }}
+    </button>
+  </div>
+</div>

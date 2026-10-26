@@ -221,4 +221,35 @@ describe('CurrentOrganization and CurrentEstablishment', () => {
     await settle();
     expect(establishment.id()).toBe('est-1');
   });
+
+  it('O2: renames the organization and rereads it and the memberships', async () => {
+    await load([joinedResource('org-1', 'owner')]);
+    TestBed.tick();
+    backend.expectOne(`${API}/api/v1/organization`).flush({
+      id: 'org-1',
+      name: 'Negocio org-1',
+      plan: 'standard',
+      planActiveUntil: PLAN_ACTIVE_UNTIL,
+    });
+    await settle();
+
+    const renamed = store.rename('Barbería Don Pepe');
+    const put = backend.expectOne(
+      (r) => r.method === 'PUT' && r.url === `${API}/api/v1/organization`,
+    );
+    expect(put.request.body).toEqual({ name: 'Barbería Don Pepe' });
+    put.flush({
+      id: 'org-1',
+      name: 'Barbería Don Pepe',
+      plan: 'standard',
+      planActiveUntil: PLAN_ACTIVE_UNTIL,
+    });
+    await settle();
+    backend
+      .expectOne(`${API}/api/v1/organizations`)
+      .flush([{ ...joinedResource('org-1', 'owner'), name: 'Barbería Don Pepe' }]);
+    await renamed;
+
+    expect(store.selected()?.name).toBe('Barbería Don Pepe');
+  });
 });

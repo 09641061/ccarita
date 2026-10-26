@@ -4,17 +4,20 @@ import { ResolveFn, Route, Routes } from '@angular/router';
 import { InboxStore, WhatsappLineStore } from './conversations/public-api';
 import { CUSTOMER_ACCESS } from './customers/public-api';
 import { devRoutes } from './dev.routes';
-import { authGuard } from './iam/public-api';
+import { ACCOUNT_WORKSPACE, accountRoutes, authGuard } from './iam/public-api';
 import {
+  CurrentEstablishment,
   CurrentOrganization,
   ESTABLISHMENT_ASSISTANT,
   ESTABLISHMENT_LINE,
   onboardingRoutes,
   organizationEntryRoutes,
   organizationGuard,
+  organizationPageRoutes,
   roleGuard,
   SettingsScreens,
   settingsRoutes,
+  teamRoutes,
 } from './organization/public-api';
 import { ApiError } from './shared/domain/model/api-error';
 import {
@@ -71,6 +74,18 @@ const ESTABLISHMENT_ASSISTANT_PROVIDER = {
   },
 };
 
+/** Cuenta shows times in the selected establishment's zone and offers another organization when there is one. */
+const ACCOUNT_WORKSPACE_PROVIDER = {
+  provide: ACCOUNT_WORKSPACE,
+  useFactory: () => {
+    const organization = inject(CurrentOrganization);
+    return {
+      timeZone: inject(CurrentEstablishment).timeZone,
+      canSwitchOrganization: computed(() => (organization.organizations()?.length ?? 0) > 1),
+    };
+  },
+};
+
 /** The destinations a context already serves; the others show a placeholder until their phase. */
 const CONTEXT_ROUTES: Record<string, Route> = {
   '/agenda': {
@@ -86,6 +101,9 @@ const CONTEXT_ROUTES: Record<string, Route> = {
   '/ajustes': { children: settingsRoutes(SETTINGS_SCREENS) },
   // The assistant lives in Ajustes; its navigation item opens it there and stays active.
   '/asistente': { pathMatch: 'full', redirectTo: '/ajustes/asistente' },
+  '/equipo': { children: teamRoutes },
+  '/organizacion': { children: organizationPageRoutes },
+  '/cuenta': { providers: [ACCOUNT_WORKSPACE_PROVIDER], children: accountRoutes },
   '/clientes': {
     providers: [
       {

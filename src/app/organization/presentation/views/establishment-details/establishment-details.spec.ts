@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { provideRouter } from '@angular/router';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { settle } from '../../../../../testing/settle';
 import { ApiError } from '../../../../shared/domain/model/api-error';
@@ -8,15 +8,12 @@ import { CurrentEstablishment } from '../../../application/current-establishment
 import { CurrentOrganization } from '../../../application/current-organization.store';
 import { Establishment } from '../../../domain/model/establishment';
 import { MemberAction, MemberRole, canPerform } from '../../../domain/model/member-role';
-import { ArchiveEstablishmentSheet } from '../archive-establishment-sheet/archive-establishment-sheet';
-import { OpenEstablishmentSheet } from '../open-establishment-sheet/open-establishment-sheet';
 import { EstablishmentDetails } from './establishment-details';
 
 const MIRAFLORES = new Establishment('est-1', 'Miraflores', 'Av. Larco 345', 'America/Lima', null);
 
 describe('EstablishmentDetails', () => {
   let describeEstablishment: ReturnType<typeof vi.fn>;
-  let open: ReturnType<typeof vi.fn>;
 
   const selected = signal(MIRAFLORES);
 
@@ -29,10 +26,10 @@ describe('EstablishmentDetails', () => {
       );
       return selected();
     });
-    open = vi.fn();
     TestBed.configureTestingModule({
       providers: [
         provideSpanish(),
+        provideRouter([]),
         {
           provide: CurrentOrganization,
           useValue: {
@@ -48,7 +45,6 @@ describe('EstablishmentDetails', () => {
             describe: describeEstablishment,
           },
         },
-        { provide: MatBottomSheet, useValue: { open } },
       ],
     });
     const fixture = TestBed.createComponent(EstablishmentDetails);
@@ -89,22 +85,16 @@ describe('EstablishmentDetails', () => {
     expect(host.querySelector('[role="alert"]')).not.toBeNull();
   });
 
-  it('opens the sheets to open another establishment and to archive this one', async () => {
+  it('sends opening and archiving establishments to Organización', async () => {
     const { host } = await render();
-    button(host, 'Abrir otro local').click();
-    expect(open).toHaveBeenCalledWith(OpenEstablishmentSheet, expect.anything());
-    button(host, 'Archivar este local').click();
-    expect(open).toHaveBeenCalledWith(
-      ArchiveEstablishmentSheet,
-      expect.objectContaining({ data: MIRAFLORES }),
+    expect(host.querySelector('a[href="/organizacion"]')?.textContent).toContain(
+      'Ir a Organización',
     );
   });
 
-  it('O6: an inactive plan disables saving and opening, but not archiving', async () => {
+  it('O6: an inactive plan disables saving', async () => {
     const { host } = await render('owner', false);
     expect(button(host, 'Guardar cambios').disabled).toBe(true);
-    expect(button(host, 'Abrir otro local').disabled).toBe(true);
-    expect(button(host, 'Archivar este local').disabled).toBe(false);
   });
 
   it('03 §5: is the owner’s', async () => {

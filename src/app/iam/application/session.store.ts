@@ -1,4 +1,4 @@
-import { Injectable, computed, inject } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ApiError } from '../../shared/domain/model/api-error';
 import { SessionUser } from '../domain/model/session-user';
@@ -13,6 +13,9 @@ export class SessionStore {
 
   readonly user = computed<SessionUser | null>(() => this.holder.session()?.user ?? null);
   readonly isSignedIn = computed(() => this.holder.session() !== null);
+  private readonly ended = signal(false);
+  /** The user signed out on purpose, so no screen should bring them back after the next sign-in. */
+  readonly signedOut = this.ended.asReadonly();
 
   /** A refresh token is stored: the session can come back without a new code. */
   get canResume(): boolean {
@@ -27,6 +30,7 @@ export class SessionStore {
   /** @throws ApiError `LOGIN_CODE_INVALID` for a wrong, used or expired code (I2). */
   async signIn(email: string, code: string): Promise<void> {
     this.holder.start(await firstValueFrom(this.api.signIn(email, code)));
+    this.ended.set(false);
   }
 
   /**
@@ -45,6 +49,7 @@ export class SessionStore {
    * when pibble cannot be reached; the refresh token is gone, and the access token expires within 15 minutes.
    */
   async signOut(): Promise<void> {
+    this.ended.set(true);
     const session = this.holder.session();
     if (session) {
       try {

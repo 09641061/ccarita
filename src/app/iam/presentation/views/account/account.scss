@@ -1,0 +1,117 @@
+:host {
+  display: block;
+}
+
+.account {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 760px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 14px;
+
+  &.small {
+    font-size: 13px;
+  }
+}
+
+.card {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 14px;
+  background: var(--mat-sys-surface-container-lowest);
+}
+
+.you {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+}
+
+.who,
+.info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.info {
+  flex: 1;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.results {
+  position: relative;
+}
+
+.progress {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+}
+
+.list {
+  margin: 0;
+  padding: 4px 16px;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+
+    & + li {
+      border-top: 1px solid var(--mat-sys-outline-variant);
+    }
+
+    > mat-icon {
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  .muted {
+    font-size: 13px;
+  }
+}
+
+.field-error {
+  color: var(--mat-sys-error);
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

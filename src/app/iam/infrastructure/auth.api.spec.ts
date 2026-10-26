@@ -84,4 +84,26 @@ describe('AuthApi', () => {
     expect(request.request.context.get(ANONYMOUS)).toBe(false);
     request.flush(null, { status: 204, statusText: 'No Content' });
   });
+
+  it('I5: lists the devices with their last use and which one is this', async () => {
+    const call = firstValueFrom(api.listSessions());
+
+    const request = backend.expectOne(`${API}/api/v1/auth/sessions`);
+    expect(request.request.method).toBe('GET');
+    expect(request.request.context.get(ANONYMOUS)).toBe(false);
+    request.flush([
+      {
+        id: 's-1',
+        lastUsedAt: '2026-10-26T14:00:00Z',
+        expiresAt: '2026-11-25T14:00:00Z',
+        current: true,
+      },
+      { id: 's-2', lastUsedAt: '2026-10-20T09:00:00Z', expiresAt: '2026-11-19T09:00:00Z' },
+    ]);
+
+    const [current, other] = await call;
+    expect(current).toMatchObject({ id: 's-1', current: true });
+    expect(current.lastUsedAt).toEqual(new Date('2026-10-26T14:00:00Z'));
+    expect(other.current).toBe(false);
+  });
 });
