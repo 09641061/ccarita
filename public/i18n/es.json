@@ -244,7 +244,6 @@
     },
     "settings": {
       "details": {
-        "lead": "Así aparece el local para tu equipo y en los mensajes a tus clientes.",
         "name": "Nombre del local",
         "address": "Dirección",
         "timeZone": "Zona horaria",
@@ -253,9 +252,7 @@
         "save": "Guardar cambios",
         "saving": "Guardando…",
         "saved": "Cambios guardados.",
-        "others": "Otros locales",
-        "othersLead": "Abre otros locales o archiva uno desde Organización. Cada local tiene su propio calendario, horario, servicios y WhatsApp.",
-        "toOrganization": "Ir a Negocio"
+        "cancel": "Cancelar"
       },
       "openSheet": {
         "title": "Abrir otro local",
@@ -344,13 +341,13 @@
       },
       "sections": {
         "account": "Cuenta",
-        "details": "Datos del local",
+        "billing": "Facturación",
+        "establishments": "Locales",
         "hours": "Horario",
         "services": "Servicios",
         "whatsapp": "WhatsApp",
         "assistant": "Asistente",
-        "usage": "Uso del asistente",
-        "organization": "Negocio"
+        "usage": "Uso del asistente"
       },
       "noEstablishment": {
         "title": "Aún no hay locales",
@@ -441,23 +438,30 @@
         "done": "{{name}} es el nuevo dueño. Ahora eres Encargado."
       }
     },
-    "page": {
-      "nameTitle": "Nombre",
-      "nameLead": "Así aparece tu negocio para tu equipo.",
-      "name": "Nombre del negocio",
-      "nameRequired": "Escribe el nombre del negocio.",
+    "establishments": {
+      "lead": "Cada local tiene su propio calendario, horario, servicios y WhatsApp. Archivar uno libera su lugar en tu plan y conserva su historial.",
+      "open": "Abrir local",
+      "current": "Seleccionado",
+      "edit": "Editar datos de {{name}}",
+      "archive": "Archivar {{name}}"
+    },
+    "billing": {
+      "planTitle": "Plan",
+      "active": "Activo",
+      "ended": "Vencido",
+      "renew": "Renovar plan",
+      "paymentTitle": "Pago",
+      "payment": "Aceptamos transferencia, Yape y Plin. El equipo de Takodu activa el plan cuando recibe tu pago.",
+      "contact": "Para renovar o cambiar de plan, escribe a {{contact}}."
+    },
+    "account": {
+      "businessTitle": "Negocio",
+      "businessName": "Nombre del negocio",
+      "businessHint": "Así aparece tu negocio para tu equipo.",
+      "businessRequired": "Escribe el nombre del negocio.",
       "save": "Guardar nombre",
       "saving": "Guardando…",
-      "saved": "Nombre guardado.",
-      "planTitle": "Plan",
-      "planActive": "Activo",
-      "planEnded": "Vencido",
-      "renew": "Para renovar o cambiar de plan, escribe a {{contact}}. Aceptamos transferencia, Yape y Plin.",
-      "establishmentsTitle": "Locales",
-      "establishmentsLead": "Cada local tiene su propio calendario, horario, servicios y WhatsApp. Archivar uno libera su lugar en tu plan y conserva su historial.",
-      "open": "Abrir otro local",
-      "archive": "Archivar {{name}}",
-      "edit": "Editar datos de {{name}}"
+      "saved": "Nombre guardado."
     }
   },
   "booking": {

@@ -31,7 +31,11 @@ describe('Account', () => {
   let signOutDevice: ReturnType<typeof vi.fn>;
   let sessions: ReturnType<typeof fakeResource<AccountSession[]>>;
 
-  async function render({ several = false, operator = false } = {}) {
+  async function render({
+    several = false,
+    operator = false,
+    memberName = null as string | null,
+  } = {}) {
     signOut = vi.fn(async () => undefined);
     signOutDevice = vi.fn(async () => undefined);
     sessions = fakeResource<AccountSession[]>([PHONE, LAPTOP]);
@@ -42,14 +46,18 @@ describe('Account', () => {
         {
           provide: SessionStore,
           useValue: {
-            user: signal(new SessionUser('u-1', 'luis@donlucho.pe', 'Luis Ramírez')),
+            user: signal(new SessionUser('u-1', 'luis@donlucho.pe', null)),
             signOut,
           },
         },
         { provide: AccountSessionsStore, useValue: { sessions, signOut: signOutDevice } },
         {
           provide: ACCOUNT_WORKSPACE,
-          useValue: { timeZone: signal('America/Lima'), canSwitchOrganization: signal(several) },
+          useValue: {
+            timeZone: signal('America/Lima'),
+            name: signal(memberName),
+            canSwitchOrganization: signal(several),
+          },
         },
         { provide: PLATFORM_ENTRY, useValue: { visible: signal(operator) } },
       ],
@@ -63,9 +71,14 @@ describe('Account', () => {
 
   const text = (el: Element) => el.textContent!.replace(/\s+/g, ' ').trim();
 
-  it('I1: shows who is signed in', async () => {
-    const { host } = await render();
+  it('I1: shows who is signed in, by the name the organization knows them', async () => {
+    const { host } = await render({ memberName: 'Luis Ramírez' });
     expect(text(host.querySelector('.you')!)).toBe('LRLuis Ramírezluis@donlucho.pe');
+  });
+
+  it('I1: says there is no name when neither the organization nor the account has one', async () => {
+    const { host } = await render();
+    expect(text(host.querySelector('.you')!)).toContain('Sin nombre');
   });
 
   it('I5: lists the devices with this one marked, in the establishment’s zone', async () => {

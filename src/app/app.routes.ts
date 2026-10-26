@@ -4,9 +4,8 @@ import { Route, Routes } from '@angular/router';
 import { InboxStore, WhatsappLineStore } from './conversations/public-api';
 import { CUSTOMER_ACCESS } from './customers/public-api';
 import { devRoutes } from './dev.routes';
-import { ACCOUNT_WORKSPACE, authGuard } from './iam/public-api';
+import { authGuard } from './iam/public-api';
 import {
-  CurrentEstablishment,
   CurrentOrganization,
   ESTABLISHMENT_ASSISTANT,
   ESTABLISHMENT_LINE,
@@ -59,18 +58,6 @@ const ESTABLISHMENT_ASSISTANT_PROVIDER = {
   useFactory: () => {
     const settings = inject(AssistantSettingsStore).settings;
     return { enabled: computed(() => (settings.hasValue() ? settings.value().enabled : null)) };
-  },
-};
-
-/** Cuenta, in the settings center, shows times in the selected establishment's zone and offers another organization. */
-const ACCOUNT_WORKSPACE_PROVIDER = {
-  provide: ACCOUNT_WORKSPACE,
-  useFactory: () => {
-    const organization = inject(CurrentOrganization);
-    return {
-      timeZone: inject(CurrentEstablishment).timeZone,
-      canSwitchOrganization: computed(() => (organization.organizations()?.length ?? 0) > 1),
-    };
   },
 };
 
@@ -131,7 +118,7 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard, organizationGuard],
     // The settings center opens over the frame's screens and shows these contexts' screens and state.
-    providers: [{ provide: SETTINGS_SCREENS, useValue: SCREENS }, ACCOUNT_WORKSPACE_PROVIDER],
+    providers: [{ provide: SETTINGS_SCREENS, useValue: SCREENS }],
     loadComponent: () =>
       import('./organization/presentation/views/workspace/workspace').then((m) => m.Workspace),
     children: [

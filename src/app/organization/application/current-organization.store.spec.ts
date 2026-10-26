@@ -251,6 +251,33 @@ describe('CurrentOrganization and CurrentEstablishment', () => {
     expect(establishment.id()).toBe('est-b');
   });
 
+  it('O7: editing another establishment leaves the selection alone', async () => {
+    tenant.selectOrganization('org-1');
+    const establishment = TestBed.inject(CurrentEstablishment);
+    await load([joinedResource('org-1')]);
+    TestBed.tick();
+    backend
+      .expectOne(`${API}/api/v1/establishments`)
+      .flush([establishmentResource('est-b'), establishmentResource('est-m')]);
+    await settle();
+
+    const details = { name: 'Alameda', address: '', timeZone: 'America/Lima' };
+    const described = establishment.describe('est-m', details);
+    backend
+      .expectOne(`${API}/api/v1/establishments/est-m`)
+      .flush({ ...establishmentResource('est-m'), name: 'Alameda' });
+    await described;
+    TestBed.tick();
+    backend
+      .expectOne(`${API}/api/v1/establishments`)
+      .flush([
+        { ...establishmentResource('est-m'), name: 'Alameda' },
+        establishmentResource('est-b'),
+      ]);
+    await settle();
+    expect(establishment.id()).toBe('est-b');
+  });
+
   it('O2: renames the organization and rereads it and the memberships', async () => {
     await load([joinedResource('org-1', 'owner')]);
     TestBed.tick();

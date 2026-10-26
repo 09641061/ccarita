@@ -1,17 +1,21 @@
 <div class="account">
   @if (session.user(); as user) {
+    @let name = workspace.name() ?? user.name;
     <section class="section" aria-labelledby="you-title">
       <h2 id="you-title">{{ 'iam.account.you' | translate }}</h2>
       <div class="card you">
-        <app-avatar [name]="user.displayName" [size]="48" />
+        <app-avatar [name]="name || user.displayName" [size]="48" />
         <span class="who">
-          <span class="name">{{ user.name || ('iam.account.noName' | translate) }}</span>
+          <span class="name">{{ name || ('iam.account.noName' | translate) }}</span>
           <span class="muted">{{ user.email }}</span>
         </span>
       </div>
       <p class="muted small">{{ 'iam.account.identityHint' | translate }}</p>
     </section>
   }
+
+  <!-- What the organization adds to the account, such as the business name. -->
+  <ng-content />
 
   <section class="section" aria-labelledby="devices-title">
     <h2 id="devices-title">{{ 'iam.account.devicesTitle' | translate }}</h2>

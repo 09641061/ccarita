@@ -19,3 +19,5 @@ Organización (`/organizacion`, `OrganizationPage`) lists the open establishment
 ## Consequences
 
 The owner sees every establishment, the plan and its limit on one page; archiving any establishment needs no switch. Ajustes › Datos is about one establishment only. An inactive plan disables opening and renaming but not archiving (O6) on the same page.
+
+Superseded by [the settings center and trimmed navigation](2026-10-26-settings-center-and-trimmed-navigation.md): Locales lists, opens, edits and archives establishments, the business name is in Cuenta and the plan in Facturación.

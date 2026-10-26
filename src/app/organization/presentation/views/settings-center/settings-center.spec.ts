@@ -8,7 +8,6 @@ import { fakeResource } from '../../../../../testing/fake-resource';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { settle } from '../../../../../testing/settle';
 import {
-  ACCOUNT_WORKSPACE,
   AccountSessionsStore,
   PLATFORM_ENTRY,
   SessionStore,
@@ -16,6 +15,7 @@ import {
 } from '../../../../iam/public-api';
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
 import { CurrentOrganization } from '../../../application/current-organization.store';
+import { EstablishmentTeam } from '../../../application/establishment-team.store';
 import { Establishment } from '../../../domain/model/establishment';
 import { MemberRole, canPerform } from '../../../domain/model/member-role';
 import { SETTINGS_SCREENS } from '../../settings-screens';
@@ -63,12 +63,15 @@ describe('SettingsCenter', () => {
             role: roleSignal,
             can: (action: Parameters<typeof canPerform>[1]) => canPerform(roleSignal(), action),
             planActive: signal(planActive),
+            selected: signal(null),
+            organizations: signal([]),
           },
         },
         {
           provide: CurrentEstablishment,
           useValue: {
             selected: signal(establishment),
+            timeZone: signal('America/Lima'),
             list: { isLoading: signal(false) },
           },
         },
@@ -78,10 +81,7 @@ describe('SettingsCenter', () => {
           useValue: { user: signal(new SessionUser('u-1', 'luis@donlucho.pe', 'Luis')) },
         },
         { provide: AccountSessionsStore, useValue: { sessions: fakeResource([]) } },
-        {
-          provide: ACCOUNT_WORKSPACE,
-          useValue: { timeZone: signal('America/Lima'), canSwitchOrganization: signal(false) },
-        },
+        { provide: EstablishmentTeam, useValue: { me: signal(null) } },
         { provide: PLATFORM_ENTRY, useValue: { visible: computed(() => false) } },
       ],
     });
@@ -107,8 +107,8 @@ describe('SettingsCenter', () => {
     ]);
     expect(listed(host)).toEqual([
       'Cuenta',
-      'Negocio',
-      'Datos del local',
+      'Facturación',
+      'Locales',
       'Horario',
       'Servicios',
       'WhatsApp',
@@ -153,7 +153,7 @@ describe('SettingsCenter', () => {
   });
 
   it('opens the first allowed section for a value the role cannot use', async () => {
-    const { fixture, host } = await render('manager', '/agenda?ajustes=organizacion');
+    const { fixture, host } = await render('manager', '/agenda?ajustes=facturacion');
 
     expect(text(host.querySelector('#section-title'))).toBe('Cuenta');
     expect(host.querySelector('.content-head .place')).toBeNull();

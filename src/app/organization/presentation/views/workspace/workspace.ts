@@ -58,9 +58,7 @@ export class Workspace {
   );
   /** The name the organization knows the user by; the account's name or email until the members load. */
   protected readonly name = computed(() => {
-    const memberId = this.organization.memberId();
-    const member = this.team.members.value().find((m) => m.id === memberId);
-    return member?.name ?? this.session.user()?.displayName ?? '';
+    return this.team.me()?.name ?? this.session.user()?.displayName ?? '';
   });
   protected readonly plan = computed(() => {
     const details = this.organization.details;

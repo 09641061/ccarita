@@ -1,6 +1,5 @@
 import { Route } from '@angular/router';
 import { routes } from './app.routes';
-import { ACCOUNT_WORKSPACE } from './iam/public-api';
 import { SETTINGS_SCREENS } from './organization/public-api';
 
 describe('routes', () => {
@@ -21,7 +20,6 @@ describe('routes', () => {
     }
     const tokens = (workspace.providers ?? []).map((p) => (p as { provide: unknown }).provide);
     expect(tokens).toContain(SETTINGS_SCREENS);
-    expect(tokens).toContain(ACCOUNT_WORKSPACE);
   });
 
   it('mounts the Takodu team area outside the workspace, behind sign-in and the operator check', () => {

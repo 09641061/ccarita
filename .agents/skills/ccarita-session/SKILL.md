@@ -15,7 +15,7 @@ Product rules: I1–I6 (sign-in), O9, O10 and O13 (roles, invitations, visibilit
 4. A refused refresh clears tokens and `TenantContext`; `Workspace` then returns to `/ingresar?volver=…`. Sign-out deletes the session in pibble and clears both, even offline.
 5. After sign-in, `volver` passes through `safeReturnUrl`, so only paths inside the app are followed.
 
-Cuenta, a settings section, lists devices through `AccountSessionsStore` (`/api/v1/auth/sessions`); this device signs out through `SessionStore.signOut()`. The `Workspace` route provides `ACCOUNT_WORKSPACE`, since `iam` imports no context.
+Cuenta, a settings section, lists devices through `AccountSessionsStore` (`/api/v1/auth/sessions`); this device signs out through `SessionStore.signOut()`. `organization`'s Cuenta section (`AccountSettings`) provides it `ACCOUNT_WORKSPACE`, since `iam` imports no context.
 
 ## Organization and establishment (`organization`)
 

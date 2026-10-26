@@ -1,60 +1,37 @@
-@if (!organization.can('manageEstablishments')) {
-  <app-state-view kind="forbidden" />
-} @else {
-  <section class="section" aria-labelledby="details-title">
-    <h2 id="details-title" class="tk-visually-hidden">
-      {{ 'organization.settingsCenter.sections.details' | translate }}
-    </h2>
-    <p class="lead">{{ 'organization.settings.details.lead' | translate }}</p>
-    <form class="card" (submit)="save($event)" novalidate>
-      <mat-form-field>
-        <mat-label>{{ 'organization.settings.details.name' | translate }}</mat-label>
-        <input matInput autocomplete="off" [formField]="detailsForm.name" />
-        @if (detailsForm.name().touched() && !model().name.trim()) {
-          <mat-error>{{ 'organization.settings.details.nameRequired' | translate }}</mat-error>
-        }
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>{{ 'organization.settings.details.address' | translate }}</mat-label>
-        <input matInput autocomplete="street-address" [formField]="detailsForm.address" />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>{{ 'organization.settings.details.timeZone' | translate }}</mat-label>
-        <mat-select [formField]="detailsForm.timeZone">
-          @for (zone of timeZones(); track zone) {
-            <mat-option [value]="zone">{{ zone }}</mat-option>
-          }
-        </mat-select>
-        <mat-hint>{{ 'organization.settings.details.timeZoneHint' | translate }}</mat-hint>
-      </mat-form-field>
-
-      @if (error(); as e) {
-        <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+<form class="edit" (submit)="save($event)" novalidate>
+  <mat-form-field>
+    <mat-label>{{ 'organization.settings.details.name' | translate }}</mat-label>
+    <input matInput autocomplete="off" [formField]="detailsForm.name" />
+    @if (detailsForm.name().touched() && !model().name.trim()) {
+      <mat-error>{{ 'organization.settings.details.nameRequired' | translate }}</mat-error>
+    }
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>{{ 'organization.settings.details.address' | translate }}</mat-label>
+    <input matInput autocomplete="street-address" [formField]="detailsForm.address" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>{{ 'organization.settings.details.timeZone' | translate }}</mat-label>
+    <mat-select [formField]="detailsForm.timeZone">
+      @for (zone of timeZones(); track zone) {
+        <mat-option [value]="zone">{{ zone }}</mat-option>
       }
-      <div class="actions">
-        @if (saved()) {
-          <span class="saved" role="status">
-            <mat-icon aria-hidden="true">check</mat-icon>
-            {{ 'organization.settings.details.saved' | translate }}
-          </span>
-        }
-        <app-busy-button type="submit" [busy]="busy()" [disabled]="!canChange()">
-          {{
-            (busy() ? 'organization.settings.details.saving' : 'organization.settings.details.save')
-              | translate
-          }}
-        </app-busy-button>
-      </div>
-    </form>
-  </section>
+    </mat-select>
+    <mat-hint>{{ 'organization.settings.details.timeZoneHint' | translate }}</mat-hint>
+  </mat-form-field>
 
-  <section class="section" aria-labelledby="others-title">
-    <h2 id="others-title">{{ 'organization.settings.details.others' | translate }}</h2>
-    <div class="card row">
-      <p class="muted">{{ 'organization.settings.details.othersLead' | translate }}</p>
-      <a matButton="outlined" appSettingsLink="organizacion">
-        {{ 'organization.settings.details.toOrganization' | translate }}
-      </a>
-    </div>
-  </section>
-}
+  @if (error(); as e) {
+    <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+  }
+  <div class="actions">
+    <button matButton type="button" (click)="cancelled.emit()">
+      {{ 'organization.settings.details.cancel' | translate }}
+    </button>
+    <app-busy-button type="submit" [busy]="busy()" [disabled]="!canChange()">
+      {{
+        (busy() ? 'organization.settings.details.saving' : 'organization.settings.details.save')
+          | translate
+      }}
+    </app-busy-button>
+  </div>
+</form>

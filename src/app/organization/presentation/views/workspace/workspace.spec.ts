@@ -81,7 +81,7 @@ describe('Workspace', () => {
         },
         {
           provide: EstablishmentTeam,
-          useValue: { members: { value: signal([{ id: 'm-1', name: 'Luis Ramírez' }]) } },
+          useValue: { me: signal({ name: 'Luis Ramírez' }) },
         },
         { provide: MatDialog, useValue: { open: openDialog } },
         { provide: PLATFORM_ENTRY, useValue: { visible: signal(operator) } },
