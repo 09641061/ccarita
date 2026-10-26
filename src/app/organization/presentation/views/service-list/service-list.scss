@@ -1,0 +1,59 @@
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  .lead {
+    flex: 1 1 280px;
+  }
+}
+
+h3 {
+  margin: 8px 0 0;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.list {
+  gap: 0;
+  margin: 0;
+  padding: 4px 8px 4px 20px;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+
+    & + li {
+      border-top: 1px solid var(--mat-sys-outline-variant);
+    }
+  }
+}
+
+.info {
+  display: flex;
+  flex: 1 1 240px;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.off .name {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

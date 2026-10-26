@@ -16,6 +16,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { META_SIGNUP } from './conversations/public-api';
 import { authInterceptor } from './iam/public-api';
 import { API_BASE_URL } from './shared/infrastructure/http/api-base-url';
 import { apiErrorInterceptor } from './shared/infrastructure/http/api-error.interceptor';
@@ -47,6 +48,7 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: LOCALE_ID, useValue: 'es-PE' },
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
+    { provide: META_SIGNUP, useValue: environment.metaSignup },
     {
       provide: MAT_RIPPLE_GLOBAL_OPTIONS,
       useFactory: (): RippleGlobalOptions => ({

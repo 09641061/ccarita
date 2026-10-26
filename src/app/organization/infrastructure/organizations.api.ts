@@ -6,9 +6,14 @@ import type {
   Organization as OrganizationResource,
 } from '../../shared/infrastructure/api/pibble.schema';
 import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
+import { idempotent } from '../../shared/infrastructure/http/idempotency';
 import { JoinedOrganization } from '../domain/model/joined-organization';
-import { Organization } from '../domain/model/organization';
-import { toJoinedOrganization, toOrganization } from './organization.assembler';
+import { CreateOrganization, Organization } from '../domain/model/organization';
+import {
+  toCreateOrganizationRequest,
+  toJoinedOrganization,
+  toOrganization,
+} from './organization.assembler';
 
 /** `/api/v1/organizations` (the caller's) and `/api/v1/organization` (the one in `X-Organization-Id`). */
 @Injectable({ providedIn: 'root' })
@@ -25,6 +30,17 @@ export class OrganizationsApi {
   current(): Observable<Organization> {
     return this.http
       .get<OrganizationResource>(`${this.baseUrl}/api/v1/organization`)
+      .pipe(map(toOrganization));
+  }
+
+  /** O1: the organization, its first establishment and the caller as owner, on a trial plan. */
+  create(command: CreateOrganization, idempotencyKey: string): Observable<Organization> {
+    return this.http
+      .post<OrganizationResource>(
+        `${this.baseUrl}/api/v1/organizations`,
+        toCreateOrganizationRequest(command),
+        { context: idempotent(idempotencyKey) },
+      )
       .pipe(map(toOrganization));
   }
 }

@@ -13,3 +13,19 @@ export class WhatsappLine {
     readonly templates: Readonly<Record<string, TemplateStatus>>,
   ) {}
 }
+
+export type LineMode = WhatsappLine['mode'];
+
+/** What Meta's Embedded Signup hands the browser: a single-use code and the chosen number (W2). */
+export interface SignupResult {
+  readonly code: string;
+  readonly wabaId: string;
+  readonly phoneNumberId: string;
+}
+
+/** W1, W2: finish connecting a number; coexistence keeps it in the WhatsApp Business app. */
+export interface ConnectLine extends SignupResult {
+  readonly mode: LineMode;
+  /** The 6-digit two-step verification PIN; `cloud_api` only. */
+  readonly pin?: string;
+}

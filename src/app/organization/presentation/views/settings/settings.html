@@ -1,0 +1,47 @@
+<div class="settings">
+  <header>
+    <p class="eyebrow">
+      {{
+        'organization.settings.title'
+          | translate: { establishment: establishment.selected()?.name ?? '' }
+      }}
+    </p>
+    <h1>{{ current()?.label ?? 'shared.nav.settings' | translate }}</h1>
+  </header>
+
+  @if (!establishment.selected() && !establishment.list.isLoading()) {
+    <app-state-view
+      kind="empty"
+      title="organization.settings.noEstablishment.title"
+      message="organization.settings.noEstablishment.message"
+    />
+  } @else {
+    <nav
+      mat-tab-nav-bar
+      mat-stretch-tabs="false"
+      mat-align-tabs="start"
+      [tabPanel]="panel"
+      [attr.aria-label]="'organization.settings.sections' | translate"
+    >
+      @for (tab of tabs(); track tab.path) {
+        <a
+          mat-tab-link
+          [routerLink]="tab.path"
+          routerLinkActive
+          #active="routerLinkActive"
+          [active]="active.isActive"
+        >
+          {{ tab.label | translate }}
+        </a>
+      }
+    </nav>
+
+    @if (!organization.planActive()) {
+      <p class="notice" role="status">{{ 'organization.settings.planInactive' | translate }}</p>
+    }
+
+    <mat-tab-nav-panel #panel>
+      <router-outlet />
+    </mat-tab-nav-panel>
+  }
+</div>

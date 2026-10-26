@@ -215,12 +215,17 @@
                 }
                 @for (day of strip(); track day.toString()) {
                   @let on = day.equals(store.day());
+                  @let closed = isClosed(day);
                   <button
                     type="button"
                     class="day"
                     [class.on]="on"
+                    [class.closed]="closed"
                     [attr.aria-pressed]="on"
-                    [attr.aria-label]="day | zonedDate: tz : 'longDay'"
+                    [attr.aria-label]="
+                      (day | zonedDate: tz : 'longDay') +
+                      (closed ? ' · ' + ('booking.book.closed' | translate) : '')
+                    "
                     (click)="chooseDay(day)"
                   >
                     {{
@@ -229,6 +234,9 @@
                         : (day | zonedDate: tz : 'weekday')
                     }}
                     <b>{{ day.day }}</b>
+                    @if (closed) {
+                      <span class="closed-label">{{ 'booking.book.closed' | translate }}</span>
+                    }
                   </button>
                 }
                 <button

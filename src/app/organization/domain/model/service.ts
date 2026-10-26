@@ -12,5 +12,7 @@ export class Service {
     readonly active: boolean,
     /** O15: the members who perform it. */
     readonly performerIds: readonly string[],
+    /** Sent to the customer when booked. */
+    readonly instructions = '',
   ) {}
 }

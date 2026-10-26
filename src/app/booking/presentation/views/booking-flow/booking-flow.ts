@@ -18,6 +18,7 @@ import {
   CurrentEstablishment,
   CurrentOrganization,
   EstablishmentTeam,
+  OpeningHoursStore,
 } from '../../../../organization/public-api';
 import { ApiError } from '../../../../shared/domain/model/api-error';
 import { newIdempotencyKey } from '../../../../shared/domain/model/idempotency-key';
@@ -86,6 +87,7 @@ export class BookingFlow {
   protected readonly organization = inject(CurrentOrganization);
   protected readonly establishment = inject(CurrentEstablishment);
   protected readonly team = inject(EstablishmentTeam);
+  private readonly openingHours = inject(OpeningHoursStore);
   private readonly router = inject(Router);
   private readonly directory = inject(CustomerDirectory);
 
@@ -165,6 +167,12 @@ export class BookingFlow {
         if (known instanceof Customer && this.step() === 'customer') this.chooseCustomer(known);
       });
     });
+  }
+
+  /** O8: a weekday without opening ranges; unknown hours mark nothing. */
+  protected isClosed(day: LocalDate): boolean {
+    const hours = this.openingHours.hours;
+    return hours.hasValue() && !hours.value().isOpenOn(day);
   }
 
   protected isToday(day: LocalDate): boolean {

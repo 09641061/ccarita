@@ -231,4 +231,47 @@ describe('conversations endpoints', () => {
       templates: { reminder: 'approved', confirmation: 'pending' },
     });
   });
+
+  it('W2: connects a line with a key, sending the PIN only for cloud_api', async () => {
+    const api = TestBed.inject(WhatsappLinesApi);
+    const command = {
+      code: 'dev-code',
+      wabaId: ' 102290129340398 ',
+      phoneNumberId: '106540352242922',
+      mode: 'coexistence' as const,
+      pin: '123456',
+    };
+
+    const connected = firstValueFrom(api.connect('est-1', command, 'key-1'));
+    const post = backend.expectOne(`${API}/api/v1/establishments/est-1/whatsapp-line`);
+    expect(post.request.method).toBe('POST');
+    expect(post.request.headers.get('Idempotency-Key')).toBe('key-1');
+    expect(post.request.body).toEqual({
+      code: 'dev-code',
+      wabaId: '102290129340398',
+      phoneNumberId: '106540352242922',
+      mode: 'coexistence',
+    });
+    post.flush(
+      { id: 'l-1', establishmentId: 'est-1', displayPhone: '+51 900 000 000', status: 'connected' },
+      { status: 201, statusText: '' },
+    );
+    expect((await connected).connected).toBe(true);
+
+    void firstValueFrom(api.connect('est-1', { ...command, mode: 'cloud_api' }, 'key-2'));
+    const cloud = backend.expectOne(`${API}/api/v1/establishments/est-1/whatsapp-line`);
+    expect(cloud.request.body).toMatchObject({ mode: 'cloud_api', pin: '123456' });
+    cloud.flush({ id: 'l-1', establishmentId: 'est-1', displayPhone: '+51', status: 'connected' });
+  });
+
+  it('W1: disconnects a line with a DELETE and no key', async () => {
+    const done = firstValueFrom(TestBed.inject(WhatsappLinesApi).disconnect('est-1'), {
+      defaultValue: undefined,
+    });
+    const request = backend.expectOne(`${API}/api/v1/establishments/est-1/whatsapp-line`);
+    expect(request.request.method).toBe('DELETE');
+    expect(request.request.headers.has('Idempotency-Key')).toBe(false);
+    request.flush(null, { status: 204, statusText: '' });
+    await done;
+  });
 });

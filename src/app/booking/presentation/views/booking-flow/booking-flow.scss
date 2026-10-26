@@ -127,6 +127,20 @@ section {
     color: var(--mat-sys-on-surface-variant);
   }
 
+  &.closed {
+    border-style: dashed;
+    background: transparent;
+
+    b {
+      color: var(--mat-sys-on-surface-variant);
+      font-weight: 500;
+    }
+  }
+
+  .closed-label {
+    font-size: 10px;
+  }
+
   &.on {
     border-color: var(--mat-sys-primary);
     background: var(--mat-sys-primary-container);

@@ -17,6 +17,8 @@ import {
   CurrentOrganization,
   EstablishmentTeam,
   Member,
+  OpeningHours,
+  OpeningHoursStore,
   Service,
 } from '../../../../organization/public-api';
 import { ApiError } from '../../../../shared/domain/model/api-error';
@@ -104,6 +106,20 @@ describe('BookingFlow', () => {
         { provide: CustomerDirectory, useValue: { customers: known, want } },
         { provide: CurrentOrganization, useValue: { planActive } },
         { provide: CurrentEstablishment, useValue: { timeZone: signal('America/Lima') } },
+        {
+          provide: OpeningHoursStore,
+          useValue: {
+            hours: fakeResource(
+              new OpeningHours(
+                ([1, 2, 3, 4, 5, 6] as const).map((weekday) => ({
+                  weekday,
+                  opensAt: '09:00',
+                  closesAt: '19:00',
+                })),
+              ),
+            ),
+          },
+        },
         {
           provide: EstablishmentTeam,
           useValue: {
@@ -252,6 +268,15 @@ describe('BookingFlow', () => {
     store.visibleSlots.set([]);
     await stable();
     expect(text(host)).toContain('No hay horarios libres este día');
+  });
+
+  it('O8: marks the days the establishment is closed', async () => {
+    const { host, stable } = await render();
+    await reachTime(host, stable);
+    const closed = [...host.querySelectorAll<HTMLButtonElement>('.strip .day.closed')];
+    expect(closed.map((day) => day.getAttribute('aria-label'))).toEqual([
+      'domingo, 25 de octubre · Cerrado',
+    ]);
   });
 
   it('points to the settings when there are no services', async () => {

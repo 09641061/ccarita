@@ -1,15 +1,19 @@
 import { computed, inject } from '@angular/core';
 import { ResolveFn, Route, Routes } from '@angular/router';
-import { InboxStore } from './conversations/public-api';
+import { InboxStore, WhatsappLineStore } from './conversations/public-api';
 import { CUSTOMER_ACCESS } from './customers/public-api';
 import { devRoutes } from './dev.routes';
 import { authGuard } from './iam/public-api';
 import {
   CurrentOrganization,
+  ESTABLISHMENT_LINE,
+  onboardingRoutes,
   organizationEntryRoutes,
   organizationGuard,
   roleGuard,
+  settingsRoutes,
 } from './organization/public-api';
+import { ApiError } from './shared/domain/model/api-error';
 import {
   MAIN_NAVIGATION,
   NavigationItem,
@@ -20,6 +24,28 @@ const pageNotFound = () =>
   import('./shared/presentation/views/page-not-found/page-not-found').then((m) => m.PageNotFound);
 const placeholder = () =>
   import('./shared/presentation/views/placeholder/placeholder').then((m) => m.Placeholder);
+
+/** The establishment's WhatsApp line, a screen of `conversations` inside Ajustes and Primeros pasos. */
+const WHATSAPP_LINE: Route = {
+  loadComponent: () =>
+    import('./conversations/presentation/views/line-settings/line-settings').then(
+      (m) => m.LineSettings,
+    ),
+};
+
+/** Primeros pasos' WhatsApp step is done once the line is connected; a line never connected is not. */
+const ESTABLISHMENT_LINE_PROVIDER = {
+  provide: ESTABLISHMENT_LINE,
+  useFactory: () => {
+    const line = inject(WhatsappLineStore).line;
+    return {
+      connected: computed(() => {
+        if (line.hasValue()) return line.value().connected;
+        return ApiError.of(line.error() ?? null).code === 'WHATSAPP_LINE_NOT_FOUND' ? false : null;
+      }),
+    };
+  },
+};
 
 /** The destinations a context already serves; the others show a placeholder until their phase. */
 const CONTEXT_ROUTES: Record<string, Route> = {
@@ -33,6 +59,7 @@ const CONTEXT_ROUTES: Record<string, Route> = {
         (m) => m.conversationsRoutes,
       ),
   },
+  '/ajustes': { children: settingsRoutes(WHATSAPP_LINE) },
   '/clientes': {
     providers: [
       {
@@ -73,13 +100,7 @@ export const routes: Routes = [
     loadChildren: () => import('./iam/presentation/iam.routes').then((m) => m.iamRoutes),
   },
   ...organizationEntryRoutes,
-  {
-    path: 'primeros-pasos',
-    canActivate: [authGuard],
-    loadComponent: placeholder,
-    data: { label: 'organization.onboarding.title' },
-    title: 'Primeros pasos · Takodu',
-  },
+  ...onboardingRoutes(WHATSAPP_LINE, ESTABLISHMENT_LINE_PROVIDER),
   {
     path: '',
     canActivate: [authGuard, organizationGuard],
