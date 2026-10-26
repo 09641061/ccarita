@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { fakeResource } from '../../../../../testing/fake-resource';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { settle } from '../../../../../testing/settle';
@@ -13,7 +13,7 @@ import {
 import { ApiError } from '../../../../shared/domain/model/api-error';
 import { WhatsappLineStore } from '../../../application/whatsapp-line.store';
 import { WhatsappLine } from '../../../domain/model/whatsapp-line';
-import { DisconnectLineSheet } from '../disconnect-line-sheet/disconnect-line-sheet';
+import { DisconnectLineDialog } from '../disconnect-line-dialog/disconnect-line-dialog';
 import { LineSettings } from './line-settings';
 
 const NEVER = new ApiError(404, 'WHATSAPP_LINE_NOT_FOUND', '');
@@ -65,7 +65,7 @@ describe('LineSettings', () => {
           provide: CurrentEstablishment,
           useValue: { id: signal('est-1'), selected: signal({ name: 'Miraflores' }) },
         },
-        { provide: MatBottomSheet, useValue: { open } },
+        { provide: MatDialog, useValue: { open } },
       ],
     });
     const fixture = TestBed.createComponent(LineSettings);
@@ -157,7 +157,7 @@ describe('LineSettings', () => {
     expect(host.querySelector('form')).toBeNull();
     button(host, 'Desconectar')!.click();
     expect(open).toHaveBeenCalledWith(
-      DisconnectLineSheet,
+      DisconnectLineDialog,
       expect.objectContaining({ data: line(true) }),
     );
   });

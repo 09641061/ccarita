@@ -8,7 +8,7 @@ import {
   input,
   untracked,
 } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
@@ -22,7 +22,8 @@ import {
 } from '../../../../shared/presentation/components/state-view/state-view';
 import { CUSTOMER_ACCESS } from '../../../application/customer-access';
 import { CustomerDetailStore } from '../../../application/customer-detail.store';
-import { DeleteCustomerSheet } from '../delete-customer-sheet/delete-customer-sheet';
+import { DeleteCustomerDialog } from '../delete-customer-dialog/delete-customer-dialog';
+import { DIALOG_OPTIONS } from '../../../../shared/presentation/dialog-options';
 
 /**
  * Detalle de cliente: phone, WhatsApp name, document and notes (C1, C2, C4), editing for every role and deleting
@@ -38,7 +39,7 @@ import { DeleteCustomerSheet } from '../delete-customer-sheet/delete-customer-sh
 export class CustomerDetail {
   protected readonly store = inject(CustomerDetailStore);
   protected readonly access = inject(CUSTOMER_ACCESS);
-  private readonly sheet = inject(MatBottomSheet);
+  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
 
@@ -77,12 +78,13 @@ export class CustomerDetail {
   protected remove(): void {
     const profile = this.profile();
     if (!profile) return;
-    this.sheet
-      .open(DeleteCustomerSheet, {
+    this.dialog
+      .open(DeleteCustomerDialog, {
+        ...DIALOG_OPTIONS,
         data: profile,
         ariaLabel: this.translate.instant('customers.delete.title', { name: profile.displayName }),
       })
-      .afterDismissed()
+      .afterClosed()
       .subscribe((deleted) => {
         if (deleted) void this.router.navigateByUrl('/clientes');
       });

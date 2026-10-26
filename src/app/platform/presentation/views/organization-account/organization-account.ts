@@ -9,7 +9,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,7 +30,8 @@ import { OrganizationAccountStore } from '../../../application/organization-acco
 import { OrganizationAccountsStore } from '../../../application/organization-accounts.store';
 import { OPERATOR_TIME_ZONE } from '../../../domain/model/organization-account';
 import { PlanChange } from '../../../domain/model/plan-change';
-import { ChangePlanSheet } from '../change-plan-sheet/change-plan-sheet';
+import { ChangePlanDialog } from '../change-plan-dialog/change-plan-dialog';
+import { DIALOG_OPTIONS } from '../../../../shared/presentation/dialog-options';
 
 function kindOf(error: unknown): StateKind {
   switch (ApiError.of(error).code) {
@@ -76,7 +77,7 @@ function parse(text: string): LocalDate | null {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrganizationAccountPage {
-  private readonly sheet = inject(MatBottomSheet);
+  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   protected readonly store = inject(OrganizationAccountStore);
   protected readonly accounts = inject(OrganizationAccountsStore);
@@ -134,12 +135,13 @@ export class OrganizationAccountPage {
   protected changePlan(): void {
     const account = this.store.account();
     if (!account) return;
-    this.sheet
-      .open(ChangePlanSheet, {
+    this.dialog
+      .open(ChangePlanDialog, {
+        ...DIALOG_OPTIONS,
         data: account,
         ariaLabel: this.translate.instant('platform.changeSheet.title'),
       })
-      .afterDismissed()
+      .afterClosed()
       .subscribe((entry) => {
         if (entry) this.recorded.set(entry);
       });

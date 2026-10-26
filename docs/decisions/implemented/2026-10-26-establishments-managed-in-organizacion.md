@@ -8,7 +8,7 @@ Opening another establishment (O4) and archiving one are owner actions (03 §5).
 
 ## Decision
 
-Organización (`/organizacion`, `OrganizationPage`) lists the open establishments with "Abrir otro local" and an archive button per establishment, reusing `OpenEstablishmentSheet` and `ArchiveEstablishmentSheet`. Ajustes › Datos keeps only the selected establishment's details and links to Organización. Each establishment in the list has an edit button that selects it and opens Ajustes › Datos, so its details have one home.
+Organización (`/organizacion`, `OrganizationPage`) lists the open establishments with "Abrir otro local" and an archive button per establishment, reusing `OpenEstablishmentSheet` and `ArchiveEstablishmentDialog`. Ajustes › Datos keeps only the selected establishment's details and links to Organización. Each establishment in the list has an edit button that selects it and opens Ajustes › Datos, so its details have one home.
 
 ## Alternatives considered
 

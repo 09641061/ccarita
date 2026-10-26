@@ -31,18 +31,18 @@ Visual design comes from the designs made for Takodu; this skill fixes how they 
 
 ## Material 3
 
-- Use Angular Material and CDK components before writing custom ones: toolbar, sidenav, list, card, button (`matButton="filled" | "outlined" | "tonal" | "text"`, `matIconButton`), form field, select, datepicker, timepicker, dialog, bottom sheet, snack bar, chips, tabs, progress bar.
+- Use Angular Material and CDK components before writing custom ones: toolbar, sidenav, list, card, button (`matButton="filled" | "outlined" | "tonal" | "text"`, `matIconButton`), form field, select, datepicker, timepicker, dialog, snack bar, chips, tabs, progress bar.
 - Colors, type and shape come from the theme in `src/styles.scss`: `var(--mat-sys-*)` and `var(--tk-*)` in component styles. No hard-coded colors, fonts or shadows; customize components with `mat.<component>-overrides(...)`.
 - Reuse the shared components before writing one: `StatusBadge`, `Avatar`, `StateView`, `Skeleton`, `BusyButton`, `PlanBanner`, `MessageOrigin`, `DeliveryStatus`, `BrandMark`.
 - Icons are Material Symbols (`<mat-icon>`), loaded in `index.html` ([decision](../../../docs/decisions/implemented/2026-10-23-material-symbols-for-icons.md)).
-- Phone first: design for 360 px wide, then add a breakpoint with `BreakpointObserver` or CSS for tablet and desktop. Dialogs become bottom sheets or full screens on phones.
+- Phone first: design for 360 px wide, then add a breakpoint with `BreakpointObserver` or CSS. Short forms and confirmations are dialogs with `DIALOG_OPTIONS` (`shared`), never bottom sheets.
 - A footer stuck to the bottom uses `bottom: var(--shell-bottom-inset, 0px)`, above the navigation bar.
 
 ## Motion
 
 - Material components already animate; add no motion on top of them.
 - Custom motion is CSS transitions, or `animate.enter="tk-enter"` / `animate.leave="tk-leave"` in templates. Never `@angular/animations`; it is legacy.
-- Durations and easing come only from `--tk-duration-short` (160 ms: hover, press), `--tk-duration-medium` (300 ms: panels, sheets), `--tk-motion-standard` and `--tk-motion-emphasized` (things entering).
+- Durations and easing come only from `--tk-duration-short` (160 ms: hover, press), `--tk-duration-medium` (300 ms: panels, dialogs), `--tk-motion-standard` and `--tk-motion-emphasized` (things entering).
 - Page changes use the router's view transitions. `prefers-reduced-motion: reduce` turns animations, transitions and ripples off; never override it.
 
 ## States every screen renders

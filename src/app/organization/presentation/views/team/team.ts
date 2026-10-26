@@ -2,7 +2,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -23,9 +23,10 @@ import { CurrentEstablishment } from '../../../application/current-establishment
 import { CurrentOrganization } from '../../../application/current-organization.store';
 import { TeamStore } from '../../../application/team.store';
 import { Member } from '../../../domain/model/member';
-import { MemberSheet, MemberSheetData } from '../member-sheet/member-sheet';
-import { RemoveMemberSheet } from '../remove-member-sheet/remove-member-sheet';
-import { TransferOwnershipSheet } from '../transfer-ownership-sheet/transfer-ownership-sheet';
+import { MemberDialog, MemberDialogData } from '../member-dialog/member-dialog';
+import { RemoveMemberDialog } from '../remove-member-dialog/remove-member-dialog';
+import { TransferOwnershipDialog } from '../transfer-ownership-dialog/transfer-ownership-dialog';
+import { DIALOG_OPTIONS } from '../../../../shared/presentation/dialog-options';
 
 const LIMA = 'America/Lima';
 
@@ -67,7 +68,7 @@ interface TeamRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Team {
-  private readonly sheet = inject(MatBottomSheet);
+  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   protected readonly store = inject(TeamStore);
   protected readonly organization = inject(CurrentOrganization);
@@ -129,18 +130,19 @@ export class Team {
   protected readonly transferred = signal<string | null>(null);
 
   protected invite(): void {
-    this.openMemberSheet({ member: null, canChangeRole: true });
+    this.openMemberDialog({ member: null, canChangeRole: true });
   }
 
   protected edit(row: TeamRow): void {
-    this.openMemberSheet({
+    this.openMemberDialog({
       member: row.member,
       canChangeRole: this.store.caller()?.canChangeRoleOf(row.member) ?? false,
     });
   }
 
   protected remove(member: Member): void {
-    this.sheet.open(RemoveMemberSheet, {
+    this.dialog.open(RemoveMemberDialog, {
+      ...DIALOG_OPTIONS,
       data: member,
       ariaLabel: this.translate.instant(
         member.status === 'pending'
@@ -153,14 +155,18 @@ export class Team {
 
   protected transfer(): void {
     this.transferred.set(null);
-    this.sheet
-      .open<TransferOwnershipSheet, readonly Member[], Member | undefined>(TransferOwnershipSheet, {
-        data: this.store.members
-          .value()
-          .filter((member) => this.store.caller()?.canTransferTo(member)),
-        ariaLabel: this.translate.instant('organization.team.transferSheet.title'),
-      })
-      .afterDismissed()
+    this.dialog
+      .open<TransferOwnershipDialog, readonly Member[], Member | undefined>(
+        TransferOwnershipDialog,
+        {
+          ...DIALOG_OPTIONS,
+          data: this.store.members
+            .value()
+            .filter((member) => this.store.caller()?.canTransferTo(member)),
+          ariaLabel: this.translate.instant('organization.team.transferSheet.title'),
+        },
+      )
+      .afterClosed()
       .subscribe((owner) => this.transferred.set(owner?.name ?? null));
   }
 
@@ -185,8 +191,9 @@ export class Team {
     }
   }
 
-  private openMemberSheet(data: Omit<MemberSheetData, 'establishments'>): void {
-    this.sheet.open(MemberSheet, {
+  private openMemberDialog(data: Omit<MemberDialogData, 'establishments'>): void {
+    this.dialog.open(MemberDialog, {
+      ...DIALOG_OPTIONS,
       data: { ...data, establishments: this.establishment.establishments() },
       ariaLabel: this.translate.instant(
         data.member ? 'organization.team.sheet.editTitle' : 'organization.team.sheet.inviteTitle',

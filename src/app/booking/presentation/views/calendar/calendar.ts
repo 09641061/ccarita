@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
@@ -36,8 +36,9 @@ import { CalendarView } from '../../../domain/model/calendar-range';
 import { BlockEntry, EntrySources, entriesOfDay } from '../../calendar-entries';
 import { AgendaDay, AgendaList } from '../../components/agenda-list/agenda-list';
 import { CalendarGrid, GridColumn } from '../../components/calendar-grid/calendar-grid';
-import { BlockRemovalSheet } from '../block-removal-sheet/block-removal-sheet';
-import { TimeBlockSheet, TimeBlockSheetData } from '../time-block-sheet/time-block-sheet';
+import { BlockRemovalDialog } from '../block-removal-dialog/block-removal-dialog';
+import { TimeBlockDialog, TimeBlockDialogData } from '../time-block-dialog/time-block-dialog';
+import { DIALOG_OPTIONS } from '../../../../shared/presentation/dialog-options';
 
 /**
  * The calendar of the selected establishment (Calendario · móvil, Calendario · escritorio): a list per day on
@@ -72,7 +73,7 @@ export class Calendar {
   protected readonly establishment = inject(CurrentEstablishment);
   private readonly team = inject(EstablishmentTeam);
   private readonly directory = inject(CustomerDirectory);
-  private readonly sheet = inject(MatBottomSheet);
+  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
   protected readonly desktop = toSignal(
@@ -200,7 +201,7 @@ export class Calendar {
     const day = this.store.day();
     const timeZone = this.store.timeZone();
     if (!day || !timeZone) return;
-    const data: TimeBlockSheetData = {
+    const data: TimeBlockDialogData = {
       day,
       timeZone,
       members: this.store.managesEveryone()
@@ -209,7 +210,8 @@ export class Calendar {
       memberId: this.store.managesEveryone() ? this.store.memberId() : this.organization.memberId(),
       managesEveryone: this.store.managesEveryone(),
     };
-    this.sheet.open(TimeBlockSheet, {
+    this.dialog.open(TimeBlockDialog, {
+      ...DIALOG_OPTIONS,
       data,
       ariaLabel: this.translate.instant('booking.timeBlock.title'),
     });
@@ -218,7 +220,8 @@ export class Calendar {
   protected removeBlock(entry: BlockEntry): void {
     const timeZone = this.store.timeZone();
     if (!timeZone) return;
-    this.sheet.open(BlockRemovalSheet, {
+    this.dialog.open(BlockRemovalDialog, {
+      ...DIALOG_OPTIONS,
       data: { entry, timeZone },
       ariaLabel: this.translate.instant('booking.block.removeTitle'),
     });

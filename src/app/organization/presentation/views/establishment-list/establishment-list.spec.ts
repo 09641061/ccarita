@@ -1,6 +1,5 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { settle } from '../../../../../testing/settle';
@@ -8,7 +7,7 @@ import { CurrentEstablishment } from '../../../application/current-establishment
 import { CurrentOrganization } from '../../../application/current-organization.store';
 import { Establishment } from '../../../domain/model/establishment';
 import { MemberAction, MemberRole, canPerform } from '../../../domain/model/member-role';
-import { ArchiveEstablishmentSheet } from '../archive-establishment-sheet/archive-establishment-sheet';
+import { ArchiveEstablishmentDialog } from '../archive-establishment-dialog/archive-establishment-dialog';
 import { OpenEstablishmentDialog } from '../open-establishment-dialog/open-establishment-dialog';
 import { EstablishmentList } from './establishment-list';
 
@@ -17,13 +16,11 @@ const SURCO = new Establishment('est-2', 'Surco', '', 'America/Lima', null);
 
 describe('EstablishmentList', () => {
   let open: ReturnType<typeof vi.fn>;
-  let openDialog: ReturnType<typeof vi.fn>;
   let describeEstablishment: ReturnType<typeof vi.fn>;
   let select: ReturnType<typeof vi.fn>;
 
   async function render(role: MemberRole = 'owner', planActive = true) {
     open = vi.fn();
-    openDialog = vi.fn();
     select = vi.fn();
     describeEstablishment = vi.fn(async () => SURCO);
     TestBed.configureTestingModule({
@@ -46,8 +43,7 @@ describe('EstablishmentList', () => {
             select,
           },
         },
-        { provide: MatBottomSheet, useValue: { open } },
-        { provide: MatDialog, useValue: { open: openDialog } },
+        { provide: MatDialog, useValue: { open } },
       ],
     });
     const fixture = TestBed.createComponent(EstablishmentList);
@@ -68,10 +64,10 @@ describe('EstablishmentList', () => {
     expect(text(host)).toContain('Surco');
 
     button('Abrir local').click();
-    expect(openDialog).toHaveBeenCalledWith(OpenEstablishmentDialog, expect.anything());
+    expect(open).toHaveBeenCalledWith(OpenEstablishmentDialog, expect.anything());
     button('Archivar Surco').click();
     expect(open).toHaveBeenCalledWith(
-      ArchiveEstablishmentSheet,
+      ArchiveEstablishmentDialog,
       expect.objectContaining({ data: SURCO }),
     );
   });

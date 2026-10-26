@@ -31,7 +31,7 @@ import { DEFAULT_TIME_ZONE, timeZoneOptions } from '../establishment-details/tim
     TranslatePipe,
   ],
   templateUrl: './open-establishment-dialog.html',
-  styleUrls: ['../sheet.scss', './open-establishment-dialog.scss'],
+  styleUrl: '../dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OpenEstablishmentDialog {

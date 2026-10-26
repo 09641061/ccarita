@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,9 +7,10 @@ import { StateView } from '../../../../shared/presentation/components/state-view
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
 import { CurrentOrganization } from '../../../application/current-organization.store';
 import { Establishment } from '../../../domain/model/establishment';
-import { ArchiveEstablishmentSheet } from '../archive-establishment-sheet/archive-establishment-sheet';
+import { ArchiveEstablishmentDialog } from '../archive-establishment-dialog/archive-establishment-dialog';
 import { EstablishmentDetails } from '../establishment-details/establishment-details';
 import { OpenEstablishmentDialog } from '../open-establishment-dialog/open-establishment-dialog';
+import { DIALOG_OPTIONS } from '../../../../shared/presentation/dialog-options';
 
 /**
  * Ajustes › Locales, for the owner (03 §5): every open establishment, each edited in its own row (O7), opening
@@ -24,7 +24,6 @@ import { OpenEstablishmentDialog } from '../open-establishment-dialog/open-estab
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EstablishmentList {
-  private readonly sheet = inject(MatBottomSheet);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   protected readonly organization = inject(CurrentOrganization);
@@ -48,14 +47,14 @@ export class EstablishmentList {
 
   protected open(): void {
     this.dialog.open(OpenEstablishmentDialog, {
-      width: 'min(480px, calc(100vw - 32px))',
-      autoFocus: 'first-tabbable',
+      ...DIALOG_OPTIONS,
       ariaLabel: this.translate.instant('organization.settings.openSheet.title'),
     });
   }
 
   protected archive(target: Establishment): void {
-    this.sheet.open(ArchiveEstablishmentSheet, {
+    this.dialog.open(ArchiveEstablishmentDialog, {
+      ...DIALOG_OPTIONS,
       data: target,
       ariaLabel: this.translate.instant('organization.settings.archiveSheet.title', {
         name: target.name,
