@@ -1218,6 +1218,8 @@
     "WHATSAPP_LINE_NOT_FOUND": "Este local aún no tiene una línea de WhatsApp.",
     "LINE_ALREADY_CONNECTED": "Este local ya tiene una línea, o ese número ya está conectado a otro local.",
     "SIGNUP_CANCELLED": "Cerraste la ventana de Meta antes de terminar. Inténtalo de nuevo.",
+    "SIGNUP_META_ERROR": "Meta no pudo completar la conexión. Revisa que el número esté en WhatsApp Business e inténtalo de nuevo.",
+    "SIGNUP_SDK_BLOCKED": "No se pudo abrir la ventana de Meta. Desactiva el bloqueador de anuncios o rastreadores para esta página e inténtalo de nuevo.",
     "ASSISTANT_SETTINGS_CONFLICT": "Alguien más guardó los ajustes del asistente al mismo tiempo.",
     "MEMBER_CONFLICT": "Ese correo ya está en tu equipo o ya tiene una invitación.",
     "MEMBER_NOT_FOUND": "Esta persona ya no está en tu equipo.",

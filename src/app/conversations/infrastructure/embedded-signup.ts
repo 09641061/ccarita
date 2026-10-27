@@ -36,6 +36,8 @@ interface SignupMessage {
 }
 
 const cancelled = () => new ApiError(400, 'SIGNUP_CANCELLED', 'Embedded Signup was not finished');
+const failed = () =>
+  new ApiError(502, 'SIGNUP_META_ERROR', 'Meta reported an error in Embedded Signup');
 
 /**
  * Meta's Embedded Signup in the coexistence flow (W2, docs/07 §3): loads Meta's SDK, opens its window, and returns
@@ -50,7 +52,10 @@ export class EmbeddedSignup {
 
   readonly available = this.config !== null;
 
-  /** @throws ApiError `SIGNUP_CANCELLED` when the owner closes Meta's window without finishing. */
+  /**
+   * @throws ApiError `SIGNUP_CANCELLED` when the owner closes Meta's window without finishing, `SIGNUP_META_ERROR`
+   * when Meta reports an error, and `SIGNUP_SDK_BLOCKED` when the browser or a blocker stops Meta's script.
+   */
   async launch(): Promise<SignupResult> {
     const config = this.config;
     if (!config) throw new Error('Embedded Signup is not configured');
@@ -65,9 +70,9 @@ export class EmbeddedSignup {
         stop();
         resolve({ code, ...session });
       };
-      const fail = () => {
+      const fail = (error: ApiError) => {
         stop();
-        reject(cancelled());
+        reject(error);
       };
       const listen = (event: MessageEvent) => {
         if (!/(^|\.)facebook\.com$/.test(new URL(event.origin).hostname)) return;
@@ -79,15 +84,17 @@ export class EmbeddedSignup {
             phoneNumberId: message.data.phone_number_id ?? '',
           };
           finish();
-        } else if (message.event === 'CANCEL' || message.event === 'ERROR') {
-          fail();
+        } else if (message.event === 'CANCEL') {
+          fail(cancelled());
+        } else if (message.event === 'ERROR') {
+          fail(failed());
         }
       };
       window.addEventListener('message', listen);
       sdk.login(
         (response) => {
           code = response.authResponse?.code ?? null;
-          if (code === null) fail();
+          if (code === null) fail(cancelled());
           else finish();
         },
         {
@@ -123,7 +130,7 @@ export class EmbeddedSignup {
       script.crossOrigin = 'anonymous';
       script.onerror = () => {
         this.sdk = null;
-        reject(new ApiError(0, 'NETWORK_ERROR', 'Meta SDK did not load'));
+        reject(new ApiError(0, 'SIGNUP_SDK_BLOCKED', 'Meta SDK did not load'));
       };
       this.document.body.appendChild(script);
     });

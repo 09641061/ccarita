@@ -84,4 +84,31 @@ describe('EmbeddedSignup', () => {
     expect(ApiError.of(error).code).toBe('SIGNUP_CANCELLED');
     expect(ApiError.of(error).retryable).toBe(false);
   });
+
+  it('fails with SIGNUP_META_ERROR when Meta reports an error', async () => {
+    const signup = setUp();
+    const result = signup.launch();
+    await vi.waitFor(() => expect(login).toHaveBeenCalled());
+
+    post({ type: 'WA_EMBEDDED_SIGNUP', event: 'ERROR', data: {} });
+
+    const error = await result.catch((e: unknown) => e);
+    expect(ApiError.of(error).code).toBe('SIGNUP_META_ERROR');
+  });
+
+  it("fails with SIGNUP_SDK_BLOCKED when Meta's script cannot load", async () => {
+    const signup = setUp();
+    const window = TestBed.inject(DOCUMENT).defaultView as Window & { FB?: unknown };
+    delete window.FB;
+    const result = signup.launch();
+    const script = TestBed.inject(DOCUMENT).querySelector<HTMLScriptElement>(
+      'script[src*="connect.facebook.net"]',
+    )!;
+
+    script.onerror!(new Event('error'));
+
+    const error = await result.catch((e: unknown) => e);
+    expect(ApiError.of(error).code).toBe('SIGNUP_SDK_BLOCKED');
+    script.remove();
+  });
 });
