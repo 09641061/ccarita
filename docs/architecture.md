@@ -42,4 +42,4 @@ A view calls a store method. The store calls its context's `*.api.ts` with an id
 
 ## Live inbox
 
-`conversations` follows `GET /api/v1/inbox/stream` (server-sent events) through `HttpClient`, whose interceptors add the token and tenant ([decision](decisions/implemented/2026-10-24-inbox-stream-through-http-client.md)). The store reloads each changed conversation, and the list after reconnecting.
+`conversations` follows `GET /api/v1/inbox/stream` (server-sent events) through `HttpClient`, whose interceptors add the token and tenant ([decision](decisions/implemented/2026-10-24-inbox-stream-through-http-client.md)). The store updates each changed row from the event's summary, reloads the list after reconnecting, shows the assistant typing, and tells open calendars of appointment changes through `APPOINTMENT_CHANGES` (`shared`).
