@@ -61,4 +61,26 @@ describe('Conversation', () => {
     expect(read.unreadCount).toBe(0);
     expect(read.customerName).toBe('Rosa Huamán');
   });
+
+  it('W8, A7: awaits a person while the customer wrote last and nobody read it, or after a handoff', () => {
+    const at = new Date('2026-10-24T14:00:00Z');
+    const later = new Date('2026-10-24T14:00:05Z');
+    expect(conversation({ unreadCount: 1, lastInboundAt: at, lastMessageAt: at }).awaitsReply).toBe(
+      true,
+    );
+    expect(
+      conversation({ unreadCount: 1, lastInboundAt: at, lastMessageAt: later }).awaitsReply,
+    ).toBe(false);
+    expect(conversation({ unreadCount: 0, lastInboundAt: at, lastMessageAt: at }).awaitsReply).toBe(
+      false,
+    );
+    expect(
+      conversation({
+        unreadCount: 0,
+        assistantHandedOff: true,
+        lastInboundAt: at,
+        lastMessageAt: later,
+      }).awaitsReply,
+    ).toBe(true);
+  });
 });

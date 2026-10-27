@@ -183,3 +183,26 @@ main {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+// The destination needs attention: a small dot after the drawer label, and on the bar icon's corner.
+.attention {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-inline-start: 8px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: var(--mat-sys-primary);
+}
+
+.indicator {
+  position: relative;
+
+  .attention {
+    position: absolute;
+    top: 4px;
+    right: 18px;
+    margin: 0;
+    box-shadow: 0 0 0 2px var(--mat-sys-surface-container);
+  }
+}

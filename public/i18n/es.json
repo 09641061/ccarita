@@ -61,7 +61,8 @@
       "inbox": "Mensajes",
       "customers": "Clientes",
       "team": "Equipo",
-      "backToCalendar": "Ir al calendario"
+      "backToCalendar": "Ir al calendario",
+      "attention": "hay clientes esperando respuesta"
     },
     "profile": {
       "menu": "Perfil",

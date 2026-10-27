@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { NAVIGATION_ATTENTION } from '../../../application/navigation-attention';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { MemberRoleKind, NavigationItem, navigationFor } from './navigation-item';
 import { Shell } from './shell';
@@ -16,10 +17,11 @@ class Host {
 }
 
 describe('Shell', () => {
-  async function render(role: MemberRoleKind, url = '/agenda') {
+  async function render(role: MemberRoleKind, url = '/agenda', attention: string[] = []) {
     TestBed.configureTestingModule({
       providers: [
         provideSpanish(),
+        { provide: NAVIGATION_ATTENTION, useValue: signal(new Set(attention)) },
         provideRouter(
           [{ path: '**', component: Host, data: { navigation: navigationFor(role) } }],
           withComponentInputBinding(),
@@ -61,6 +63,16 @@ describe('Shell', () => {
     );
     expect(host.querySelector('nav.bar a[href="/agenda"]')?.hasAttribute('aria-current')).toBe(
       false,
+    );
+  });
+
+  it('marks a destination that needs attention in the drawer and the bar, with a text for screen readers', async () => {
+    const host = await render('owner', '/agenda', ['/mensajes']);
+
+    expect(host.querySelectorAll('a[href="/mensajes"] .attention')).toHaveLength(2);
+    expect(host.querySelector('a[href="/agenda"] .attention')).toBeNull();
+    expect(host.querySelector('a[href="/mensajes"] .tk-visually-hidden')?.textContent).toBe(
+      'hay clientes esperando respuesta',
     );
   });
 });

@@ -63,6 +63,19 @@ export class Conversation {
     return this.assistantHandedOff;
   }
 
+  /**
+   * W8, A7: a person should answer: the assistant handed the customer over, or the customer's message is unread and
+   * nobody, the assistant included, has written after it. Read in the loaded pages only; pibble serves no total.
+   */
+  get awaitsReply(): boolean {
+    if (this.needsSomeone) return true;
+    return (
+      this.unreadCount > 0 &&
+      this.lastInboundAt !== null &&
+      this.lastInboundAt.getTime() >= this.lastMessageAt.getTime()
+    );
+  }
+
   /** The same conversation after it was opened (W8). */
   read(): Conversation {
     return Object.assign(Object.create(Conversation.prototype) as Conversation, this, {

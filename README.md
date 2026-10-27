@@ -92,7 +92,7 @@ Where pibble's API serves less than a design shows, the design adapts:
 - The time zone of an establishment is chosen among the Americas' IANA zones.
 - The customers page has previous and next without a total.
 - Staff send text and templates only.
-- The navigation shows no unread count.
+- The navigation shows no unread count, only a dot on Mensajes while a loaded conversation waits for a person (`Conversation.awaitsReply`); pibble serves no total, so an older chat beyond the first page does not light it.
 - Booking offers the slots pibble lists, which start from now; the design draws no direct time, so a walk-in that already started is booked at the next free slot instead of directly (B16).
 - The calendar does not read opening hours, so it marks no closed days or appointments outside them; booking's day strip marks closed days.
 - Rescheduling lists slots without ignoring the appointment being moved, because the slots endpoint does not; times that overlap its own are not offered, and it shows no "N libres" counts.
