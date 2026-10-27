@@ -730,7 +730,7 @@
     "inbox": {
       "title": "Mensajes",
       "list": "Conversaciones",
-      "live": "En vivo",
+      "live": "Recibiendo mensajes al instante",
       "offline": "Reconectando… puede que no esté al día",
       "deletedCustomer": "Cliente eliminado",
       "yesterday": "ayer",

@@ -7,8 +7,9 @@
       <h1 id="inbox-title">{{ 'conversations.inbox.title' | translate }}</h1>
       @switch (store.streamState()) {
         @case ('live') {
-          <span class="live" role="status">
-            <span class="dot" aria-hidden="true"></span>{{ 'conversations.inbox.live' | translate }}
+          <span class="live" role="status" [title]="'conversations.inbox.live' | translate">
+            <span class="dot" aria-hidden="true"></span
+            ><span class="tk-visually-hidden">{{ 'conversations.inbox.live' | translate }}</span>
           </span>
         }
         @case ('offline') {
