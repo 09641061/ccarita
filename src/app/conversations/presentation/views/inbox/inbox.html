@@ -140,7 +140,7 @@
     </div>
   </section>
 
-  <section class="pane">
+  <section class="pane tk-chat-wallpaper">
     <router-outlet (activate)="chatOpen.set(true)" (deactivate)="chatOpen.set(false)" />
     @if (!chatOpen()) {
       <app-state-view
