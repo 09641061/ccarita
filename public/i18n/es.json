@@ -3,9 +3,6 @@
     "name": "Takodu"
   },
   "shared": {
-    "brand": {
-      "assistant": "Tako, el asistente de Takodu"
-    },
     "appointmentStatus": {
       "confirmed": "Confirmada",
       "in_progress": "En curso",
@@ -55,8 +52,7 @@
     "plan": {
       "ended": "Tu plan terminó el {{date}}",
       "consequences": "Asistente y recordatorios detenidos. Puedes ver todo y atender las citas ya reservadas.",
-      "renew": "Renueva pagando por transferencia, Yape o Plin. Escríbenos a {{contact}}.",
-      "writesDisabled": "Reservar, reprogramar, enviar mensajes y cambiar ajustes vuelve cuando renueves."
+      "renew": "Renueva pagando por transferencia, Yape o Plin. Escríbenos a {{contact}}."
     },
     "nav": {
       "main": "Navegación principal",
@@ -137,8 +133,7 @@
     },
     "establishment": {
       "label": "Local",
-      "change": "Cambiar de local",
-      "current": "Local actual"
+      "change": "Cambiar de local"
     },
     "picker": {
       "title": "Elige una organización",
@@ -360,7 +355,6 @@
       "summary": "Personas: {{count}} · {{organization}}",
       "invite": "Invitar",
       "transfer": "Transferir propiedad",
-      "list": "Personas del equipo",
       "person": "Persona",
       "role": "Rol",
       "bookable": "Recibe citas",
@@ -466,7 +460,6 @@
   },
   "booking": {
     "calendar": {
-      "title": "Calendario",
       "today": "Hoy",
       "todayIs": "Hoy, {{day}}",
       "weekOf": "Semana del {{from}} al {{to}}",
@@ -522,13 +515,11 @@
       "removing": "Quitando…",
       "removeTitle": "¿Quitar este bloqueo?",
       "removeMessage": "{{when}}. Se podrá volver a reservar en ese horario.",
-      "keep": "Mantener",
-      "options": "Opciones del bloqueo"
+      "keep": "Mantener"
     },
     "detail": {
       "title": "Cita",
       "back": "Volver al calendario",
-      "close": "Cerrar",
       "with": "Con {{name}}",
       "call": "Llamar a {{phone}}",
       "start": "Iniciar",
@@ -894,10 +885,7 @@
       }
     },
     "line": {
-      "lead": "El número de WhatsApp del local. Mensajes y el asistente lo usan.",
-      "number": "Número",
       "mode": "Modo",
-      "status": "Estado",
       "modes": {
         "coexistence": "Coexistencia: sigues usando la app WhatsApp Business",
         "cloud_api": "Solo Takodu (Cloud API)"
