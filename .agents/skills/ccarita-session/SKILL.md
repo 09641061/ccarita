@@ -26,7 +26,7 @@ Cuenta, a settings section, lists devices through `AccountSessionsStore` (`/api/
 
 ## The frame
 
-`Workspace` fills `Shell`: `navigationFor(role)`, the establishment switcher, and `ProfileMenu` (name · plan; Ajustes, other organization, Panel de Takodu, sign-out). `?ajustes=<section>` opens `SettingsCenter` over the screen. Below 1024 px they go in the top bar. While `planActive()` is false, `PlanBanner` sits above every screen with `environment.renewalContact`.
+`Workspace` fills `Shell`: `navigationFor(role)`, the establishment switcher, and `ProfileMenu` (name · plan; Ajustes, other organization, Panel de Takodu, sign-out). `?ajustes=<section>` opens `SettingsCenter` over the screen. Below 1024 px they go in the top bar. While `planActive()` is false, `PlanBanner` sits above every screen with `RENEWAL_CONTACT`.
 
 ## Roles in the UI
 
