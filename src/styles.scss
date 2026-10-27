@@ -231,6 +231,20 @@ h3 {
   animation: tk-enter var(--tk-duration-medium) var(--tk-motion-emphasized);
 }
 
+// Text that appears as if written: revealed from the start of the line (the assistant's handoff summary).
+.tk-reveal {
+  animation: tk-reveal 700ms var(--tk-motion-emphasized);
+}
+
+@keyframes tk-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
 .tk-leave {
   animation: tk-leave var(--tk-duration-short) var(--tk-motion-standard) forwards;
 }

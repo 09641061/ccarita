@@ -189,6 +189,32 @@ describe('Chat', () => {
     expect(host.querySelector('a[href="/agenda/reservar?cliente=cu-1"]')).not.toBeNull();
   });
 
+  it('lets a message that arrives while the chat is open enter with motion, and marks the answering assistant', async () => {
+    const { host, stable } = await render(conversation(), [
+      message({ id: 'm-1', occurredAt: new Date('2026-10-24T14:00:00Z') }),
+    ]);
+    expect(host.querySelector('app-message-bubble.fresh')).toBeNull();
+    expect(host.querySelector('h2 .tako-live img')?.getAttribute('alt')).toBe(
+      'Tako está atendiendo este chat',
+    );
+
+    store.messages.set([
+      message({ id: 'm-1', occurredAt: new Date('2026-10-24T14:00:00Z') }),
+      message({
+        id: 'm-2',
+        direction: 'out',
+        origin: 'assistant',
+        body: 'Claro',
+        occurredAt: new Date('2026-10-24T14:00:08Z'),
+      }),
+    ]);
+    await stable();
+
+    const fresh = [...host.querySelectorAll('app-message-bubble.fresh')];
+    expect(fresh).toHaveLength(1);
+    expect(fresh[0].classList).toContain('assistant');
+  });
+
   it('retries a lost reply with the same key, and sends the next one with a new key', async () => {
     const { host, stable } = await render();
     type(host, 'Sí, a las 4');

@@ -294,3 +294,17 @@
 .open-templates {
   margin-right: -12px;
 }
+
+// The assistant answers this chat: its mark breathes beside the name.
+.tako-live {
+  margin-inline-start: 6px;
+  vertical-align: -2px;
+  animation: breathe 2400ms ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% {
+    scale: 1.15;
+    opacity: 0.75;
+  }
+}

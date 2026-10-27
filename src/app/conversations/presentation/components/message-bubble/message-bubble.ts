@@ -19,12 +19,15 @@ import { Message } from '../../../domain/model/message';
     '[class.out]': 'message().outbound',
     '[class.assistant]': "message().origin === 'assistant'",
     '[class.failed]': 'message().failed',
+    '[class.fresh]': 'fresh()',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessageBubble {
   readonly message = input.required<Message>();
   readonly timeZone = input.required<string>();
+  /** The message arrived while the chat was open; it enters with motion, the assistant's with a shimmer. */
+  readonly fresh = input(false);
   /** The team member who sent a `staff` message. */
   readonly memberName = input<string>();
 

@@ -28,7 +28,7 @@
       </span>
     }
     @for (title of choices.titles; track $index) {
-      <span class="choice">{{ title }}</span>
+      <span class="choice" [style.--i]="$index">{{ title }}</span>
     }
   </div>
 }

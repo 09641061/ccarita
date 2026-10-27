@@ -836,7 +836,8 @@
       "assistant": {
         "pause": "Pausar asistente",
         "resume": "Retomar asistente",
-        "resumeHint": "Al retomarlo, el asistente responde desde el próximo mensaje del cliente."
+        "resumeHint": "Al retomarlo, el asistente responde desde el próximo mensaje del cliente.",
+        "answering": "Tako está atendiendo este chat"
       }
     },
     "media": {
