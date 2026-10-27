@@ -22,6 +22,8 @@ const UNTIL = new Date('2026-11-06T05:00:00Z');
 
 describe('AccountSettings', () => {
   let rename: ReturnType<typeof vi.fn>;
+  let renameMe: ReturnType<typeof vi.fn>;
+  const me = signal({ name: 'Luis Ramírez' });
   const selected = signal(
     new JoinedOrganization('org-1', 'Barbería Don Lucho', UNTIL, 'm-1', 'owner'),
   );
@@ -32,6 +34,8 @@ describe('AccountSettings', () => {
     rename = vi.fn(async (name: string) => {
       selected.set(new JoinedOrganization('org-1', name, UNTIL, 'm-1', role));
     });
+    me.set({ name: 'Luis Ramírez' });
+    renameMe = vi.fn(async (name: string) => me.set({ name }));
     TestBed.configureTestingModule({
       providers: [
         provideSpanish(),
@@ -53,17 +57,19 @@ describe('AccountSettings', () => {
           },
         },
         { provide: CurrentEstablishment, useValue: { timeZone: signal('America/Lima') } },
-        { provide: EstablishmentTeam, useValue: { me: signal({ name: 'Luis Ramírez' }) } },
+        { provide: EstablishmentTeam, useValue: { me, renameMe } },
       ],
     });
     const fixture = TestBed.createComponent(AccountSettings);
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
-    const button = (label: string) =>
-      [...host.querySelectorAll<HTMLButtonElement>('button')].find((b) =>
+    const business = () => host.querySelector<HTMLElement>('[aria-labelledby="business-title"]')!;
+    const mine = () => host.querySelector<HTMLElement>('[aria-labelledby="me-title"]')!;
+    const button = (label: string, root: HTMLElement = business()) =>
+      [...root.querySelectorAll<HTMLButtonElement>('button')].find((b) =>
         b.textContent!.includes(label),
       )!;
-    return { fixture, host, button };
+    return { fixture, host, business, mine, button };
   }
 
   const text = (host: Element) => host.textContent!.replace(/\s+/g, ' ');
@@ -74,8 +80,8 @@ describe('AccountSettings', () => {
   });
 
   it('O2: renames the business and keeps the saved message after the reload', async () => {
-    const { fixture, host, button } = await render();
-    const input = host.querySelector<HTMLInputElement>('form input')!;
+    const { fixture, host, business, button } = await render();
+    const input = business().querySelector<HTMLInputElement>('form input')!;
     expect(input.value).toBe('Barbería Don Lucho');
     input.value = 'Barbería Don Pepe';
     input.dispatchEvent(new Event('input'));
@@ -89,12 +95,39 @@ describe('AccountSettings', () => {
   });
 
   it('shows pibble’s error when renaming fails', async () => {
-    const { fixture, host, button } = await render();
+    const { fixture, business, button } = await render();
     rename.mockRejectedValue(new ApiError(402, 'PLAN_INACTIVE', ''));
     button('Guardar nombre').click();
     await settle();
     await fixture.whenStable();
-    expect(host.querySelector('[role="alert"]')!.textContent).toContain('Tu plan venció');
+    expect(business().querySelector('[role="alert"]')!.textContent).toContain('Tu plan venció');
+  });
+
+  it('O9: any member renames themself in this organization, also with an inactive plan', async () => {
+    const { fixture, mine, button } = await render('staff', false);
+    const input = mine().querySelector<HTMLInputElement>('input')!;
+    expect(input.value).toBe('Luis Ramírez');
+    expect(text(mine())).toContain('Así te ve tu equipo en Barbería Don Lucho');
+    const save = button('Guardar nombre', mine());
+    expect(save.disabled).toBe(false);
+    input.value = 'Lucho';
+    input.dispatchEvent(new Event('input'));
+    save.click();
+    await settle();
+    await fixture.whenStable();
+
+    expect(renameMe).toHaveBeenCalledWith('Lucho');
+    expect(text(mine())).toContain('Nombre guardado.');
+    expect(input.value).toBe('Lucho');
+  });
+
+  it('shows pibble’s error when renaming yourself fails', async () => {
+    const { fixture, mine, button } = await render('staff');
+    renameMe.mockRejectedValue(new ApiError(0, 'NETWORK_ERROR', ''));
+    button('Guardar nombre', mine()).click();
+    await settle();
+    await fixture.whenStable();
+    expect(mine().querySelector('[role="alert"]')).not.toBeNull();
   });
 
   it('O6: an inactive plan disables renaming', async () => {

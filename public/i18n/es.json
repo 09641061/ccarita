@@ -105,7 +105,7 @@
     "account": {
       "you": "Tus datos",
       "noName": "Sin nombre",
-      "identityHint": "Ingresas con este correo. Tu nombre en cada equipo lo cambia quien lo administra.",
+      "identityHint": "Ingresas con este correo. Tu nombre en cada equipo lo cambias en Tu nombre.",
       "devicesTitle": "Dispositivos",
       "devicesLead": "Donde tienes la sesión abierta. Si no reconoces uno, ciérralo.",
       "thisDevice": "Este dispositivo",
@@ -450,6 +450,10 @@
       "contact": "Para renovar o cambiar de plan, escribe a {{contact}}."
     },
     "account": {
+      "meTitle": "Tu nombre",
+      "meName": "Nombre",
+      "meHint": "Así te ve tu equipo en {{organization}}. En otras organizaciones se cambia por separado.",
+      "meRequired": "Escribe tu nombre.",
       "businessTitle": "Negocio",
       "businessName": "Nombre del negocio",
       "businessHint": "Así aparece tu negocio para tu equipo.",

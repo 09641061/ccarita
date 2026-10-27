@@ -1,6 +1,6 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { Member } from '../domain/model/member';
 import { Service } from '../domain/model/service';
 import { MembersApi } from '../infrastructure/members.api';
@@ -29,6 +29,15 @@ export class EstablishmentTeam {
   readonly me = computed(
     () => this.members.value().find((member) => member.id === this.organization.memberId()) ?? null,
   );
+
+  /** O9: the signed-in member renames themself here, whatever their role; the frame and calendars follow. */
+  async renameMe(displayName: string): Promise<Member> {
+    const renamed = await firstValueFrom(this.membersApi.renameMe(displayName));
+    this.members.value.update((members) =>
+      members.map((member) => (member.id === renamed.id ? renamed : member)),
+    );
+    return renamed;
+  }
 
   readonly services = rxResource({
     params: () => this.establishment.id(),

@@ -1,4 +1,33 @@
 <app-account>
+  <section class="section" aria-labelledby="me-title">
+    <h2 id="me-title">{{ 'organization.account.meTitle' | translate }}</h2>
+    <form class="card" (submit)="renameMe($event)" novalidate>
+      <mat-form-field>
+        <mat-label>{{ 'organization.account.meName' | translate }}</mat-label>
+        <input matInput autocomplete="name" [formField]="meForm.name" />
+        <mat-hint>{{
+          'organization.account.meHint' | translate: { organization: organization.selected()?.name }
+        }}</mat-hint>
+        @if (meForm.name().touched() && !meModel().name.trim()) {
+          <mat-error>{{ 'organization.account.meRequired' | translate }}</mat-error>
+        }
+      </mat-form-field>
+      @if (meError(); as e) {
+        <p class="field-error" role="alert">{{ e | errorMessage }}</p>
+      }
+      <div class="actions">
+        @if (meSaved()) {
+          <span class="saved" role="status">
+            <mat-icon aria-hidden="true">check</mat-icon>
+            {{ 'organization.account.saved' | translate }}
+          </span>
+        }
+        <app-busy-button type="submit" [busy]="meBusy()">
+          {{ (meBusy() ? 'organization.account.saving' : 'organization.account.save') | translate }}
+        </app-busy-button>
+      </div>
+    </form>
+  </section>
   @if (organization.can('editOrganization')) {
     <section class="section" aria-labelledby="business-title">
       <h2 id="business-title">{{ 'organization.account.businessTitle' | translate }}</h2>

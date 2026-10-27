@@ -39,6 +39,13 @@ export class MembersApi {
       .pipe(map(toMember));
   }
 
+  /** `PUT /api/v1/members/me`: any role renames their own membership, in this organization only. */
+  renameMe(displayName: string): Observable<Member> {
+    return this.http
+      .put<MemberResource>(this.url('me'), { displayName: displayName.trim() })
+      .pipe(map(toMember));
+  }
+
   /**
    * Removes a member or revokes an invitation; history is kept.
    * @throws ApiError `MEMBER_HAS_UPCOMING_APPOINTMENTS`, `OWNER_CHANGE_NOT_ALLOWED` (O12).

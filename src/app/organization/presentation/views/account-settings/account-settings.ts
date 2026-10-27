@@ -22,8 +22,8 @@ import { EstablishmentTeam } from '../../../application/establishment-team.store
 
 /**
  * Ajustes › Cuenta: `iam`'s account, told the name the organization knows the user by, the selected establishment's
- * time zone and whether there are other organizations; for the owner (O2) also the business name. Renaming waits for
- * an active plan (O6).
+ * time zone and whether there are other organizations; the member's own name in this organization (O9), for any
+ * role and plan; for the owner (O2) also the business name, which waits for an active plan (O6).
  */
 @Component({
   selector: 'app-account-settings',
@@ -57,6 +57,16 @@ import { EstablishmentTeam } from '../../../application/establishment-team.store
 })
 export class AccountSettings {
   protected readonly organization = inject(CurrentOrganization);
+  private readonly team = inject(EstablishmentTeam);
+
+  protected readonly meModel = signal({ name: '' });
+  protected readonly meForm = form(this.meModel, (path) => {
+    required(path.name);
+    maxLength(path.name, 120);
+  });
+  protected readonly meBusy = signal(false);
+  protected readonly meError = signal<ApiError | null>(null);
+  protected readonly meSaved = signal(false);
 
   protected readonly canChange = computed(() => this.organization.planActive());
   protected readonly model = signal({ name: '' });
@@ -69,6 +79,14 @@ export class AccountSettings {
   protected readonly saved = signal(false);
 
   constructor() {
+    // Refills once the membership loads or changes, not while the member types.
+    const myName = computed(() => this.team.me()?.name ?? '');
+    effect(() => {
+      const name = myName();
+      untracked(() => {
+        if (!this.meBusy()) this.meModel.set({ name });
+      });
+    });
     // Refills when another organization is selected, not when the memberships reload after renaming.
     const selectedId = computed(() => this.organization.selected()?.id);
     effect(() => {
@@ -79,6 +97,24 @@ export class AccountSettings {
         this.saved.set(false);
       });
     });
+  }
+
+  protected async renameMe(event?: Event): Promise<void> {
+    event?.preventDefault();
+    this.meForm().markAsTouched();
+    const name = this.meModel().name;
+    if (this.meBusy() || this.meForm().invalid() || !name.trim()) return;
+    this.meBusy.set(true);
+    this.meError.set(null);
+    this.meSaved.set(false);
+    try {
+      await this.team.renameMe(name);
+      this.meSaved.set(true);
+    } catch (error) {
+      this.meError.set(ApiError.of(error));
+    } finally {
+      this.meBusy.set(false);
+    }
   }
 
   protected async rename(event?: Event): Promise<void> {
