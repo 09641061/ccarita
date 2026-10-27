@@ -2573,7 +2573,7 @@ export interface paths {
         };
         /**
          * Follow the inbox
-         * @description Server-sent events naming each conversation that changed in the establishments the caller sees; the app then reloads it. Reconnect and reload after a drop.
+         * @description Server-sent events for the establishments the caller sees: each conversation that changed, with its summary for the list, when the assistant starts (assistant_typing) and stops (assistant_idle) answering one, and each appointment booked, rescheduled or cancelled (appointment_*), so calendars reload. A ping follows the subscription and repeats every 25 seconds. Reconnect and reload after a drop.
          */
         readonly get: {
             readonly parameters: {
@@ -2592,6 +2592,68 @@ export interface paths {
                     content: {
                         readonly "text/event-stream": components["schemas"]["InboxChange"];
                     };
+                };
+            };
+        };
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
+    readonly "/api/v1/inbox/summary": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /**
+         * Count the chats that need someone
+         * @description For the navigation badge: chats awaiting a person (handed off, or unread with nobody writing after the customer) and chats with unread messages, across the whole inbox of the establishment.
+         */
+        readonly get: {
+            readonly parameters: {
+                readonly query?: {
+                    readonly establishmentId?: components["schemas"]["UUID"];
+                };
+                readonly header?: never;
+                readonly path?: never;
+                readonly cookie?: never;
+            };
+            readonly requestBody?: never;
+            readonly responses: {
+                /** @description The counts */
+                readonly 200: {
+                    headers: {
+                        readonly [name: string]: unknown;
+                    };
+                    content: {
+                        readonly "application/json": components["schemas"]["InboxSummary"];
+                    };
+                };
+                /** @description establishmentId missing */
+                readonly 400: {
+                    headers: {
+                        readonly [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Staff not assigned to the establishment */
+                readonly 403: {
+                    headers: {
+                        readonly [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Establishment not in the organization */
+                readonly 404: {
+                    headers: {
+                        readonly [name: string]: unknown;
+                    };
+                    content?: never;
                 };
             };
         };
@@ -2710,7 +2772,7 @@ export interface paths {
             };
             readonly requestBody?: never;
             readonly responses: {
-                /** @description The file, with the type WhatsApp reported */
+                /** @description The file, with the type WhatsApp reported; cacheable for a day, with an ETag */
                 readonly 200: {
                     headers: {
                         readonly [name: string]: unknown;
@@ -2719,6 +2781,13 @@ export interface paths {
                         readonly "application/json": unknown;
                     };
                 };
+                /** @description If-None-Match matched: the cached file is current */
+                readonly 304: {
+                    headers: {
+                        readonly [name: string]: unknown;
+                    };
+                    content?: never;
+                };
                 /** @description Staff not assigned to its establishment */
                 readonly 403: {
                     headers: {
@@ -2726,7 +2795,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Message not in the organization, or it carries no media */
+                /** @description Message not in the organization, or it carries no media; MEDIA_REMOVED once deleted */
                 readonly 404: {
                     headers: {
                         readonly [name: string]: unknown;
@@ -3042,6 +3111,56 @@ export interface paths {
                 };
             };
         };
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
+    readonly "/api/v1/members/me": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        /**
+         * Rename yourself
+         * @description Any member. Changes the name the team sees for the caller in this organization only; other organizations keep theirs.
+         */
+        readonly put: {
+            readonly parameters: {
+                readonly query?: never;
+                readonly header?: never;
+                readonly path?: never;
+                readonly cookie?: never;
+            };
+            readonly requestBody: {
+                readonly content: {
+                    readonly "application/json": components["schemas"]["RenameOwnMembershipRequest"];
+                };
+            };
+            readonly responses: {
+                /** @description Member renamed */
+                readonly 200: {
+                    headers: {
+                        readonly [name: string]: unknown;
+                    };
+                    content: {
+                        readonly "application/json": components["schemas"]["Member"];
+                    };
+                };
+                /** @description Blank or too long name */
+                readonly 400: {
+                    headers: {
+                        readonly [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        readonly post?: never;
         readonly delete?: never;
         readonly options?: never;
         readonly head?: never;
@@ -4121,6 +4240,7 @@ export interface components {
             /** @enum {string} */
             readonly cancelledBy?: "staff" | "customer";
             readonly cancelReason?: string;
+            readonly createdAt?: components["schemas"]["Instant"];
             /** @example PEN */
             readonly currency?: string;
             readonly customerId?: components["schemas"]["UUID"];
@@ -4339,9 +4459,27 @@ export interface components {
             readonly timeZone?: string;
         };
         readonly InboxChange: {
+            readonly appointmentId?: components["schemas"]["UUID"];
+            readonly conversation?: components["schemas"]["InboxConversationSummary"];
             readonly conversationId?: components["schemas"]["UUID"];
             readonly establishmentId?: components["schemas"]["UUID"];
             readonly type?: string;
+        };
+        readonly InboxConversationSummary: {
+            readonly assistantHandedOff?: boolean;
+            readonly assistantPausedManually?: boolean;
+            readonly assistantPausedUntil?: components["schemas"]["Instant"];
+            readonly lastInboundAt?: components["schemas"]["Instant"];
+            readonly lastMessageAt?: components["schemas"]["Instant"];
+            /** Format: int32 */
+            readonly unreadCount?: number;
+            readonly windowClosesAt?: components["schemas"]["Instant"];
+        };
+        readonly InboxSummary: {
+            /** Format: int32 */
+            readonly awaitingReply?: number;
+            /** Format: int32 */
+            readonly unread?: number;
         };
         /**
          * Format: date-time
@@ -4509,6 +4647,11 @@ export interface components {
         readonly RenameOrganizationRequest: {
             /** @example Barbería Don Pepe */
             readonly name: string;
+        };
+        /** @description The name the team sees for the caller in this organization */
+        readonly RenameOwnMembershipRequest: {
+            /** @example Lucía */
+            readonly displayName: string;
         };
         /** @description Where to email a sign-in code */
         readonly RequestLoginCodeRequest: {
@@ -4687,6 +4830,8 @@ export type DailyUsage = components['schemas']['DailyUsage'];
 export type Establishment = components['schemas']['Establishment'];
 export type EstablishmentDetailsRequest = components['schemas']['EstablishmentDetailsRequest'];
 export type InboxChange = components['schemas']['InboxChange'];
+export type InboxConversationSummary = components['schemas']['InboxConversationSummary'];
+export type InboxSummary = components['schemas']['InboxSummary'];
 export type Instant = components['schemas']['Instant'];
 export type InviteMemberRequest = components['schemas']['InviteMemberRequest'];
 export type JoinedOrganization = components['schemas']['JoinedOrganization'];
@@ -4704,6 +4849,7 @@ export type PlanChange = components['schemas']['PlanChange'];
 export type RefreshSessionRequest = components['schemas']['RefreshSessionRequest'];
 export type RegisterCustomerRequest = components['schemas']['RegisterCustomerRequest'];
 export type RenameOrganizationRequest = components['schemas']['RenameOrganizationRequest'];
+export type RenameOwnMembershipRequest = components['schemas']['RenameOwnMembershipRequest'];
 export type RequestLoginCodeRequest = components['schemas']['RequestLoginCodeRequest'];
 export type RescheduleAppointmentRequest = components['schemas']['RescheduleAppointmentRequest'];
 export type SendMessageRequest = components['schemas']['SendMessageRequest'];
