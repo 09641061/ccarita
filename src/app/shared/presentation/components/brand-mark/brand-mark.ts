@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-/** The Takodu mark (764 × 706). It marks only the assistant and is never recolored. */
+/** The Takodu mark (764 × 706). It marks the assistant and the app's name, and is never recolored. */
 const ASPECT = 706 / 764;
 
 /**
- * The assistant's mark: its navigation item, its message signature and the appointments it booked.
+ * The assistant's mark: its settings, its message signature, the appointments it booked, and `Wordmark`.
  * Decorative unless `label` is given.
  */
 @Component({

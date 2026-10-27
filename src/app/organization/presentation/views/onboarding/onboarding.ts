@@ -32,6 +32,7 @@ import {
 import { EstablishmentTeam } from '../../../application/establishment-team.store';
 import { OpeningHoursStore } from '../../../application/opening-hours.store';
 import { SETTINGS_PARAM } from '../../../../shared/presentation/navigation/settings-link';
+import { Wordmark } from '../../../../shared/presentation/components/wordmark/wordmark';
 
 interface CreateModel {
   name: string;
@@ -61,6 +62,7 @@ export interface OnboardingStep {
 @Component({
   selector: 'app-onboarding',
   imports: [
+    Wordmark,
     BusyButton,
     ErrorMessagePipe,
     FormField,

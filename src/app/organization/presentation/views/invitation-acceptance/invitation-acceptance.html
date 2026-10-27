@@ -1,5 +1,5 @@
 <div class="page">
-  <span class="wordmark">{{ 'app.name' | translate }}</span>
+  <app-wordmark class="wordmark" />
   @let email = session.user()?.email;
   @if (failure(); as failure) {
     @if (failure.texts; as texts) {

@@ -6,6 +6,7 @@ import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, map } from 'rxjs';
 import { NavigationItem, activeItem } from './navigation-item';
+import { Wordmark } from '../wordmark/wordmark';
 
 /**
  * The signed-in frame: a navigation drawer from 1024 px, and below that a bottom bar with the same destinations.
@@ -14,7 +15,7 @@ import { NavigationItem, activeItem } from './navigation-item';
  */
 @Component({
   selector: 'app-shell',
-  imports: [MatIconModule, MatListModule, RouterLink, TranslatePipe],
+  imports: [Wordmark, MatIconModule, MatListModule, RouterLink, TranslatePipe],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

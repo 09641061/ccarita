@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SessionStore } from '../../../../iam/public-api';
+import { Wordmark } from '../../../../shared/presentation/components/wordmark/wordmark';
 
 /**
  * The Takodu team's frame: no establishment, role navigation or plan, since an operator works across organizations
@@ -12,11 +13,11 @@ import { SessionStore } from '../../../../iam/public-api';
  */
 @Component({
   selector: 'app-platform-frame',
-  imports: [MatButtonModule, MatIconModule, RouterLink, RouterOutlet, TranslatePipe],
+  imports: [Wordmark, MatButtonModule, MatIconModule, RouterLink, RouterOutlet, TranslatePipe],
   template: `
     <header class="bar">
       <a class="brand" routerLink="/platform">
-        <span class="wordmark">{{ 'app.name' | translate }}</span>
+        <app-wordmark class="wordmark" />
         <span class="tag">{{ 'platform.frame.team' | translate }}</span>
       </a>
       @if (session.user(); as user) {

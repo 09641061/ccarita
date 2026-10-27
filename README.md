@@ -106,7 +106,7 @@ Where pibble's API serves less than a design shows, the design adapts:
 - Cuenta shows the user's email and the name they signed in with, read-only: pibble has no endpoint to edit the user, and member names are changed in Equipo. Devices are "Este dispositivo" or "Otro dispositivo": pibble names no device or browser.
 - An invitation for another email shows only the signed-in email; pibble does not return the invited one.
 
-Defaults for the designs' open questions: the assistant's settings say "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel dialog says "El cliente"; the renewal contact is `renewalContact`, a placeholder; there is no floating assistant button; sign-in shows the "Takodu" wordmark, because the mascot marks only the assistant; a user without an organization sees an explanation and a link to `/primeros-pasos`, where they create one; "Cualquiera" in booking lets pibble choose the least busy member (B17), and in rescheduling it is "Mantener a …"; the desktop calendar grid shows 08:00 to 20:00, widened to fit what it draws.
+Defaults for the designs' open questions: the assistant's settings say "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel dialog says "El cliente"; the renewal contact is `renewalContact`, a placeholder; there is no floating assistant button; every screen that names the app shows the mark before "Takodu" (`Wordmark`); a user without an organization sees an explanation and a link to `/primeros-pasos`, where they create one; "Cualquiera" in booking lets pibble choose the least busy member (B17), and in rescheduling it is "Mantener a …"; the desktop calendar grid shows 08:00 to 20:00, widened to fit what it draws.
 
 ## API contract
 

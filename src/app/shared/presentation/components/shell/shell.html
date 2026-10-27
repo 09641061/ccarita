@@ -1,7 +1,7 @@
 <a class="skip-link" href="#main">{{ 'shared.nav.skip' | translate }}</a>
 
 <aside class="drawer" [attr.aria-label]="'shared.nav.main' | translate">
-  <span class="wordmark">{{ 'app.name' | translate }}</span>
+  <app-wordmark class="wordmark" />
   <ng-content select="[appShellEstablishment]" />
   <mat-nav-list>
     @for (item of navigation(); track item.path) {
