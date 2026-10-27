@@ -45,3 +45,6 @@ Thumbs.db
 
 # Visual checks (scripts/screenshots.mjs)
 /screenshots
+
+# Deployment settings (copy public/config.example.json)
+/public/config.json

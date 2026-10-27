@@ -44,7 +44,7 @@ const TEMPLATES = ['reminder', 'confirmation', 'cancellation'] as const;
 /**
  * Ajustes › WhatsApp and the last step of Primeros pasos, for the owner (03 §5): the line's number, mode, status
  * and template reviews, connecting it through Meta's Embedded Signup (W1, W2) and disconnecting it. Without Takodu's
- * Meta app (`environment.metaSignup`) it says connecting is not set up, and development builds offer a labelled
+ * Meta app (`metaSignup` in `public/config.json`) it says connecting is not set up, and development builds offer a labelled
  * form with the values pibble's dev mode accepts instead. Connecting sends one
  * idempotency key per attempt, reused on a retry after a lost answer; an inactive plan disables it, but not
  * disconnecting (O6).

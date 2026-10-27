@@ -12,7 +12,6 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { environment } from '../../../../../environments/environment';
 import { Avatar } from '../../components/avatar/avatar';
 import { BrandMark } from '../../components/brand-mark/brand-mark';
 import { BusyButton } from '../../components/busy-button/busy-button';
@@ -23,6 +22,7 @@ import { Skeleton } from '../../components/skeleton/skeleton';
 import { StateView } from '../../components/state-view/state-view';
 import { StatusBadge } from '../../components/status-badge/status-badge';
 import { THEME_ROLES } from '../../theme/theme-roles';
+import { RENEWAL_CONTACT } from '../../../application/renewal-contact';
 
 type Scheme = 'system' | 'light' | 'dark';
 
@@ -101,7 +101,7 @@ export class StyleGuide {
   protected readonly deliveries = ['pending', 'sent', 'delivered', 'read', 'failed'] as const;
   protected readonly states = ['empty', 'error', 'offline', 'forbidden', 'notFound'] as const;
   protected readonly planEndedOn = new Date('2026-11-06T17:00:00Z');
-  protected readonly renewalContact = environment.renewalContact;
+  protected readonly renewalContact = inject(RENEWAL_CONTACT);
 
   protected readonly scheme = signal<Scheme>('system');
   protected readonly busy = signal(false);

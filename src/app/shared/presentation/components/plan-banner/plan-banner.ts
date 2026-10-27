@@ -6,7 +6,7 @@ import { ZonedDatePipe } from '../../pipes/zoned-date.pipe';
 /**
  * The fixed notice of an inactive plan (O6, PLAN_INACTIVE). Inputs only: the session shows it on
  * every screen while `planActive()` is false and passes the end date, the establishment's time
- * zone and `environment.renewalContact`.
+ * zone and `RENEWAL_CONTACT`.
  */
 @Component({
   selector: 'app-plan-banner',

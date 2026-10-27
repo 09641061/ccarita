@@ -22,7 +22,7 @@ export class WhatsappLineStore {
     stream: ({ params }) => this.api.forEstablishment(params),
   });
 
-  /** Whether this build can open Meta's Embedded Signup (`environment.metaSignup`). */
+  /** Whether this build can open Meta's Embedded Signup (`metaSignup` in `public/config.json`). */
   readonly signupAvailable = this.signup.available;
 
   /** Opens Meta's window. @throws ApiError `SIGNUP_CANCELLED` when the owner closes it without finishing. */
