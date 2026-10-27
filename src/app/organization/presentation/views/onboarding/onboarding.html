@@ -1,6 +1,6 @@
 <div class="page">
   <header class="top">
-    <span class="wordmark">{{ 'app.name' | translate }}</span>
+    <app-wordmark class="wordmark" />
     @if (organization.selected(); as joined) {
       <span class="muted">· {{ joined.name }}</span>
       <a class="to-calendar" routerLink="/agenda">{{

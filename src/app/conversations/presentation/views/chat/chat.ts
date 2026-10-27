@@ -10,6 +10,7 @@ import {
   effect,
   inject,
   input,
+  linkedSignal,
   signal,
   untracked,
   viewChild,
@@ -161,6 +162,24 @@ export class Chat {
   protected readonly assistantActive = computed(() => {
     const c = this.conversation();
     return !!c && c.assistantState(this.now()).kind === 'active';
+  });
+  /**
+   * The newest message's time when this chat opened; later messages arrived while it was open and enter with
+   * motion. Older pages loaded later are not new.
+   */
+  protected readonly newestAtOpen = linkedSignal<
+    { id: string; messages: readonly Message[] | null },
+    number | null
+  >({
+    source: () => ({
+      id: this.conversationId(),
+      messages: this.store.openedId() === this.conversationId() ? this.store.messages() : null,
+    }),
+    computation: (source, previous) => {
+      if (previous?.value != null && previous.source.id === source.id) return previous.value;
+      if (!source.messages) return null;
+      return Math.max(0, ...source.messages.map((m) => m.occurredAt.getTime()));
+    },
   });
   protected readonly line = computed(() =>
     this.inbox.line.hasValue() ? this.inbox.line.value() : null,

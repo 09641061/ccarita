@@ -13,7 +13,7 @@
     </app-state-view>
   </div>
 } @else if (c && tz && s) {
-  <section class="chat" aria-labelledby="chat-title">
+  <section class="chat tk-chat-wallpaper" aria-labelledby="chat-title">
     <header class="header">
       <a
         matIconButton
@@ -29,6 +29,13 @@
       <div class="titles">
         <h2 id="chat-title">
           {{ name() ?? ('conversations.inbox.deletedCustomer' | translate) }}
+          @if (assistantActive()) {
+            <app-brand-mark
+              class="tako-live"
+              [size]="16"
+              [label]="'conversations.chat.assistant.answering' | translate"
+            />
+          }
         </h2>
         <span class="subtitle">
           @if (c.customerPhone && c.customerName && c.customerName !== c.customerPhone) {
@@ -216,7 +223,7 @@
     }
 
     @if (c.assistantHandedOff) {
-      <div class="handoff" role="status">
+      <div class="handoff" role="status" animate.enter="tk-reveal">
         <mat-icon aria-hidden="true">support_agent</mat-icon>
         <span>
           <strong>{{ 'conversations.chat.handedOff' | translate }}</strong>
@@ -273,6 +280,7 @@
             @for (m of group.messages; track m.id) {
               <app-message-bubble
                 [message]="m"
+                [fresh]="newestAtOpen() !== null && m.occurredAt.getTime() > newestAtOpen()!"
                 [timeZone]="tz"
                 [memberName]="m.sentByMemberId ? names().get(m.sentByMemberId) : undefined"
               >

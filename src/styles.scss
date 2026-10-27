@@ -101,6 +101,8 @@ html {
   --tk-member-4: light-dark(#f3edfb, #2a1c40);
   --tk-member-4-fg: light-dark(#6b3fa0, #c9a8f0);
   --tk-chat-bg: light-dark(#eef4f1, #0e1726);
+  // The chat's doodle wallpaper, drawn through `brand/chat-doodle.svg` as a mask; almost transparent.
+  --tk-chat-doodle: light-dark(rgb(14 122 94 / 0.08), rgb(94 224 186 / 0.06));
   --tk-assistant-gradient: linear-gradient(135deg, #33c19a 0%, #4fc9c0 45%, #a6e9d5 100%);
   --tk-ring: light-dark(#0e7a5e, #5ee0ba);
 
@@ -182,6 +184,23 @@ h3 {
   white-space: nowrap;
 }
 
+// The chat wallpaper: the doodle drawn behind the content, in `--tk-chat-doodle`. A pseudo-element, so it is never
+// selected, read aloud or hit by the pointer; `isolation` keeps it above the element's own background.
+.tk-chat-wallpaper {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--tk-chat-doodle);
+    mask: url('/brand/chat-doodle.svg') 0 0 / 320px 240px repeat;
+    pointer-events: none;
+  }
+}
+
 .tk-muted {
   color: var(--mat-sys-on-surface-variant);
 }
@@ -210,6 +229,20 @@ h3 {
 // Shared enter and leave animations for `animate.enter` / `animate.leave` in templates.
 .tk-enter {
   animation: tk-enter var(--tk-duration-medium) var(--tk-motion-emphasized);
+}
+
+// Text that appears as if written: revealed from the start of the line (the assistant's handoff summary).
+.tk-reveal {
+  animation: tk-reveal 700ms var(--tk-motion-emphasized);
+}
+
+@keyframes tk-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
 }
 
 .tk-leave {

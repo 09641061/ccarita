@@ -12,7 +12,7 @@ Visual design comes from the designs made for Takodu; this skill fixes how they 
 - The designs are in `../ui-reference` (Claude Design exports, outside the repository). Each screen has a base file and an `M3` wrapper: take layout and shape from the M3 version, colors and type from the base `Sistema.dc.html`, never the M3 sheet's generated colors.
 - **pibble's current API wins over the designs.** Build only what `api/openapi.json` serves; an element without backend data is adapted or dropped, never faked, and pibble is not changed for it. The README's roadmap lists the adaptations.
 - Material gives the shape; Takodu gives the colors. The M3 role → token table lives in `$roles` in `src/styles.scss` and `THEME_ROLES`, checked by `pnpm theme:check` and shown at `/dev/ui` ([decision](../../../docs/decisions/implemented/2026-10-23-takodu-tokens-on-m3-roles.md)). Tokens without a role are `--tk-*`: appointment states, warnings, member colors, chat background, assistant gradient, motion.
-- `BrandMark` marks only the assistant (its settings, message signature, the appointments it booked) and is never recolored. Its settings say "Asistente"; its messages sign as "Tako".
+- `BrandMark` marks the assistant (its settings, message signature, the appointments it booked) and the app's name (`Wordmark`), and is never recolored. Its settings say "Asistente"; its messages sign as "Tako".
 - Compare every new screen with its design at 390 × 844 and 1440 × 900, light and dark: `pnpm start`, then `pnpm screenshots`.
 
 ## Components

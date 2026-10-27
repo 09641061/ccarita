@@ -120,7 +120,10 @@ describe('Inbox', () => {
     expect(rows[2]).toContain('ayer');
     expect(rows[2]).toContain('Asistente pausado hasta las 21:15');
     expect(text(host)).toContain('Necesitan a alguien · 1');
-    expect(text(host)).toContain('En vivo');
+    expect(host.querySelector('.live .dot')).not.toBeNull();
+    expect(host.querySelector('.live')?.getAttribute('title')).toBe(
+      'Recibiendo mensajes al instante',
+    );
     expect(host.querySelector('a[href="/mensajes/c-1"]')).not.toBeNull();
 
     await harness.navigateByUrl('/otra');

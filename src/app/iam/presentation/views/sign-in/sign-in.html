@@ -13,7 +13,7 @@
       </button>
     </app-state-view>
   } @else if (step() === 'email') {
-    <span class="wordmark">{{ 'app.name' | translate }}</span>
+    <app-wordmark class="wordmark" />
     <div class="intro">
       <h1>{{ 'iam.signIn.title' | translate }}</h1>
       <p class="tk-muted">{{ 'iam.signIn.lead' | translate }}</p>

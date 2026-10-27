@@ -10,6 +10,7 @@ import { ApiError } from '../../../../shared/domain/model/api-error';
 import { StateView } from '../../../../shared/presentation/components/state-view/state-view';
 import { safeReturnUrl } from '../../../../shared/presentation/navigation/return-url';
 import { CurrentOrganization } from '../../../application/current-organization.store';
+import { Wordmark } from '../../../../shared/presentation/components/wordmark/wordmark';
 
 /**
  * Mapa por rol, "Elegir organización (si hay varias)": with one organization it is selected without asking; with
@@ -18,6 +19,7 @@ import { CurrentOrganization } from '../../../application/current-organization.s
 @Component({
   selector: 'app-organization-picker',
   imports: [
+    Wordmark,
     MatButtonModule,
     MatIconModule,
     MatListModule,

@@ -1,7 +1,7 @@
 <a class="skip-link" href="#main">{{ 'shared.nav.skip' | translate }}</a>
 
 <aside class="drawer" [attr.aria-label]="'shared.nav.main' | translate">
-  <span class="wordmark">{{ 'app.name' | translate }}</span>
+  <app-wordmark class="wordmark" />
   <ng-content select="[appShellEstablishment]" />
   <mat-nav-list>
     @for (item of navigation(); track item.path) {
@@ -12,7 +12,13 @@
         [attr.aria-current]="active() === item.path ? 'page' : null"
       >
         <mat-icon matListItemIcon aria-hidden="true">{{ item.icon }}</mat-icon>
-        <span matListItemTitle>{{ item.label | translate }}</span>
+        <span matListItemTitle
+          >{{ item.label | translate }}
+          @if (attention().has(item.path)) {
+            <span class="attention" aria-hidden="true" animate.enter="tk-enter"></span
+            ><span class="tk-visually-hidden">{{ 'shared.nav.attention' | translate }}</span>
+          }
+        </span>
       </a>
     }
   </mat-nav-list>
@@ -38,8 +44,12 @@
       [attr.aria-current]="active() === item.path ? 'page' : null"
     >
       <span class="indicator"
-        ><mat-icon aria-hidden="true">{{ item.icon }}</mat-icon></span
-      >
+        ><mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+        @if (attention().has(item.path)) {
+          <span class="attention" aria-hidden="true" animate.enter="tk-enter"></span
+          ><span class="tk-visually-hidden">{{ 'shared.nav.attention' | translate }}</span>
+        }
+      </span>
       <span class="label">{{ item.label | translate }}</span>
     </a>
   }

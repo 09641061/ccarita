@@ -83,6 +83,9 @@ export class InboxStore {
     () => (this.conversations() ?? []).filter((c) => c.needsSomeone).length,
   );
 
+  /** A loaded conversation waits for a person (`Conversation.awaitsReply`), for the navigation's dot. */
+  readonly awaitingReply = computed(() => (this.conversations() ?? []).some((c) => c.awaitsReply));
+
   private readonly changes = new Subject<string>();
   private readonly reconnections = new Subject<void>();
   /** The id of each conversation the stream says changed, in the selected establishment. */

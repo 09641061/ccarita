@@ -1,5 +1,5 @@
 <div class="page">
-  <span class="wordmark">{{ 'app.name' | translate }}</span>
+  <app-wordmark class="wordmark" />
   @let organizations = store.organizations();
   @if (loading()) {
     <mat-progress-bar mode="indeterminate" [attr.aria-label]="'shared.state.loading' | translate" />

@@ -61,7 +61,8 @@
       "inbox": "Mensajes",
       "customers": "Clientes",
       "team": "Equipo",
-      "backToCalendar": "Ir al calendario"
+      "backToCalendar": "Ir al calendario",
+      "attention": "hay clientes esperando respuesta"
     },
     "profile": {
       "menu": "Perfil",
@@ -730,7 +731,7 @@
     "inbox": {
       "title": "Mensajes",
       "list": "Conversaciones",
-      "live": "En vivo",
+      "live": "Recibiendo mensajes al instante",
       "offline": "Reconectando… puede que no esté al día",
       "deletedCustomer": "Cliente eliminado",
       "yesterday": "ayer",
@@ -835,7 +836,8 @@
       "assistant": {
         "pause": "Pausar asistente",
         "resume": "Retomar asistente",
-        "resumeHint": "Al retomarlo, el asistente responde desde el próximo mensaje del cliente."
+        "resumeHint": "Al retomarlo, el asistente responde desde el próximo mensaje del cliente.",
+        "answering": "Tako está atendiendo este chat"
       }
     },
     "media": {

@@ -21,6 +21,7 @@ import { safeReturnUrl } from '../../../../shared/presentation/navigation/return
 import { ErrorMessagePipe } from '../../../../shared/presentation/pipes/error-message.pipe';
 import { SessionStore } from '../../../application/session.store';
 import { CodeInput } from '../../components/code-input/code-input';
+import { Wordmark } from '../../../../shared/presentation/components/wordmark/wordmark';
 
 /**
  * Passwordless sign-in (I2, Ingreso con código): the email, then the 6-digit code pibble emails. Afterwards it goes
@@ -29,6 +30,7 @@ import { CodeInput } from '../../components/code-input/code-input';
 @Component({
   selector: 'app-sign-in',
   imports: [
+    Wordmark,
     BusyButton,
     CodeInput,
     ErrorMessagePipe,

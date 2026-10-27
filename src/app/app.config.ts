@@ -5,6 +5,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import {
   ApplicationConfig,
   LOCALE_ID,
+  computed,
   inject,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
@@ -15,9 +16,10 @@ import { provideRouter, withComponentInputBinding, withViewTransitions } from '@
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { routes } from './app.routes';
-import { META_SIGNUP } from './conversations/public-api';
+import { InboxStore, META_SIGNUP } from './conversations/public-api';
 import { PLATFORM_ENTRY, authInterceptor } from './iam/public-api';
 import { OperatorStore } from './platform/public-api';
+import { NAVIGATION_ATTENTION } from './shared/application/navigation-attention';
 import { RENEWAL_CONTACT } from './shared/application/renewal-contact';
 import { RuntimeConfig } from './shared/infrastructure/config/runtime-config';
 import { API_BASE_URL } from './shared/infrastructure/http/api-base-url';
@@ -55,6 +57,15 @@ export const appConfig = (config: RuntimeConfig): ApplicationConfig => ({
     { provide: META_SIGNUP, useValue: config.metaSignup },
     // Cuenta and the organization picker offer /platform to operators; iam and organization cannot import platform.
     { provide: PLATFORM_ENTRY, useFactory: () => ({ visible: inject(OperatorStore).isOperator }) },
+    // The shell marks Mensajes while a customer waits; it follows the inbox stream for as long as the app runs.
+    {
+      provide: NAVIGATION_ATTENTION,
+      useFactory: () => {
+        const inbox = inject(InboxStore);
+        inbox.follow();
+        return computed(() => new Set(inbox.awaitingReply() ? ['/mensajes'] : []));
+      },
+    },
     {
       provide: MAT_RIPPLE_GLOBAL_OPTIONS,
       useFactory: (): RippleGlobalOptions => ({

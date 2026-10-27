@@ -11,6 +11,7 @@ import {
 } from '../../../../shared/presentation/components/state-view/state-view';
 import { ErrorMessagePipe } from '../../../../shared/presentation/pipes/error-message.pipe';
 import { CurrentOrganization } from '../../../application/current-organization.store';
+import { Wordmark } from '../../../../shared/presentation/components/wordmark/wordmark';
 
 interface Failure {
   readonly kind: StateKind;
@@ -25,7 +26,7 @@ interface Failure {
  */
 @Component({
   selector: 'app-invitation-acceptance',
-  imports: [BusyButton, ErrorMessagePipe, MatButtonModule, StateView, TranslatePipe],
+  imports: [Wordmark, BusyButton, ErrorMessagePipe, MatButtonModule, StateView, TranslatePipe],
   templateUrl: './invitation-acceptance.html',
   styleUrl: './invitation-acceptance.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

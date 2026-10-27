@@ -114,3 +114,44 @@
     color: inherit;
   }
 }
+
+// A message that arrives while the chat is open rises in; the assistant's sweeps a light across once, and its
+// options follow one after another.
+:host(.fresh) {
+  animation: tk-enter var(--tk-duration-medium) var(--tk-motion-emphasized);
+}
+
+:host(.fresh.assistant) {
+  background-image: linear-gradient(
+    110deg,
+    transparent 35%,
+    color-mix(in srgb, var(--mat-sys-surface-container-lowest) 55%, transparent) 50%,
+    transparent 65%
+  );
+  background-repeat: no-repeat;
+  background-size: 250% 100%;
+  animation:
+    tk-enter var(--tk-duration-medium) var(--tk-motion-emphasized),
+    shimmer 1100ms var(--tk-motion-standard) 150ms both;
+}
+
+:host(.fresh) .choice {
+  animation: tk-enter var(--tk-duration-medium) var(--tk-motion-emphasized) both;
+  animation-delay: calc(250ms + var(--i, 0) * 40ms);
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@keyframes tk-enter {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
