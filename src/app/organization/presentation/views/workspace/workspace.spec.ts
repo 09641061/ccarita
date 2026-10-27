@@ -157,27 +157,27 @@ describe('Workspace', () => {
     expect(select).toHaveBeenCalledWith('est-2');
   });
 
-  it('opens a Claude-like menu: settings, placeholders and sign-out, in groups', async () => {
+  it('opens a Claude-like menu: settings, the plan, placeholders and sign-out, in groups', async () => {
     const { harness, host } = await render('owner');
     const panel = await openMenu(harness, host);
 
     expect(menuText(panel)).toBe(
-      'Luis Ramírezluis@donlucho.pesettingsAjusteshelp Ayuda Prontoworkspace_premium Subir plan Prontoinfo Aprender más ProntologoutCerrar sesión',
+      'Luis Ramírezluis@donlucho.pesettingsAjusteshelp Ayuda Prontoworkspace_premiumSubir planinfo Aprender más ProntologoutCerrar sesión',
     );
     expect(panel.querySelector('a[href="/agenda?ajustes="]')).not.toBeNull();
     const disabled = [...panel.querySelectorAll<HTMLButtonElement>('button[disabled]')];
     expect(disabled.map((b) => b.textContent!.replace(/\s+/g, ' ').trim())).toEqual([
       'help Ayuda Pronto',
-      'workspace_premium Subir plan Pronto',
       'info Aprender más Pronto',
     ]);
+    expect(panel.querySelector('a[href="/agenda?ajustes=facturacion"]')).not.toBeNull();
     // Lines after the header, before Subir plan and Aprender más, and before signing out.
     const groups = [...panel.querySelector('.mat-mdc-menu-content')!.children].map((child) =>
       child.tagName === 'MAT-DIVIDER' ? '|' : child.textContent!.replace(/\s+/g, ' ').trim(),
     );
     expect(groups.join(' ').split(' | ').length).toBe(4);
     expect(groups.indexOf('|', groups.indexOf('help Ayuda Pronto'))).toBe(
-      groups.indexOf('workspace_premium Subir plan Pronto') - 1,
+      groups.indexOf('workspace_premiumSubir plan') - 1,
     );
   });
 

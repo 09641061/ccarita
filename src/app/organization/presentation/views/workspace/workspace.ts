@@ -19,6 +19,7 @@ import { Shell } from '../../../../shared/presentation/components/shell/shell';
 import { SETTINGS_PARAM } from '../../../../shared/presentation/navigation/settings-link';
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
 import { CurrentOrganization } from '../../../application/current-organization.store';
+import { canPerform } from '../../../domain/model/member-role';
 import { EstablishmentTeam } from '../../../application/establishment-team.store';
 import { EstablishmentSwitcher } from '../../components/establishment-switcher/establishment-switcher';
 import { ProfileMenu } from '../../components/profile-menu/profile-menu';
@@ -55,6 +56,9 @@ export class Workspace {
   );
   protected readonly canSwitch = computed(
     () => (this.organization.organizations()?.length ?? 0) > 1,
+  );
+  protected readonly canManagePlan = computed(() =>
+    canPerform(this.organization.role() ?? 'staff', 'editOrganization'),
   );
   /** The name the organization knows the user by; the account's name or email until the members load. */
   protected readonly name = computed(() => {
