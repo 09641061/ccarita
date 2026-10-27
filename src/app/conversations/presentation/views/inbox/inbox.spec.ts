@@ -30,6 +30,7 @@ describe('Inbox', () => {
     return {
       filter,
       streamState: signal<StreamState>('live'),
+      typing: signal<ReadonlyMap<string, Date>>(new Map()),
       firstPage: fakeResource(items ? { items, nextCursor: null } : undefined),
       line: fakeResource<WhatsappLine>(LINE),
       conversations,
@@ -128,6 +129,23 @@ describe('Inbox', () => {
 
     await harness.navigateByUrl('/otra');
     expect(store.stop).toHaveBeenCalled();
+  });
+
+  it('W6: warns when the window closes soon, and shows Tako typing in its row', async () => {
+    const { host } = await render([
+      conversation({ id: 'c-1', windowClosesAt: new Date('2026-10-24T17:59:00Z') }),
+      conversation({ id: 'c-2', windowClosesAt: new Date('2026-10-24T15:20:00Z') }),
+      conversation({ id: 'c-3' }),
+    ]);
+    store.typing.set(new Map([['c-3', NOW]]));
+    TestBed.tick();
+    const rows = [...host.querySelectorAll('app-conversation-row')].map((r) =>
+      r.textContent!.replace(/\s+/g, ' '),
+    );
+    expect(rows[0]).toContain('La ventana se cierra en 2 h');
+    expect(rows[1]).toContain('La ventana se cierra en 20 min');
+    expect(rows[2]).toContain('Tako está escribiendo…');
+    expect(host.querySelectorAll('app-typing-dots')).toHaveLength(1);
   });
 
   it('filters the loaded conversations', async () => {

@@ -308,3 +308,16 @@
     opacity: 0.75;
   }
 }
+
+// The assistant writing: a small bubble on the assistant's side, at the end of the log.
+.typing {
+  display: inline-flex;
+  align-self: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: 18px 18px 4px 18px;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-container-high);
+}

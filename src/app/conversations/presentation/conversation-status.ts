@@ -9,11 +9,14 @@ export interface ConversationStatus {
     | 'pausedManually'
     | 'pausedForHuman'
     | 'windowClosed'
+    | 'windowClosing'
     | 'windowOpen';
   readonly icon: string;
   readonly warning: boolean;
-  /** The time a pause or the window ends, for `pausedForHuman` and `windowOpen`. */
+  /** The time a pause or the window ends, for `pausedForHuman`, `windowClosing` and `windowOpen`. */
   readonly until: Date | null;
+  /** What is left of the window, for `windowClosing`: whole hours, else minutes. */
+  readonly left: { readonly hours: number; readonly minutes: number } | null;
   /** Who paused the assistant, for `pausedManually`. */
   readonly memberId: string | null;
 }
@@ -23,7 +26,7 @@ export interface ConversationStatus {
  * so the line names the state instead.
  */
 export function conversationStatus(conversation: Conversation, now: Date): ConversationStatus {
-  const base = { warning: false, until: null, memberId: null };
+  const base = { warning: false, until: null, memberId: null, left: null };
   if (conversation.customerDeleted) return { ...base, key: 'mediaRemoved', icon: 'folder_off' };
   const assistant = conversation.assistantState(now);
   if (assistant.kind === 'handedOff')
@@ -33,5 +36,19 @@ export function conversationStatus(conversation: Conversation, now: Date): Conve
   if (assistant.kind === 'pausedForHuman')
     return { ...base, key: 'pausedForHuman', icon: 'pause_circle', until: assistant.until };
   if (!conversation.windowOpen(now)) return { ...base, key: 'windowClosed', icon: 'lock_clock' };
+  if (conversation.windowClosingSoon(now)) {
+    const minutes = Math.max(
+      1,
+      Math.ceil((conversation.windowClosesAt!.getTime() - now.getTime()) / 60_000),
+    );
+    return {
+      ...base,
+      key: 'windowClosing',
+      icon: 'timer',
+      warning: true,
+      until: conversation.windowClosesAt,
+      left: { hours: Math.floor(minutes / 60), minutes },
+    };
+  }
   return { ...base, key: 'windowOpen', icon: 'schedule', until: conversation.windowClosesAt };
 }

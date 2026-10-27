@@ -40,7 +40,15 @@ export function messageResource(id = 'm-1', overrides: Record<string, unknown> =
 
 type Fields<T> = Partial<{ -readonly [K in keyof T]: T[K] }>;
 
+/** A `lastInboundAt` without `windowClosesAt` closes the window 24 hours later, as pibble does (W6). */
 export function conversation(overrides: Fields<Conversation> = {}): Conversation {
+  if ('lastInboundAt' in overrides && !('windowClosesAt' in overrides)) {
+    const at = overrides.lastInboundAt;
+    overrides = {
+      ...overrides,
+      windowClosesAt: at ? new Date(at.getTime() + 24 * 60 * 60 * 1000) : null,
+    };
+  }
   const c = new Conversation(
     'c-1',
     'est-1',
@@ -57,6 +65,7 @@ export function conversation(overrides: Fields<Conversation> = {}): Conversation
     null,
     false,
     null,
+    new Date('2026-10-25T14:00:00Z'),
   );
   return Object.assign(c, overrides);
 }

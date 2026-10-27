@@ -54,6 +54,7 @@ const LATER = appointment('confirmed', {
 describe('Chat', () => {
   let store: ReturnType<typeof fakeStore>;
   let line: ReturnType<typeof fakeResource<WhatsappLine>>;
+  const typing = signal<ReadonlyMap<string, Date>>(new Map());
   let upcoming: {
     appointments: ReturnType<typeof fakeResource<readonly Appointment[]>>;
     select: ReturnType<typeof vi.fn>;
@@ -88,6 +89,7 @@ describe('Chat', () => {
     vi.useFakeTimers({ toFake: ['Date'], now: NOW });
     store = fakeStore(c, messages);
     line = fakeResource<WhatsappLine>(LINE);
+    typing.set(new Map());
     upcoming = {
       appointments: fakeResource<readonly Appointment[]>(appointments),
       select: vi.fn(),
@@ -104,7 +106,7 @@ describe('Chat', () => {
           withComponentInputBinding(),
         ),
         { provide: ConversationStore, useValue: store },
-        { provide: InboxStore, useValue: { line } },
+        { provide: InboxStore, useValue: { line, typing } },
         { provide: CurrentOrganization, useValue: { planActive } },
         { provide: CurrentEstablishment, useValue: { timeZone: signal('America/Lima') } },
         {
@@ -213,6 +215,20 @@ describe('Chat', () => {
     const fresh = [...host.querySelectorAll('app-message-bubble.fresh')];
     expect(fresh).toHaveLength(1);
     expect(fresh[0].classList).toContain('assistant');
+  });
+
+  it('shows Tako typing at the end of the chat while the stream says so', async () => {
+    const { host, stable } = await render();
+    expect(host.querySelector('.typing')).toBeNull();
+
+    typing.set(new Map([['c-1', new Date()]]));
+    await stable();
+    expect(host.querySelector('.log .typing app-typing-dots')).not.toBeNull();
+    expect(host.querySelector('[role="status"]')?.textContent).toContain('Tako está escribiendo');
+
+    typing.set(new Map([['c-2', new Date()]]));
+    await stable();
+    expect(host.querySelector('.typing')).toBeNull();
   });
 
   it('retries a lost reply with the same key, and sends the next one with a new key', async () => {

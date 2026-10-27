@@ -292,7 +292,16 @@
           } @empty {
             <p class="day">{{ 'conversations.chat.noMessages' | translate }}</p>
           }
+          @if (typing()) {
+            <div class="typing" animate.enter="tk-enter" animate.leave="tk-leave">
+              <app-brand-mark [size]="16" />
+              <app-typing-dots />
+            </div>
+          }
         </div>
+        <span class="tk-visually-hidden" role="status">{{
+          typing() ? ('conversations.chat.typing' | translate) : ''
+        }}</span>
       } @else {
         <app-skeleton [rows]="4" />
       }

@@ -5,6 +5,7 @@ import {
   Observable,
   Subject,
   Subscription,
+  debounceTime,
   defer,
   firstValueFrom,
   retry,
@@ -15,7 +16,7 @@ import {
 } from 'rxjs';
 import { CurrentEstablishment, CurrentOrganization } from '../../organization/public-api';
 import { Conversation } from '../domain/model/conversation';
-import { InboxChange } from '../domain/model/inbox-change';
+import { AppointmentChange, InboxChange } from '../domain/model/inbox-change';
 import { ConversationsApi } from '../infrastructure/conversations.api';
 import { InboxStreamApi } from '../infrastructure/inbox-stream.api';
 import { WhatsappLineStore } from './whatsapp-line.store';
@@ -23,6 +24,17 @@ import { WhatsappLineStore } from './whatsapp-line.store';
 export const INBOX_PAGE_SIZE = 30;
 /** pibble pings every 25 seconds; a stream silent for this long is reconnected. */
 export const STREAM_SILENCE_MS = 60_000;
+/** A turn that crashed never says it stopped; the typing hint goes out after this long. */
+export const TYPING_TIMEOUT_MS = 60_000;
+/** Bursts of changes ask pibble for the inbox's counts once. */
+export const SUMMARY_DEBOUNCE_MS = 1_000;
+
+/** An appointment that booking changed, from the inbox stream. */
+export interface AppointmentEvent {
+  readonly appointmentId: string;
+  readonly establishmentId: string;
+  readonly change: AppointmentChange;
+}
 const MAX_BACKOFF_MS = 30_000;
 
 /** Filters over the loaded conversations; pibble filters none. */
@@ -43,8 +55,10 @@ export function reconnectDelay(attempt: number): number {
 
 /**
  * Mensajes: the selected establishment's conversations, newest activity first (W7), a page at a time, kept current
- * by the inbox stream. A change reloads that conversation; a reconnection reloads the first page, since changes
- * may have been missed meanwhile. The stream runs while a screen follows it, with the selected organization.
+ * by the inbox stream. A change updates its row from the summary the stream carries, and loads the conversation
+ * only when it is not in the list; a reconnection reloads the first page, since changes may have been missed
+ * meanwhile. The stream also says when the assistant is typing and when appointments change. It runs while a
+ * screen follows it, with the selected organization.
  */
 @Injectable({ providedIn: 'root' })
 export class InboxStore {
@@ -83,8 +97,31 @@ export class InboxStore {
     () => (this.conversations() ?? []).filter((c) => c.needsSomeone).length,
   );
 
-  /** A loaded conversation waits for a person (`Conversation.awaitsReply`), for the navigation's dot. */
-  readonly awaitingReply = computed(() => (this.conversations() ?? []).some((c) => c.awaitsReply));
+  /** pibble's counts over the whole inbox, refreshed after changes. */
+  readonly summary = rxResource({
+    params: () => this.establishment.id() ?? undefined,
+    stream: ({ params }) => this.api.summary(params),
+  });
+
+  /**
+   * Some chat waits for a person, for the navigation's dot: pibble's count of the whole inbox, or the loaded pages
+   * (`Conversation.awaitsReply`) until it answers.
+   */
+  readonly awaitingReply = computed(() =>
+    this.summary.hasValue()
+      ? this.summary.value().awaitingReply > 0
+      : (this.conversations() ?? []).some((c) => c.awaitsReply),
+  );
+
+  /** When the assistant started answering each conversation, while it is (A5). */
+  readonly typing = signal<ReadonlyMap<string, Date>>(new Map());
+  private readonly typingTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+  private readonly appointmentChanges = new Subject<AppointmentEvent>();
+  /** Appointments booking changed in the establishments the member sees. */
+  readonly appointmentChanged$: Observable<AppointmentEvent> =
+    this.appointmentChanges.asObservable();
+  private readonly summaryRequests = new Subject<void>();
 
   private readonly changes = new Subject<string>();
   private readonly reconnections = new Subject<void>();
@@ -98,6 +135,12 @@ export class InboxStore {
   private readonly organizationId$ = toObservable(
     computed(() => this.organization.selected()?.id ?? null),
   );
+
+  constructor() {
+    this.summaryRequests
+      .pipe(debounceTime(SUMMARY_DEBOUNCE_MS))
+      .subscribe(() => this.summary.reload());
+  }
 
   /**
    * Starts following the inbox stream, for as long as the returned function is not called. The stream restarts
@@ -171,6 +214,7 @@ export class InboxStore {
         next: (change) => {
           if (change.type !== 'ping' || this.streamState() === 'live') return;
           this.streamState.set('live');
+          this.summaryRequests.next();
           if (dropped) {
             this.firstPage.reload();
             this.reconnections.next();
@@ -186,13 +230,47 @@ export class InboxStore {
   }
 
   private apply(change: InboxChange): void {
-    if (change.type !== 'conversation' || change.establishmentId !== this.establishment.id())
+    if (change.type === 'ping') return;
+    if (change.type === 'appointment') {
+      this.appointmentChanges.next(change);
       return;
+    }
+    if (change.establishmentId !== this.establishment.id()) return;
+    if (change.type === 'assistant') {
+      this.setTyping(change.conversationId, change.typing);
+      return;
+    }
     this.changes.next(change.conversationId);
+    this.summaryRequests.next();
+    const summary = change.summary;
+    if (summary && summary.lastMessageAt > (summary.lastInboundAt ?? new Date(0)))
+      this.setTyping(change.conversationId, false);
+    const loaded = this.conversations()?.find((c) => c.id === change.conversationId);
+    if (loaded && summary) {
+      this.upsert(loaded.withSummary(summary));
+      return;
+    }
     this.api.get(change.conversationId).subscribe({
       next: (conversation) => this.upsert(conversation),
       error: () => undefined,
     });
+  }
+
+  /** Someone wrote after the customer, or the turn ended, or it never said so in time. */
+  private setTyping(conversationId: string, typing: boolean): void {
+    clearTimeout(this.typingTimers.get(conversationId));
+    this.typingTimers.delete(conversationId);
+    const next = new Map(this.typing());
+    if (typing) {
+      next.set(conversationId, new Date());
+      this.typingTimers.set(
+        conversationId,
+        setTimeout(() => this.setTyping(conversationId, false), TYPING_TIMEOUT_MS),
+      );
+    } else if (!next.delete(conversationId)) {
+      return;
+    }
+    this.typing.set(next);
   }
 
   private matches(conversation: Conversation, filter: InboxFilter): boolean {

@@ -736,6 +736,7 @@
       "title": "Mensajes",
       "list": "Conversaciones",
       "live": "Recibiendo mensajes al instante",
+      "typing": "Tako está escribiendo…",
       "offline": "Reconectando… puede que no esté al día",
       "deletedCustomer": "Cliente eliminado",
       "yesterday": "ayer",
@@ -779,10 +780,13 @@
       "pausedManually": "Asistente pausado",
       "pausedForHuman": "Asistente pausado hasta las {{time}}",
       "windowClosed": "Ventana de 24 h cerrada",
+      "windowClosingHours": "La ventana se cierra en {{hours}} h",
+      "windowClosingMinutes": "La ventana se cierra en {{minutes}} min",
       "windowOpen": "Puedes escribirle hasta el {{time}}"
     },
     "chat": {
       "back": "Volver a Mensajes",
+      "typing": "Tako está escribiendo…",
       "profile": "Ver perfil del cliente",
       "book": "Reservar cita",
       "assignedTo": "Asignada a {{name}}",

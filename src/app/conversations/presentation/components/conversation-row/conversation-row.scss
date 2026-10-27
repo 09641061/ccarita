@@ -118,6 +118,11 @@
   }
 }
 
+.status.typing {
+  color: var(--mat-sys-primary);
+  font-weight: 500;
+}
+
 .status-text {
   overflow: hidden;
   text-overflow: ellipsis;
