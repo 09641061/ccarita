@@ -19,6 +19,7 @@ import { routes } from './app.routes';
 import { InboxStore, META_SIGNUP } from './conversations/public-api';
 import { PLATFORM_ENTRY, authInterceptor } from './iam/public-api';
 import { OperatorStore } from './platform/public-api';
+import { APPOINTMENT_CHANGES } from './shared/application/appointment-changes';
 import { NAVIGATION_ATTENTION } from './shared/application/navigation-attention';
 import { RENEWAL_CONTACT } from './shared/application/renewal-contact';
 import { RuntimeConfig } from './shared/infrastructure/config/runtime-config';
@@ -66,6 +67,8 @@ export const appConfig = (config: RuntimeConfig): ApplicationConfig => ({
         return computed(() => new Set(inbox.awaitingReply() ? ['/mensajes'] : []));
       },
     },
+    // Open calendars reload when booking changes an appointment; the inbox stream carries the change.
+    { provide: APPOINTMENT_CHANGES, useFactory: () => inject(InboxStore).appointmentChanged$ },
     {
       provide: MAT_RIPPLE_GLOBAL_OPTIONS,
       useFactory: (): RippleGlobalOptions => ({

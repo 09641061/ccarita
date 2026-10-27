@@ -1,12 +1,13 @@
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
-import { firstValueFrom, of } from 'rxjs';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, filter, firstValueFrom, of } from 'rxjs';
 import { CustomerDirectory } from '../../customers/public-api';
 import {
   CurrentEstablishment,
   CurrentOrganization,
   EstablishmentTeam,
 } from '../../organization/public-api';
+import { APPOINTMENT_CHANGES } from '../../shared/application/appointment-changes';
 import { ApiError } from '../../shared/domain/model/api-error';
 import { LocalDate } from '../../shared/domain/model/local-date';
 import { Appointment, CancelAppointment, StatusChange } from '../domain/model/appointment';
@@ -15,10 +16,14 @@ import { CreateTimeBlock, TimeBlock } from '../domain/model/time-block';
 import { AppointmentsApi } from '../infrastructure/appointments.api';
 import { TimeBlocksApi } from '../infrastructure/time-blocks.api';
 
+/** A burst of appointment changes reloads the calendar once. */
+export const CHANGE_DEBOUNCE_MS = 500;
+
 /**
  * The calendar of the selected establishment: one day or one week, everyone or one member, in the establishment's
  * time zone. Appointments and time blocks reload when the establishment or the range changes and after each
- * command; the customers they name are read through `CustomerDirectory`.
+ * command, and when the inbox stream says booking changed one here (the assistant booked it, or another member);
+ * the customers they name are read through `CustomerDirectory`.
  */
 @Injectable({ providedIn: 'root' })
 export class CalendarStore {
@@ -106,6 +111,13 @@ export class CalendarStore {
   readonly managesEveryone = computed(() => this.organization.can('manageEveryonesCalendar'));
 
   constructor() {
+    inject(APPOINTMENT_CHANGES)
+      .pipe(
+        filter((change) => change.establishmentId === this.establishment.id()),
+        debounceTime(CHANGE_DEBOUNCE_MS),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.appointments.reload());
     effect(() => {
       const customerIds = this.appointments.value().map((a) => a.customerId);
       const opened = this.opened.hasValue() ? this.opened.value() : null;

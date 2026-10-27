@@ -83,6 +83,8 @@ export class Calendar {
     { initialValue: false },
   );
   protected readonly detailOpen = signal(false);
+  /** Appointments the assistant books after this enter with motion; earlier ones are already known. */
+  private readonly openedAt = new Date();
   /** The current time, for the now line; refreshed every minute. */
   protected readonly now = signal(new Date());
 
@@ -103,6 +105,7 @@ export class Calendar {
     customers: this.directory.customers(),
     conflicts: this.store.conflicts(),
     canManage: (block) => this.store.canManage(block),
+    freshSince: this.openedAt,
   }));
 
   protected readonly agenda = computed<AgendaDay[]>(() => {

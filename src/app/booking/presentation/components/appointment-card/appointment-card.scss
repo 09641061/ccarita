@@ -103,3 +103,21 @@
     font-size: 16px;
   }
 }
+
+// The assistant just booked it: it enters, then a glow in the assistant's gradient fades once.
+:host(.fresh) {
+  animation:
+    tk-enter var(--tk-duration-medium) var(--tk-motion-emphasized) both,
+    tako-booked 1600ms var(--tk-motion-standard) 1;
+}
+
+@keyframes tako-booked {
+  0%,
+  30% {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mat-sys-primary) 45%, transparent);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}

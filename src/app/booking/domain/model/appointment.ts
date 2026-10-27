@@ -23,7 +23,14 @@ export class Appointment {
     readonly source: 'staff' | 'assistant',
     readonly cancelReason: string | null = null,
     readonly cancelledBy: CancelledBy | null = null,
+    /** When it was booked; `null` when pibble did not say. */
+    readonly createdAt: Date | null = null,
   ) {}
+
+  /** The assistant booked it after `since`, such as while the calendar was open (A5). */
+  bookedByAssistantSince(since: Date): boolean {
+    return this.source === 'assistant' && this.createdAt !== null && this.createdAt > since;
+  }
 
   /** B10: completed, cancelled and no-show are final. */
   get isFinal(): boolean {

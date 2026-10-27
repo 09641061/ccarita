@@ -15,7 +15,12 @@ import { LocalDate } from '../../shared/domain/model/local-date';
 import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
 import { apiErrorInterceptor } from '../../shared/infrastructure/http/api-error.interceptor';
 import { idempotencyInterceptor } from '../../shared/infrastructure/http/idempotency';
-import { CalendarStore } from './calendar.store';
+import { Subject } from 'rxjs';
+import {
+  APPOINTMENT_CHANGES,
+  AppointmentChangeNotice,
+} from '../../shared/application/appointment-changes';
+import { CHANGE_DEBOUNCE_MS, CalendarStore } from './calendar.store';
 
 const API = 'http://api.test';
 const FRIDAY = LocalDate.parse('2026-10-23');
@@ -25,6 +30,7 @@ describe('CalendarStore', () => {
   let store: CalendarStore;
   const establishmentId = signal<string | null>('est-1');
   const want = vi.fn();
+  let changes: Subject<AppointmentChangeNotice>;
   const members = signal([
     new Member('m-1', 'luis@example.com', 'Luis', 'owner', true, 'active', []),
     new Member('m-2', 'joel@example.com', 'Joel', 'staff', true, 'active', ['est-1']),
@@ -33,6 +39,7 @@ describe('CalendarStore', () => {
   beforeEach(() => {
     establishmentId.set('est-1');
     want.mockReset();
+    changes = new Subject();
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([idempotencyInterceptor, apiErrorInterceptor])),
@@ -48,6 +55,7 @@ describe('CalendarStore', () => {
         },
         { provide: EstablishmentTeam, useValue: { bookable: members } },
         { provide: CustomerDirectory, useValue: { want } },
+        { provide: APPOINTMENT_CHANGES, useValue: changes },
       ],
     });
     backend = TestBed.inject(HttpTestingController);
@@ -75,6 +83,26 @@ describe('CalendarStore', () => {
     requests.blocks.flush(blocks);
     await settle();
   }
+
+  it('reloads the appointments once after a burst of changes in its establishment', async () => {
+    await loadFriday();
+    vi.useFakeTimers();
+    changes.next({ appointmentId: 'a-1', establishmentId: 'est-2' });
+    vi.advanceTimersByTime(CHANGE_DEBOUNCE_MS);
+    TestBed.tick();
+    backend.expectNone((r) => r.url.endsWith('/appointments'));
+
+    changes.next({ appointmentId: 'a-1', establishmentId: 'est-1' });
+    changes.next({ appointmentId: 'a-2', establishmentId: 'est-1' });
+    vi.advanceTimersByTime(CHANGE_DEBOUNCE_MS);
+    vi.useRealTimers();
+    TestBed.tick();
+    backend
+      .expectOne((r) => r.url === `${API}/api/v1/establishments/est-1/appointments`)
+      .flush([appointmentResource('a-2')]);
+    await settle();
+    expect(store.appointments.value().map((a) => a.id)).toEqual(['a-2']);
+  });
 
   it('reads the day in the establishment zone and asks for its customers', async () => {
     await loadFriday([appointmentResource('a-1', { customerId: 'c-7' })]);

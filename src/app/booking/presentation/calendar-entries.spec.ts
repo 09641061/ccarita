@@ -68,4 +68,40 @@ describe('entriesOfDay', () => {
     expect(entry.end.toISOString()).toBe('2026-10-24T05:00:00.000Z');
     expect(entry.kind === 'block' && entry.memberName).toBeNull();
   });
+
+  it('A5: marks fresh only what the assistant booked after the calendar opened', () => {
+    const opened = new Date('2026-10-23T15:00:00Z');
+    const day = LocalDate.parse('2026-10-23');
+    const entries = entriesOfDay(
+      day,
+      LIMA,
+      [
+        appointment('confirmed', {
+          id: 'a-new',
+          source: 'assistant',
+          createdAt: '2026-10-23T15:00:01Z',
+        }),
+        appointment('confirmed', {
+          id: 'a-old',
+          source: 'assistant',
+          createdAt: '2026-10-23T14:00:00Z',
+          start: '2026-10-23T18:00:00Z',
+          end: '2026-10-23T18:45:00Z',
+        }),
+        appointment('confirmed', {
+          id: 'a-staff',
+          createdAt: '2026-10-23T15:30:00Z',
+          start: '2026-10-23T19:00:00Z',
+          end: '2026-10-23T19:45:00Z',
+        }),
+      ],
+      [],
+      { ...sources, freshSince: opened },
+    );
+    expect(entries.map((e) => [e.id, e.kind === 'appointment' && e.fresh])).toEqual([
+      ['a-new', true],
+      ['a-old', false],
+      ['a-staff', false],
+    ]);
+  });
 });
