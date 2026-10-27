@@ -16,6 +16,27 @@ pnpm start          # http://localhost:5173
 
 Sign in with any email: pibble's dev mode prints the 6-digit code in its console.
 
+### Settings per deployment
+
+`public/config.json` (ignored by git; copy `public/config.example.json`) overrides `src/environments/environment.ts` at start-up: `apiBaseUrl`, `renewalContact` (a placeholder until Takodu names the channel) and `metaSignup` (`appId`, `configId`, `graphVersion`). Without `metaSignup`, connecting WhatsApp says it is not set up, and development builds offer a test form against pibble's fake line ([decision](docs/decisions/implemented/2026-10-27-deployment-settings-in-config-json.md)).
+
+### WhatsApp with Meta
+
+Connecting a real number runs Meta's Embedded Signup in coexistence: the owner signs in with Facebook and scans a QR from the WhatsApp Business app. It needs:
+
+1. pibble started with `TAKODU_META_ENABLED=true`, `META_APP_ID`, `META_APP_SECRET`, `META_WEBHOOK_VERIFY_TOKEN` and `TOKEN_ENCRYPTION_KEY`.
+2. A Facebook Login for Business configuration of type WhatsApp Embedded Signup; its id is `metaSignup.configId`.
+3. https for both apps. With Mullvad or another VPN on, run the tunnels outside it:
+
+   ```sh
+   mullvad-exclude cloudflared tunnel --protocol http2 --http-host-header localhost:5173 --url http://127.0.0.1:5173
+   mullvad-exclude cloudflared tunnel --protocol http2 --http-host-header localhost:8080 --url http://127.0.0.1:8080
+   ```
+
+4. pibble restarted with `TAKODU_APP_URL=https://<app tunnel>`, so its CORS admits the app; the app tunnel's domain in the Meta app's App domains and in Facebook Login's allowed domains for the JavaScript SDK; `apiBaseUrl` set to the pibble tunnel; and the webhook `https://<pibble tunnel>/webhooks/whatsapp` with the verify token, subscribed to `messages`.
+
+Each establishment has one line. Quick tunnels get a new domain on every start, so steps 4 repeat.
+
 ## Checks
 
 ```sh
@@ -80,12 +101,12 @@ Where pibble's API serves less than a design shows, the design adapts:
 - Customer search shows the first 20 matches and asks to keep typing when there are more.
 - The profile button and Cuenta show the name the organization knows the user by (the member's, from `/api/v1/members`), since pibble lets nobody edit their account's own name; the email shows inside the menu. Its menu's "Ayuda", "Subir plan" and "Aprender más" are disabled placeholders: Takodu has no help center, self-service payment or learning page yet.
 - The Takodu team area (`/platform`) has no design; it follows Facturación and Equipo. Operators reach it from the profile menu, Cuenta and the organization picker, outside the workspace, and read plan dates in Lima ([decision](docs/decisions/implemented/2026-10-26-takodu-team-area-outside-the-workspace.md)). pibble serves no single organization, so its page comes from the list, and usage shows each establishment's totals with its count of days, not each day.
-- The profile button and Facturación name the plan (`standard` or `max`), and Facturación its end; pibble has no trial flag, so they never say "Prueba gratis", and no self-service payment, so renewing is a message to `environment.renewalContact`.
+- The profile button and Facturación name the plan (`standard` or `max`), and Facturación its end; pibble has no trial flag, so they never say "Prueba gratis", and no self-service payment, so renewing is a message to `renewalContact`; "Subir plan" in the profile menu opens Facturación.
 - Equipo shows "Todos los locales" for owners and managers, whom pibble assigns to none (O13), and states in the establishment's zone. A manager may invite and edit managers and staff, as pibble allows; the page leaves the owner's row to the owner, and nobody changes their own role or removes themselves there, which pibble would allow.
 - Cuenta shows the user's email and the name they signed in with, read-only: pibble has no endpoint to edit the user, and member names are changed in Equipo. Devices are "Este dispositivo" or "Otro dispositivo": pibble names no device or browser.
 - An invitation for another email shows only the signed-in email; pibble does not return the invited one.
 
-Defaults for the designs' open questions: the assistant's settings say "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel dialog says "El cliente"; the renewal contact is `environment.renewalContact`, a placeholder; there is no floating assistant button; sign-in shows the "Takodu" wordmark, because the mascot marks only the assistant; a user without an organization sees an explanation and a link to `/primeros-pasos`, where they create one; "Cualquiera" in booking lets pibble choose the least busy member (B17), and in rescheduling it is "Mantener a …"; the desktop calendar grid shows 08:00 to 20:00, widened to fit what it draws.
+Defaults for the designs' open questions: the assistant's settings say "Asistente" and the chat signs "Tako"; the week view has one column per day; the cancel dialog says "El cliente"; the renewal contact is `renewalContact`, a placeholder; there is no floating assistant button; sign-in shows the "Takodu" wordmark, because the mascot marks only the assistant; a user without an organization sees an explanation and a link to `/primeros-pasos`, where they create one; "Cualquiera" in booking lets pibble choose the least busy member (B17), and in rescheduling it is "Mantener a …"; the desktop calendar grid shows 08:00 to 20:00, widened to fit what it draws.
 
 ## API contract
 
@@ -100,7 +121,7 @@ CI fails when the generated types do not match `api/openapi.json`.
 
 ## Production
 
-`pnpm build` writes a static site to `dist/ccarita/browser`, calling pibble at `apiBaseUrl` in `src/environments/environment.ts`. Serve it from the origin pibble's `APP_URL` names, with every unknown path answered by `index.html`, and a Content Security Policy that allows scripts only from the site itself, plus `https://connect.facebook.net` once `environment.metaSignup` is set.
+`pnpm build` writes a static site to `dist/ccarita/browser`, calling pibble at the `apiBaseUrl` of `public/config.json`, or of `src/environments/environment.ts` without it. Serve it from the origin pibble's `APP_URL` names, with every unknown path answered by `index.html`, and a Content Security Policy that allows scripts only from the site itself, plus `https://connect.facebook.net` once `metaSignup` is set.
 
 ## Local hooks
 

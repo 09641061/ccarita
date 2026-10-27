@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { RENEWAL_CONTACT } from '../../../../shared/application/renewal-contact';
 import { provideSpanish } from '../../../../../testing/provide-spanish';
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
 import { CurrentOrganization } from '../../../application/current-organization.store';
@@ -15,6 +16,7 @@ describe('Billing', () => {
     const details = new Organization('org-1', 'Barbería Don Lucho', 'max', UNTIL);
     TestBed.configureTestingModule({
       providers: [
+        { provide: RENEWAL_CONTACT, useValue: 'renovaciones@takodu.example' },
         provideSpanish(),
         {
           provide: CurrentOrganization,

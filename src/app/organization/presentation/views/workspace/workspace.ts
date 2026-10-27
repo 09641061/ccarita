@@ -12,7 +12,6 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, map } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
 import { PLATFORM_ENTRY, SessionStore } from '../../../../iam/public-api';
 import { PlanBanner } from '../../../../shared/presentation/components/plan-banner/plan-banner';
 import { navigationFor } from '../../../../shared/presentation/components/shell/navigation-item';
@@ -20,10 +19,12 @@ import { Shell } from '../../../../shared/presentation/components/shell/shell';
 import { SETTINGS_PARAM } from '../../../../shared/presentation/navigation/settings-link';
 import { CurrentEstablishment } from '../../../application/current-establishment.store';
 import { CurrentOrganization } from '../../../application/current-organization.store';
+import { canPerform } from '../../../domain/model/member-role';
 import { EstablishmentTeam } from '../../../application/establishment-team.store';
 import { EstablishmentSwitcher } from '../../components/establishment-switcher/establishment-switcher';
 import { ProfileMenu } from '../../components/profile-menu/profile-menu';
 import { SettingsCenter } from '../settings-center/settings-center';
+import { RENEWAL_CONTACT } from '../../../../shared/application/renewal-contact';
 
 /**
  * The signed-in frame: `Shell` with the destinations of the member's role, the establishment switcher, the profile
@@ -48,13 +49,16 @@ export class Workspace {
   protected readonly establishment = inject(CurrentEstablishment);
   protected readonly platform = inject(PLATFORM_ENTRY);
   private readonly team = inject(EstablishmentTeam);
-  protected readonly renewalContact = environment.renewalContact;
+  protected readonly renewalContact = inject(RENEWAL_CONTACT);
 
   protected readonly navigation = computed(() =>
     navigationFor(this.organization.role() ?? 'staff'),
   );
   protected readonly canSwitch = computed(
     () => (this.organization.organizations()?.length ?? 0) > 1,
+  );
+  protected readonly canManagePlan = computed(() =>
+    canPerform(this.organization.role() ?? 'staff', 'editOrganization'),
   );
   /** The name the organization knows the user by; the account's name or email until the members load. */
   protected readonly name = computed(() => {

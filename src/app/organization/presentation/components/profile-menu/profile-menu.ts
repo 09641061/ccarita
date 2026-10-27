@@ -11,7 +11,8 @@ import { PlanKind } from '../../../domain/model/organization';
 /**
  * The profile button at the foot of the drawer, Claude-like: the user's name and, after a dot, the organization's
  * plan. Its menu opens the settings center, another organization or the Takodu team's area when they apply, and
- * signs out; "Ayuda", "Subir plan" and "Aprender más" are placeholders until Takodu has them. Lines separate who
+ * signs out. "Subir plan" opens Facturación for whoever manages the plan; "Ayuda" and "Aprender más" are
+ * placeholders until Takodu has them. Lines separate who
  * you are, where to go, Takodu's offer and signing out. `compact` shows only
  * the avatar, for the phone's top bar, with the name and email in the menu.
  */
@@ -39,6 +40,8 @@ export class ProfileMenu {
   readonly plan = input<PlanKind | null>(null);
   /** The user belongs to several organizations. */
   readonly canSwitch = input(false);
+  /** The user may open Facturación (03 §5). */
+  readonly canManagePlan = input(false);
   /** The user is on the Takodu team (`PLATFORM_ENTRY`). */
   readonly platform = input(false);
   readonly compact = input(false);

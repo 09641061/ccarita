@@ -14,11 +14,12 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { META_SIGNUP } from './conversations/public-api';
 import { PLATFORM_ENTRY, authInterceptor } from './iam/public-api';
 import { OperatorStore } from './platform/public-api';
+import { RENEWAL_CONTACT } from './shared/application/renewal-contact';
+import { RuntimeConfig } from './shared/infrastructure/config/runtime-config';
 import { API_BASE_URL } from './shared/infrastructure/http/api-base-url';
 import { apiErrorInterceptor } from './shared/infrastructure/http/api-error.interceptor';
 import { idempotencyInterceptor } from './shared/infrastructure/http/idempotency';
@@ -26,7 +27,8 @@ import { tenantInterceptor } from './shared/infrastructure/tenancy/tenant.interc
 
 registerLocaleData(localeEsPe);
 
-export const appConfig: ApplicationConfig = {
+/** The app's providers, with the deployment's `RuntimeConfig` read before start (`main.ts`). */
+export const appConfig = (config: RuntimeConfig): ApplicationConfig => ({
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideAppInitializer(() => {
@@ -48,8 +50,9 @@ export const appConfig: ApplicationConfig = {
       lang: 'es',
     }),
     { provide: LOCALE_ID, useValue: 'es-PE' },
-    { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
-    { provide: META_SIGNUP, useValue: environment.metaSignup },
+    { provide: API_BASE_URL, useValue: config.apiBaseUrl },
+    { provide: RENEWAL_CONTACT, useValue: config.renewalContact },
+    { provide: META_SIGNUP, useValue: config.metaSignup },
     // Cuenta and the organization picker offer /platform to operators; iam and organization cannot import platform.
     { provide: PLATFORM_ENTRY, useFactory: () => ({ visible: inject(OperatorStore).isOperator }) },
     {
@@ -59,4 +62,4 @@ export const appConfig: ApplicationConfig = {
       }),
     },
   ],
-};
+});

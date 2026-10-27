@@ -1,0 +1,9 @@
+{
+  "apiBaseUrl": "http://localhost:8080",
+  "renewalContact": "renovaciones@takodu.example",
+  "metaSignup": {
+    "appId": "2535119690332450",
+    "configId": "REPLACE_WITH_META_CONFIGURATION_ID",
+    "graphVersion": "v23.0"
+  }
+}
