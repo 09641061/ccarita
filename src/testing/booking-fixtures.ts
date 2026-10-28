@@ -47,6 +47,7 @@ export function appointment(
     staffMemberId: string;
     customerId: string;
     source: 'staff' | 'assistant';
+    createdAt: string | null;
   }> = {},
 ): Appointment {
   const o = {
@@ -56,6 +57,7 @@ export function appointment(
     staffMemberId: 'm-1',
     customerId: 'c-1',
     source: 'staff' as const,
+    createdAt: null as string | null,
     ...overrides,
   };
   return new Appointment(
@@ -69,6 +71,9 @@ export function appointment(
     new Money(3500, 'PEN'),
     status,
     o.source,
+    null,
+    null,
+    o.createdAt ? new Date(o.createdAt) : null,
   );
 }
 

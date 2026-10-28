@@ -7,11 +7,15 @@ import { Avatar } from '../../../../shared/presentation/components/avatar/avatar
 import { ZonedDatePipe } from '../../../../shared/presentation/pipes/zoned-date.pipe';
 import { Conversation } from '../../../domain/model/conversation';
 import { conversationStatus } from '../../conversation-status';
+import { TypingDots } from '../typing-dots/typing-dots';
 
-/** One conversation of the inbox: the customer, the last activity, unread messages and what needs attention. */
+/**
+ * One conversation of the inbox: the customer, the last activity, unread messages and what needs attention, or
+ * that the assistant is writing.
+ */
 @Component({
   selector: 'app-conversation-row',
-  imports: [Avatar, MatIconModule, RouterLink, TranslatePipe, ZonedDatePipe],
+  imports: [Avatar, MatIconModule, RouterLink, TranslatePipe, TypingDots, ZonedDatePipe],
   templateUrl: './conversation-row.html',
   styleUrl: './conversation-row.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,6 +25,8 @@ export class ConversationRow {
   readonly timeZone = input.required<string>();
   readonly now = input.required<Date>();
   readonly selected = input(false);
+  /** The assistant is writing to this customer now (A5). */
+  readonly typing = input(false);
   /** Member names by id, for the assignee and who paused the assistant. */
   readonly memberNames = input<ReadonlyMap<string, string>>(new Map());
 

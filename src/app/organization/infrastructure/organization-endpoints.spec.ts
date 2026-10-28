@@ -318,6 +318,14 @@ describe('organization endpoints', () => {
     put.flush(memberResource('m-1', { role: 'manager', establishmentIds: [] }));
     expect((await updated).role).toBe('manager');
 
+    const renamed = firstValueFrom(api.renameMe('  Lucho '));
+    const me = backend.expectOne(`${API}/api/v1/members/me`);
+    expect(me.request.method).toBe('PUT');
+    expect(me.request.headers.has('Idempotency-Key')).toBe(false);
+    expect(me.request.body).toEqual({ displayName: 'Lucho' });
+    me.flush(memberResource('m-1', { displayName: 'Lucho' }));
+    expect((await renamed).name).toBe('Lucho');
+
     const removed = firstValueFrom(api.remove('m-1'), { defaultValue: undefined });
     const remove = backend.expectOne(`${API}/api/v1/members/m-1`);
     expect(remove.request.method).toBe('DELETE');

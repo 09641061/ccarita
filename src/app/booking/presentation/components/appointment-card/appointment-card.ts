@@ -8,7 +8,8 @@ import { AppointmentEntry } from '../../calendar-entries';
 
 /**
  * One appointment in the calendar: customer, the assistant's mark when it booked it, status as icon and text,
- * service, member, price, and the block it collides with (B15). `compact` is the desktop grid's version.
+ * service, member, price, and the block it collides with (B15). `compact` is the desktop grid's version. One the
+ * assistant booked while the calendar was open enters with a glow in the assistant's colors.
  */
 @Component({
   selector: 'app-appointment-card',
@@ -19,6 +20,7 @@ import { AppointmentEntry } from '../../calendar-entries';
     '[class]': 'entry().appointment.status',
     '[class.compact]': 'compact()',
     '[class.conflict]': 'entry().conflict !== null',
+    '[class.fresh]': 'entry().fresh',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

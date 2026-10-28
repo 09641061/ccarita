@@ -6,10 +6,13 @@ import {
 } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, concat, mergeMap, of, throwError } from 'rxjs';
-import type { InboxChange as InboxChangeResource } from '../../shared/infrastructure/api/pibble.schema';
+import type {
+  InboxChange as InboxChangeResource,
+  InboxConversationSummary as InboxConversationSummaryResource,
+} from '../../shared/infrastructure/api/pibble.schema';
 import { ApiError } from '../../shared/domain/model/api-error';
 import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
-import { InboxChange } from '../domain/model/inbox-change';
+import { AppointmentChange, ConversationSummary, InboxChange } from '../domain/model/inbox-change';
 import { ServerSentEvents } from './server-sent-events';
 
 /**
@@ -52,6 +55,14 @@ export class InboxStreamApi {
   }
 }
 
+const instant = (value: string | undefined) => (value ? new Date(value) : null);
+const APPOINTMENT_CHANGES: Readonly<Record<string, AppointmentChange>> = {
+  appointment_booked: 'booked',
+  appointment_rescheduled: 'rescheduled',
+  appointment_cancelled: 'cancelled',
+};
+
+/** Unknown types and events missing their ids are dropped, so a newer pibble never breaks the stream. */
 function toInboxChange(data: string): InboxChange[] {
   let resource: InboxChangeResource;
   try {
@@ -59,14 +70,39 @@ function toInboxChange(data: string): InboxChange[] {
   } catch {
     return [];
   }
-  if (resource.type === 'ping') return [{ type: 'ping' }];
-  if (resource.type === 'conversation' && resource.conversationId && resource.establishmentId)
+  const { type, conversationId, establishmentId, appointmentId } = resource;
+  if (type === 'ping') return [{ type: 'ping' }];
+  if (!establishmentId) return [];
+  if (type === 'conversation' && conversationId)
     return [
       {
         type: 'conversation',
-        conversationId: resource.conversationId,
-        establishmentId: resource.establishmentId,
+        conversationId,
+        establishmentId,
+        summary: toSummary(resource.conversation),
       },
     ];
+  if ((type === 'assistant_typing' || type === 'assistant_idle') && conversationId)
+    return [
+      { type: 'assistant', conversationId, establishmentId, typing: type === 'assistant_typing' },
+    ];
+  const change = type ? APPOINTMENT_CHANGES[type] : undefined;
+  if (change && appointmentId)
+    return [{ type: 'appointment', appointmentId, establishmentId, change }];
   return [];
+}
+
+function toSummary(
+  resource: InboxConversationSummaryResource | undefined,
+): ConversationSummary | null {
+  if (!resource?.lastMessageAt) return null;
+  return {
+    lastMessageAt: new Date(resource.lastMessageAt),
+    lastInboundAt: instant(resource.lastInboundAt),
+    unreadCount: resource.unreadCount ?? 0,
+    windowClosesAt: instant(resource.windowClosesAt),
+    assistantPausedUntil: instant(resource.assistantPausedUntil),
+    assistantHandedOff: resource.assistantHandedOff ?? false,
+    assistantPausedManually: resource.assistantPausedManually ?? false,
+  };
 }

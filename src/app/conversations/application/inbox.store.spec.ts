@@ -11,10 +11,19 @@ import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
 import { apiErrorInterceptor } from '../../shared/infrastructure/http/api-error.interceptor';
 import { InboxChange } from '../domain/model/inbox-change';
 import { InboxStreamApi } from '../infrastructure/inbox-stream.api';
-import { INBOX_PAGE_SIZE, InboxStore, STREAM_SILENCE_MS, reconnectDelay } from './inbox.store';
+import {
+  AppointmentEvent,
+  INBOX_PAGE_SIZE,
+  InboxStore,
+  STREAM_SILENCE_MS,
+  SUMMARY_DEBOUNCE_MS,
+  TYPING_TIMEOUT_MS,
+  reconnectDelay,
+} from './inbox.store';
 
 const API = 'http://api.test';
 const LIST = `${API}/api/v1/establishments/est-1/conversations`;
+const SUMMARY = `${API}/api/v1/inbox/summary`;
 
 describe('InboxStore', () => {
   let backend: HttpTestingController;
@@ -58,6 +67,7 @@ describe('InboxStore', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    backend.match((r) => r.url === SUMMARY);
     backend.verify();
   });
 
@@ -132,10 +142,20 @@ describe('InboxStore', () => {
     connections[0].next({ type: 'ping' });
     expect(store.streamState()).toBe('live');
 
-    connections[0].next({ type: 'conversation', conversationId: 'c-9', establishmentId: 'est-2' });
+    connections[0].next({
+      type: 'conversation',
+      conversationId: 'c-9',
+      establishmentId: 'est-2',
+      summary: null,
+    });
     backend.expectNone(`${API}/api/v1/conversations/c-9`);
 
-    connections[0].next({ type: 'conversation', conversationId: 'c-2', establishmentId: 'est-1' });
+    connections[0].next({
+      type: 'conversation',
+      conversationId: 'c-2',
+      establishmentId: 'est-1',
+      summary: null,
+    });
     backend
       .expectOne(`${API}/api/v1/conversations/c-2`)
       .flush(
@@ -145,6 +165,129 @@ describe('InboxStore', () => {
     expect(store.conversations()!.map((c) => [c.id, c.unreadCount])).toEqual([
       ['c-2', 5],
       ['c-1', 2],
+    ]);
+  });
+
+  it('updates a loaded row from the stream’s summary without asking pibble', async () => {
+    await flushFirstPage([
+      conversationResource('c-1', { lastMessageAt: '2026-10-24T14:00:00Z' }),
+      conversationResource('c-2', {
+        lastMessageAt: '2026-10-24T13:00:00Z',
+        assistantPausedManually: true,
+        assistantPausedByMemberId: 'm-2',
+      }),
+    ]);
+    store.follow();
+    TestBed.tick();
+    connections[0].next({ type: 'ping' });
+
+    connections[0].next({
+      type: 'conversation',
+      conversationId: 'c-2',
+      establishmentId: 'est-1',
+      summary: {
+        lastMessageAt: new Date('2026-10-24T15:00:00Z'),
+        lastInboundAt: new Date('2026-10-24T15:00:00Z'),
+        unreadCount: 3,
+        windowClosesAt: new Date('2026-10-25T15:00:00Z'),
+        assistantPausedUntil: null,
+        assistantHandedOff: false,
+        assistantPausedManually: false,
+      },
+    });
+
+    backend.expectNone(`${API}/api/v1/conversations/c-2`);
+    const [first] = store.conversations()!;
+    expect([first.id, first.unreadCount, first.awaitsReply]).toEqual(['c-2', 3, true]);
+    expect(first.windowClosesAt).toEqual(new Date('2026-10-25T15:00:00Z'));
+    expect(first.assistantPausedByMemberId).toBeNull();
+    expect(first.customerName).toBe('Rosa Huamán');
+  });
+
+  it('marks Mensajes from pibble’s count of the whole inbox, asked again after changes', async () => {
+    await flushFirstPage([conversationResource('c-1', { unreadCount: 0 })]);
+    const summary = backend.expectOne((r) => r.url === SUMMARY);
+    expect(summary.request.params.get('establishmentId')).toBe('est-1');
+    summary.flush({ awaitingReply: 1, unread: 4 });
+    await settle();
+    expect(store.awaitingReply()).toBe(true);
+
+    vi.useFakeTimers();
+    store.follow();
+    TestBed.tick();
+    connections[0].next({ type: 'ping' });
+    for (const id of ['c-1', 'c-1', 'c-1'])
+      connections[0].next({
+        type: 'conversation',
+        conversationId: id,
+        establishmentId: 'est-1',
+        summary: null,
+      });
+    backend.match(`${API}/api/v1/conversations/c-1`);
+    vi.advanceTimersByTime(SUMMARY_DEBOUNCE_MS);
+    TestBed.tick();
+    const again = backend.expectOne((r) => r.url === SUMMARY);
+    vi.useRealTimers();
+    again.flush({ awaitingReply: 0, unread: 0 });
+    await settle();
+    expect(store.awaitingReply()).toBe(false);
+  });
+
+  it('shows the assistant typing until it stops, someone writes after the customer, or a minute passes', async () => {
+    await flushFirstPage([conversationResource('c-1')]);
+    vi.useFakeTimers();
+    store.follow();
+    TestBed.tick();
+    connections[0].next({ type: 'ping' });
+    const typing = (on: boolean, id = 'c-1') =>
+      connections[0].next({
+        type: 'assistant',
+        conversationId: id,
+        establishmentId: 'est-1',
+        typing: on,
+      });
+
+    typing(true);
+    expect(store.typing().has('c-1')).toBe(true);
+    typing(false);
+    expect(store.typing().has('c-1')).toBe(false);
+
+    typing(true);
+    connections[0].next({
+      type: 'conversation',
+      conversationId: 'c-1',
+      establishmentId: 'est-1',
+      summary: {
+        lastMessageAt: new Date('2026-10-24T14:00:05Z'),
+        lastInboundAt: new Date('2026-10-24T14:00:00Z'),
+        unreadCount: 2,
+        windowClosesAt: new Date('2026-10-25T14:00:00Z'),
+        assistantPausedUntil: null,
+        assistantHandedOff: false,
+        assistantPausedManually: false,
+      },
+    });
+    expect(store.typing().has('c-1')).toBe(false);
+
+    typing(true);
+    vi.advanceTimersByTime(TYPING_TIMEOUT_MS);
+    expect(store.typing().has('c-1')).toBe(false);
+  });
+
+  it('passes on appointment changes of every establishment', async () => {
+    await flushFirstPage([]);
+    const seen: AppointmentEvent[] = [];
+    store.appointmentChanged$.subscribe((change) => seen.push(change));
+    store.follow();
+    TestBed.tick();
+    connections[0].next({
+      type: 'appointment',
+      appointmentId: 'a-1',
+      establishmentId: 'est-2',
+      change: 'booked',
+    });
+    expect(seen).toEqual([
+      { type: 'appointment', appointmentId: 'a-1', establishmentId: 'est-2', change: 'booked' },
     ]);
   });
 

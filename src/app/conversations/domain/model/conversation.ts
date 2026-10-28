@@ -1,5 +1,7 @@
-/** W6: free-form messages reach the customer for 24 hours after their last message. */
-export const SERVICE_WINDOW_MS = 24 * 60 * 60 * 1000;
+import { ConversationSummary } from './inbox-change';
+
+/** W6: the list warns once the window closes within this long. */
+export const WINDOW_WARNING_MS = 4 * 60 * 60 * 1000;
 
 /** What the assistant does on a conversation now (A2, A3, A7). */
 export type AssistantState =
@@ -30,11 +32,15 @@ export class Conversation {
     readonly handoffSummary: string | null,
     readonly assistantPausedManually: boolean,
     readonly assistantPausedByMemberId: string | null,
+    /** W6: when free-form messages stop reaching the customer, from pibble; `null` before they ever wrote. */
+    readonly windowClosesAt: Date | null,
   ) {}
 
-  /** W6: when free-form messages stop reaching the customer; `null` before they ever wrote. */
-  get windowClosesAt(): Date | null {
-    return this.lastInboundAt ? new Date(this.lastInboundAt.getTime() + SERVICE_WINDOW_MS) : null;
+  /** W6: the window is open and closes within {@link WINDOW_WARNING_MS}. */
+  windowClosingSoon(now: Date): boolean {
+    return (
+      this.windowOpen(now) && this.windowClosesAt!.getTime() - now.getTime() <= WINDOW_WARNING_MS
+    );
   }
 
   /** W6: staff may write free text until 24 hours after the customer's last message. */
@@ -78,8 +84,21 @@ export class Conversation {
 
   /** The same conversation after it was opened (W8). */
   read(): Conversation {
-    return Object.assign(Object.create(Conversation.prototype) as Conversation, this, {
-      unreadCount: 0,
+    return this.with({ unreadCount: 0 });
+  }
+
+  /** The same conversation with what the stream says changed; who paused it and why stay until a reload. */
+  withSummary(summary: ConversationSummary): Conversation {
+    return this.with({
+      ...summary,
+      handoffSummary: summary.assistantHandedOff ? this.handoffSummary : null,
+      assistantPausedByMemberId: summary.assistantPausedManually
+        ? this.assistantPausedByMemberId
+        : null,
     });
+  }
+
+  private with(fields: Partial<Conversation>): Conversation {
+    return Object.assign(Object.create(Conversation.prototype) as Conversation, this, fields);
   }
 }

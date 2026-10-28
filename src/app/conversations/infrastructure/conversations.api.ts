@@ -5,11 +5,13 @@ import type {
   AssignConversationRequest,
   Conversation as ConversationResource,
   ConversationPage as ConversationPageResource,
+  InboxSummary as InboxSummaryResource,
 } from '../../shared/infrastructure/api/pibble.schema';
 import { API_BASE_URL } from '../../shared/infrastructure/http/api-base-url';
 import { idempotent } from '../../shared/infrastructure/http/idempotency';
 import { Conversation } from '../domain/model/conversation';
 import { ConversationPage } from '../domain/model/conversation-page';
+import { InboxSummary } from '../domain/model/inbox-summary';
 import { toConversation, toConversationPage } from './conversation.assembler';
 
 /** `/api/v1/conversations/{id}` and an establishment's inbox. */
@@ -30,6 +32,20 @@ export class ConversationsApi {
         { params: { ...(cursor ? { cursor } : {}), size } },
       )
       .pipe(map(toConversationPage));
+  }
+
+  /** `GET /api/v1/inbox/summary`: the whole inbox's counts. @throws ApiError `ACCESS_DENIED`. */
+  summary(establishmentId: string): Observable<InboxSummary> {
+    return this.http
+      .get<InboxSummaryResource>(`${this.baseUrl}/api/v1/inbox/summary`, {
+        params: { establishmentId },
+      })
+      .pipe(
+        map((resource) => ({
+          awaitingReply: resource.awaitingReply ?? 0,
+          unread: resource.unread ?? 0,
+        })),
+      );
   }
 
   /** @throws ApiError `CONVERSATION_NOT_FOUND`, `ACCESS_DENIED`. */

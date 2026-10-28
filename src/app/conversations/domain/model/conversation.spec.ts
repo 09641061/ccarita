@@ -4,17 +4,21 @@ import { Conversation } from './conversation';
 const NOW = new Date('2026-10-24T15:00:00Z');
 
 describe('Conversation', () => {
-  it('W6: keeps the window open for 24 hours after the last inbound message', () => {
-    const c = conversation({ lastInboundAt: new Date('2026-10-23T15:00:01Z') });
-    expect(c.windowClosesAt).toEqual(new Date('2026-10-24T15:00:01Z'));
+  it('W6: keeps the window open until the time pibble says it closes', () => {
+    const c = conversation({ windowClosesAt: new Date('2026-10-24T15:00:01Z') });
     expect(c.windowOpen(NOW)).toBe(true);
     expect(c.windowOpen(new Date('2026-10-24T15:00:01Z'))).toBe(false);
   });
 
   it('W6: has no window before the customer ever wrote', () => {
-    const c = conversation({ lastInboundAt: null });
-    expect(c.windowClosesAt).toBeNull();
-    expect(c.windowOpen(NOW)).toBe(false);
+    expect(conversation({ lastInboundAt: null }).windowOpen(NOW)).toBe(false);
+  });
+
+  it('W6: warns once the window closes within four hours', () => {
+    const c = conversation({ windowClosesAt: new Date('2026-10-24T19:00:00Z') });
+    expect(c.windowClosingSoon(NOW)).toBe(true);
+    expect(c.windowClosingSoon(new Date('2026-10-24T14:59:00Z'))).toBe(false);
+    expect(c.windowClosingSoon(new Date('2026-10-24T19:00:00Z'))).toBe(false);
   });
 
   it('allows a reply only in the window, on an active plan, to a customer who exists', () => {

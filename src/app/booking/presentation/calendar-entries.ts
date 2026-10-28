@@ -19,6 +19,8 @@ export interface AppointmentEntry {
   readonly memberIndex: number;
   /** B15: the block it collides with: `whole` for the establishment's, else the member's name. */
   readonly conflict: { readonly whole: boolean; readonly name: string | null } | null;
+  /** The assistant booked it while the calendar was open, so it enters with motion. */
+  readonly fresh: boolean;
 }
 
 /** A time block, cut to the day it is drawn in. */
@@ -42,6 +44,8 @@ export interface EntrySources {
   readonly customers: ReadonlyMap<string, KnownCustomer>;
   readonly conflicts: ReadonlyMap<string, TimeBlock>;
   readonly canManage: (block: TimeBlock) => boolean;
+  /** When the calendar opened; appointments the assistant booked later are fresh. `null` marks none. */
+  readonly freshSince?: Date | null;
 }
 
 export function appointmentEntry(
@@ -69,6 +73,7 @@ export function appointmentEntry(
             : null,
         }
       : null,
+    fresh: !!sources.freshSince && appointment.bookedByAssistantSince(sources.freshSince),
   };
 }
 

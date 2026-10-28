@@ -49,6 +49,7 @@ import { Message } from '../../../domain/model/message';
 import { SendTemplate, templateChoices } from '../../../domain/model/template-choice';
 import { MessageBubble } from '../../components/message-bubble/message-bubble';
 import { TemplatePicker } from '../../components/template-picker/template-picker';
+import { TypingDots } from '../../components/typing-dots/typing-dots';
 import { conversationStatus } from '../../conversation-status';
 import { memberNames } from '../../member-names';
 import { MessageMedia } from '../message-media/message-media';
@@ -102,6 +103,7 @@ interface ActionFailure {
     StateView,
     TemplatePicker,
     TranslatePipe,
+    TypingDots,
     ZonedDatePipe,
   ],
   templateUrl: './chat.html',
@@ -158,6 +160,8 @@ export class Chat {
       .value()
       .filter((member) => member.status === 'active' && member.worksAt(establishmentId));
   });
+  /** The assistant is writing a reply in this chat (A5), from the inbox stream. */
+  protected readonly typing = computed(() => this.inbox.typing().has(this.conversationId()));
   /** A3, A7: pause while the assistant may answer; otherwise resume. */
   protected readonly assistantActive = computed(() => {
     const c = this.conversation();

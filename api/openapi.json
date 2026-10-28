@@ -60,6 +60,9 @@
           "cancelledBy" : {
             "type" : "string",
             "enum" : [ "staff", "customer" ]
+          },
+          "createdAt" : {
+            "$ref" : "#/components/schemas/Instant"
           }
         }
       },
@@ -540,6 +543,52 @@
           },
           "establishmentId" : {
             "$ref" : "#/components/schemas/UUID"
+          },
+          "conversation" : {
+            "$ref" : "#/components/schemas/InboxConversationSummary"
+          },
+          "appointmentId" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        }
+      },
+      "InboxConversationSummary" : {
+        "type" : "object",
+        "properties" : {
+          "lastMessageAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "lastInboundAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "unreadCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "windowClosesAt" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "assistantPausedUntil" : {
+            "$ref" : "#/components/schemas/Instant"
+          },
+          "assistantHandedOff" : {
+            "type" : "boolean"
+          },
+          "assistantPausedManually" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "InboxSummary" : {
+        "type" : "object",
+        "properties" : {
+          "awaitingReply" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "unread" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         }
       },
@@ -944,6 +993,19 @@
           "name" : {
             "type" : "string",
             "examples" : [ "Barbería Don Pepe" ],
+            "pattern" : "\\S",
+            "maxLength" : 120
+          }
+        }
+      },
+      "RenameOwnMembershipRequest" : {
+        "description" : "The name the team sees for the caller in this organization",
+        "type" : "object",
+        "required" : [ "displayName" ],
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "examples" : [ "Lucía" ],
             "pattern" : "\\S",
             "maxLength" : 120
           }
@@ -3153,7 +3215,7 @@
     "/api/v1/inbox/stream" : {
       "get" : {
         "summary" : "Follow the inbox",
-        "description" : "Server-sent events naming each conversation that changed in the establishments the caller sees; the app then reloads it. Reconnect and reload after a drop.",
+        "description" : "Server-sent events for the establishments the caller sees: each conversation that changed, with its summary for the list, when the assistant starts (assistant_typing) and stops (assistant_idle) answering one, and each appointment booked, rescheduled or cancelled (appointment_*), so calendars reload. A ping follows the subscription and repeats every 25 seconds. Reconnect and reload after a drop.",
         "tags" : [ "Inbox" ],
         "responses" : {
           "200" : {
@@ -3165,6 +3227,41 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/inbox/summary" : {
+      "get" : {
+        "summary" : "Count the chats that need someone",
+        "description" : "For the navigation badge: chats awaiting a person (handed off, or unread with nobody writing after the customer) and chats with unread messages, across the whole inbox of the establishment.",
+        "tags" : [ "Inbox" ],
+        "parameters" : [ {
+          "name" : "establishmentId",
+          "in" : "query",
+          "schema" : {
+            "$ref" : "#/components/schemas/UUID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The counts",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InboxSummary"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "establishmentId missing"
+          },
+          "403" : {
+            "description" : "Staff not assigned to the establishment"
+          },
+          "404" : {
+            "description" : "Establishment not in the organization"
           }
         }
       }
@@ -3234,18 +3331,21 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "The file, with the type WhatsApp reported",
+            "description" : "The file, with the type WhatsApp reported; cacheable for a day, with an ETag",
             "content" : {
               "application/json" : {
                 "schema" : { }
               }
             }
           },
+          "304" : {
+            "description" : "If-None-Match matched: the cached file is current"
+          },
           "403" : {
             "description" : "Staff not assigned to its establishment"
           },
           "404" : {
-            "description" : "Message not in the organization, or it carries no media"
+            "description" : "Message not in the organization, or it carries no media; MEDIA_REMOVED once deleted"
           },
           "409" : {
             "description" : "MEDIA_NOT_READY: still being downloaded; try again shortly"
@@ -3320,6 +3420,38 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/members/me" : {
+      "put" : {
+        "summary" : "Rename yourself",
+        "description" : "Any member. Changes the name the team sees for the caller in this organization only; other organizations keep theirs.",
+        "tags" : [ "Members" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RenameOwnMembershipRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Member renamed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Member"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Blank or too long name"
           }
         }
       }

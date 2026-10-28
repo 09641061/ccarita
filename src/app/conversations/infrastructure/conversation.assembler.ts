@@ -25,6 +25,7 @@ export function toConversation(resource: ConversationResource): Conversation {
     resource.handoffSummary ?? null,
     resource.assistantPausedManually ?? false,
     resource.assistantPausedByMemberId ?? null,
+    instant(resource.windowClosesAt),
   );
 }
 

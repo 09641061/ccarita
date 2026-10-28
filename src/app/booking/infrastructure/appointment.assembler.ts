@@ -27,6 +27,7 @@ export function toAppointment(resource: AppointmentResource): Appointment {
     required(resource.source, 'Appointment.source'),
     resource.cancelReason ?? null,
     resource.cancelledBy ?? null,
+    resource.createdAt ? new Date(resource.createdAt) : null,
   );
 }
 

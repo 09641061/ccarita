@@ -86,6 +86,7 @@
                 [timeZone]="tz"
                 [now]="now()"
                 [selected]="chat.openedId() === conversation.id"
+                [typing]="store.typing().has(conversation.id)"
                 [memberNames]="names()"
               />
             </li>
